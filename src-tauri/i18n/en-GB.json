@@ -37,5 +37,6 @@
   "desktop.shortcuts": "Shortcuts",
   "desktop.mouseBack": "Mouse back button",
   "desktop.mouseForward": "Mouse forward button",
-  "desktop.keyboardShortcuts": "Keyboard shortcuts"
+  "desktop.keyboardShortcuts": "Keyboard shortcuts",
+  "desktop.updateAvailable": "Update available: %s"
 }

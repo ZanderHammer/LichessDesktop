@@ -19,6 +19,8 @@ mod shortcuts;
 mod tray;
 #[cfg(test)]
 mod ui_assets;
+#[cfg(desktop)]
+mod update;
 mod zoom;
 
 use tauri::webview::NewWindowResponse;
@@ -49,6 +51,7 @@ fn main() {
 
     builder
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(
             // Visibility and fullscreen are not restored: quitting from the
@@ -75,6 +78,9 @@ fn main() {
             if let Err(err) = tray::init(app.handle()) {
                 eprintln!("failed to create the tray icon: {err}");
             }
+            // After the tray, so a quick result can update its menu.
+            #[cfg(desktop)]
+            update::init(app.handle());
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
             // Set on Linux and Windows when this launch came from a deep link.
