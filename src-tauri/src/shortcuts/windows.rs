@@ -16,8 +16,8 @@ use webview2_com::Microsoft::Web::WebView2::Win32::{
 };
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetKeyState, VIRTUAL_KEY, VK_ADD, VK_CONTROL, VK_F1, VK_F5, VK_F11, VK_HOME, VK_LEFT, VK_MENU,
-    VK_NUMPAD0, VK_OEM_2, VK_OEM_4, VK_OEM_6, VK_OEM_MINUS, VK_OEM_PLUS, VK_RIGHT, VK_SHIFT,
-    VK_SUBTRACT,
+    VK_NUMPAD0, VK_OEM_2, VK_OEM_4, VK_OEM_6, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PLUS, VK_RIGHT,
+    VK_SHIFT, VK_SUBTRACT,
 };
 
 use super::{Key, Mods};
@@ -104,6 +104,8 @@ fn code(key: Key) -> VIRTUAL_KEY {
         Key::F11 => VK_F11,
         // The `/?` key on US layouts.
         Key::Slash => VK_OEM_2,
+        // The `,` key on every layout.
+        Key::Comma => VK_OEM_COMMA,
         Key::BracketLeft => VK_OEM_4,
         Key::BracketRight => VK_OEM_6,
         // The virtual-key codes of A–Z are their ASCII capitals.

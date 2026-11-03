@@ -67,6 +67,7 @@ pub enum Key {
     F5,
     F11,
     Slash,
+    Comma,
     BracketLeft,
     BracketRight,
     /// A letter key, given as an ASCII lowercase letter.
@@ -148,6 +149,9 @@ pub const SHORTCUTS: &[Shortcut] = {
         row(Mods::PRIMARY, K::Kp0, A::ZoomReset, NotMacOs),
         row(Mods::NONE, K::F11, A::Fullscreen, NotMacOs),
         row(Mods::PRIMARY_SHIFT, K::Letter('t'), A::AlwaysOnTop, All),
+        // The settings convention on every platform (macOS: Cmd+, in the
+        // app menu). lichess binds no `,`.
+        row(Mods::PRIMARY, K::Comma, A::OpenSettings, All),
         // lichess binds plain `/` (search), but no modifier with it, nor F1.
         // `/` needs Shift on some layouts (German: Shift+7), so F1 is the
         // layout-independent one.
@@ -201,6 +205,7 @@ pub fn key_caps(shortcut: &Shortcut, macos: bool) -> Vec<String> {
         Key::F5 => "F5".to_owned(),
         Key::F11 => "F11".to_owned(),
         Key::Slash => "/".to_owned(),
+        Key::Comma => ",".to_owned(),
         Key::BracketLeft => "[".to_owned(),
         Key::BracketRight => "]".to_owned(),
         Key::Letter(c) => c.to_ascii_uppercase().to_string(),

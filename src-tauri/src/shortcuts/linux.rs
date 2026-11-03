@@ -74,6 +74,7 @@ fn keyval(key: Key) -> gdk::keys::Key {
         Key::F5 => constants::F5,
         Key::F11 => constants::F11,
         Key::Slash => constants::slash,
+        Key::Comma => constants::comma,
         Key::BracketLeft => constants::bracketleft,
         Key::BracketRight => constants::bracketright,
         Key::Letter(c) => gdk::keys::Key::from_unicode(c),

@@ -73,6 +73,8 @@ actions! {
     Fullscreen => toggle_fullscreen, Fullscreen,
     /// Turns always-on-top on or off for the main window, for this session.
     AlwaysOnTop => toggle_always_on_top, AlwaysOnTop,
+    /// Opens the settings window.
+    OpenSettings => open_settings, SettingsMenu,
     /// Opens the settings window on the Shortcuts tab.
     ShowShortcuts => show_shortcuts, KeyboardShortcuts,
 }
@@ -154,6 +156,12 @@ pub fn toggle_always_on_top<R: Runtime>(app: &AppHandle<R>) {
             .and_then(|always_on_top| window.set_always_on_top(!always_on_top))
     {
         eprintln!("failed to toggle always on top: {err}");
+    }
+}
+
+pub fn open_settings<R: Runtime>(app: &AppHandle<R>) {
+    if let Err(err) = settings_window::open(app) {
+        eprintln!("failed to open the settings window: {err}");
     }
 }
 
