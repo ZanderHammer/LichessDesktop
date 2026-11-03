@@ -9,11 +9,178 @@
 
 use std::collections::HashMap;
 
+use crate::settings::Language;
+
 /// `(tag, json)` for every file in `src-tauri/i18n/`, embedded by `build.rs`.
 const TRANSLATIONS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/translations.rs"));
 
 /// The base language. Its file has every key.
 pub const BASE: &str = "en-GB";
+
+/// Languages lichess offers, as `(lila tag, native name)`, in lichess's
+/// order. Copied from lila `modules/i18n/src/main/LangList.scala` (commit
+/// 5e10b48cc1).
+pub const LANGUAGES: &[(&str, &str)] = &[
+    ("af-ZA", "Afrikaans"),
+    ("so-SO", "Af Soomaali"),
+    ("an-ES", "Aragonés"),
+    ("ast-ES", "Asturianu"),
+    ("az-AZ", "Azərbaycanca"),
+    ("id-ID", "Bahasa Indonesia"),
+    ("bs-BA", "Bosanski"),
+    ("br-FR", "Brezhoneg"),
+    ("ca-ES", "Català, valencià"),
+    ("cs-CZ", "Čeština"),
+    ("co-FR", "Corsu"),
+    ("cy-GB", "Cymraeg"),
+    ("da-DK", "Dansk"),
+    ("de-DE", "Deutsch"),
+    ("et-EE", "Eesti keel"),
+    ("en-GB", "English"),
+    ("en-US", "English (US)"),
+    ("es-ES", "Español"),
+    ("eo-AA", "Esperanto"),
+    ("eu-ES", "Euskara"),
+    ("mg-MG", "Fiteny malagasy"),
+    ("fo-FO", "Føroyskt"),
+    ("fr-FR", "Français"),
+    ("fy-NL", "Frysk"),
+    ("ga-IE", "Gaeilge"),
+    ("gd-GB", "Gàidhlig"),
+    ("gl-ES", "Galego"),
+    ("hr-HR", "Hrvatski"),
+    ("ia-AA", "Interlingua"),
+    ("zu-ZA", "IsiZulu"),
+    ("is-IS", "Íslenska"),
+    ("it-IT", "Italiano"),
+    ("sw-KE", "Kiswahili"),
+    ("kmr-TR", "Kurdî (Kurmancî)"),
+    ("lv-LV", "Latviešu valoda"),
+    ("lb-LU", "Lëtzebuergesch"),
+    ("lt-LT", "Lietuvių kalba"),
+    ("la-VA", "Lingua Latina"),
+    ("jbo-AA", "Lojban"),
+    ("hu-HU", "Magyar"),
+    ("nl-NL", "Nederlands"),
+    ("nb-NO", "Norsk bokmål"),
+    ("nn-NO", "Norsk nynorsk"),
+    ("uz-UZ", "Özbekça"),
+    ("pl-PL", "Polski"),
+    ("pt-PT", "Português"),
+    ("pt-BR", "Português (BR)"),
+    ("ro-RO", "Română"),
+    ("gsw-CH", "Schwizerdütsch"),
+    ("sq-AL", "Shqip"),
+    ("sk-SK", "Slovenčina"),
+    ("sl-SI", "Slovenščina"),
+    ("fi-FI", "Suomen kieli"),
+    ("sv-SE", "Svenska"),
+    ("tl-PH", "Tagalog"),
+    ("kab-DZ", "Taqvaylit"),
+    ("vi-VN", "Tiếng Việt"),
+    ("tok-AA", "Toki pona"),
+    ("tr-TR", "Türkçe"),
+    ("tk-TM", "Türkmençe"),
+    ("el-GR", "Ελληνικά"),
+    ("av-RU", "Авар мацӀ"),
+    ("be-BY", "Беларуская"),
+    ("bg-BG", "Български език"),
+    ("kk-KZ", "Қазақша"),
+    ("mk-MK", "Македонски јази"),
+    ("mn-MN", "Монгол"),
+    ("ry-UA", "Русинська бисїда"),
+    ("ru-RU", "Русский язык"),
+    ("sr-SP", "Српски језик"),
+    ("uk-UA", "Українська"),
+    ("cv-CU", "Чӑваш чӗлхи"),
+    ("ka-GE", "ქართული"),
+    ("hy-AM", "Հայերեն"),
+    ("he-IL", "עִבְרִית"),
+    ("ur-PK", "اُردُو"),
+    ("ar-SA", "العربية"),
+    ("ps-AF", "پښتو"),
+    ("fa-IR", "فارسی"),
+    ("ckb-IR", "کوردی سۆرانی"),
+    ("ne-NP", "नेपाली"),
+    ("pi-IN", "पालि"),
+    ("mr-IN", "मराठी"),
+    ("hi-IN", "हिन्दी, हिंदी"),
+    ("bn-BD", "বাংলা"),
+    ("gu-IN", "ગુજરાતી"),
+    ("ta-IN", "தமிழ்"),
+    ("kn-IN", "ಕನ್ನಡ"),
+    ("ml-IN", "മലയാളം"),
+    ("th-TH", "ไทย"),
+    ("ja-JP", "日本語"),
+    ("ko-KR", "한국어"),
+    ("zh-CN", "简体中文"),
+    ("zh-TW", "繁體中文"),
+];
+
+/// lila's `defaultRegions`: the variant a bare language code stands for.
+const DEFAULT_REGIONS: &[(&str, &str)] = &[
+    ("de", "de-DE"),
+    ("en", "en-US"),
+    ("pt", "pt-BR"),
+    ("zh", "zh-CN"),
+];
+
+/// The UI language: the one chosen in Settings if lichess offers it, else the
+/// first system locale that matches a lichess language, else [`BASE`].
+pub fn resolve(setting: &Language, system: impl IntoIterator<Item = String>) -> &'static str {
+    if let Language::Tag(chosen) = setting
+        && let Some(&(tag, _)) = LANGUAGES.iter().find(|(tag, _)| tag == chosen)
+    {
+        return tag;
+    }
+    system
+        .into_iter()
+        .find_map(|locale| match_locale(&locale))
+        .unwrap_or(BASE)
+}
+
+/// Matches a BCP 47 or POSIX locale (`de-AT`, `de_AT.UTF-8`) to a lichess
+/// language: the same language and region if lichess has it, else lila's
+/// default region for the language, else the first variant of it.
+pub fn match_locale(locale: &str) -> Option<&'static str> {
+    let locale = locale.split(['.', '@']).next().unwrap_or_default();
+    let mut subtags = locale.split(['-', '_']).filter(|s| !s.is_empty());
+    let mut language = subtags.next()?.to_ascii_lowercase();
+    let (mut script, mut region) = (None, None);
+    for subtag in subtags {
+        match subtag.len() {
+            4 if script.is_none() && region.is_none() => script = Some(subtag.to_ascii_lowercase()),
+            2 | 3 if region.is_none() => region = Some(subtag.to_ascii_uppercase()),
+            _ => {}
+        }
+    }
+
+    match language.as_str() {
+        // lichess has Traditional Chinese as zh-TW and Simplified as zh-CN.
+        "zh" => {
+            let traditional = script.as_deref() == Some("hant")
+                || matches!(region.as_deref(), Some("TW" | "HK" | "MO"));
+            return Some(if traditional { "zh-TW" } else { "zh-CN" });
+        }
+        // Norwegian without a written standard means Bokmål.
+        "no" => language = "nb".to_owned(),
+        _ => {}
+    }
+
+    if let Some(region) = &region {
+        let wanted = format!("{language}-{region}");
+        if let Some(&(tag, _)) = LANGUAGES.iter().find(|(tag, _)| *tag == wanted) {
+            return Some(tag);
+        }
+    }
+    if let Some(&(_, tag)) = DEFAULT_REGIONS.iter().find(|(lang, _)| *lang == language) {
+        return Some(tag);
+    }
+    LANGUAGES
+        .iter()
+        .map(|&(tag, _)| tag)
+        .find(|tag| tag.split('-').next() == Some(language.as_str()))
+}
 
 /// Declares [`Key`] and its string ids in one place, so the list the tests
 /// check can't drift from the enum.
@@ -151,5 +318,67 @@ mod tests {
         assert_eq!(Strings::load("he-IL").dir(), "rtl");
         assert_eq!(Strings::load(BASE).dir(), "ltr");
         assert_eq!(Strings::load("de-DE").dir(), "ltr");
+    }
+
+    #[test]
+    fn matches_region_then_default_region_then_any_variant() {
+        assert_eq!(match_locale("de-DE"), Some("de-DE"));
+        assert_eq!(match_locale("de_AT"), Some("de-DE"));
+        assert_eq!(match_locale("de_AT.UTF-8@euro"), Some("de-DE"));
+        assert_eq!(match_locale("pt-PT"), Some("pt-PT"));
+        assert_eq!(match_locale("pt"), Some("pt-BR"));
+        assert_eq!(match_locale("en-GB"), Some("en-GB"));
+        assert_eq!(match_locale("en-AU"), Some("en-US"));
+        assert_eq!(match_locale("fr-CA"), Some("fr-FR"));
+        assert_eq!(match_locale("SV"), Some("sv-SE"));
+    }
+
+    #[test]
+    fn matches_chinese_by_script_and_norwegian_to_bokmal() {
+        assert_eq!(match_locale("zh-Hant-HK"), Some("zh-TW"));
+        assert_eq!(match_locale("zh-TW"), Some("zh-TW"));
+        assert_eq!(match_locale("zh-Hans-SG"), Some("zh-CN"));
+        assert_eq!(match_locale("zh"), Some("zh-CN"));
+        assert_eq!(match_locale("no-NO"), Some("nb-NO"));
+        assert_eq!(match_locale("nn-NO"), Some("nn-NO"));
+    }
+
+    #[test]
+    fn unknown_locales_do_not_match() {
+        for locale in ["", "C", "POSIX", "xx-XX", "-"] {
+            assert_eq!(match_locale(locale), None, "{locale:?}");
+        }
+    }
+
+    #[test]
+    fn resolves_setting_then_system_then_english() {
+        let system = |locales: &[&str]| locales.iter().map(|l| l.to_string()).collect::<Vec<_>>();
+        assert_eq!(
+            resolve(&Language::Tag("fr-FR".into()), system(&["de-DE"])),
+            "fr-FR"
+        );
+        // A tag lichess doesn't offer falls back to the system.
+        assert_eq!(
+            resolve(&Language::Tag("fr".into()), system(&["de-DE"])),
+            "de-DE"
+        );
+        assert_eq!(
+            resolve(&Language::System, system(&["xx", "it-CH", "de"])),
+            "it-IT"
+        );
+        assert_eq!(resolve(&Language::System, system(&["C"])), BASE);
+        assert_eq!(resolve(&Language::System, system(&[])), BASE);
+    }
+
+    #[test]
+    fn language_list_matches_lichess() {
+        assert_eq!(LANGUAGES.len(), 94);
+        assert!(LANGUAGES.iter().any(|&(tag, _)| tag == BASE));
+        for (tag, _) in TRANSLATIONS {
+            assert!(
+                LANGUAGES.iter().any(|(lang, _)| lang == tag),
+                "i18n/{tag}.json is not a lichess language"
+            );
+        }
     }
 }
