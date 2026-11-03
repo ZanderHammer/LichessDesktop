@@ -12,12 +12,14 @@ use tauri::{AppHandle, Manager, Runtime};
 
 use crate::actions::Action;
 use crate::i18n::{self, Key};
+use crate::update;
 
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
 const SETTINGS: &str = "settings";
 const SHORTCUTS: &str = "shortcuts";
 const QUIT: &str = "quit";
+const UPDATE: &str = "update";
 
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
@@ -43,12 +45,12 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     Ok(())
 }
 
-/// The tray menu in the current UI language.
+/// The tray menu in the current UI language. A known update comes first.
 fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     let strings = app.state::<i18n::Current>().get();
     let item =
         |id: &str, key: Key| MenuItem::with_id(app, id, strings.get(key), true, None::<&str>);
-    Menu::with_items(
+    let menu = Menu::with_items(
         app,
         &[
             &item(TOGGLE, Key::ShowHide)?,
@@ -57,10 +59,18 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             &PredefinedMenuItem::separator(app)?,
             &item(QUIT, Key::Quit)?,
         ],
-    )
+    )?;
+    if let Some(update) = update::available(app) {
+        let text = update.text(&strings);
+        menu.prepend_items(&[
+            &MenuItem::with_id(app, UPDATE, text, true, None::<&str>)?,
+            &PredefinedMenuItem::separator(app)?,
+        ])?;
+    }
+    Ok(menu)
 }
 
-/// Rebuilds the menu after a language change.
+/// Rebuilds the menu after a language change or a new update.
 pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     match app.tray_by_id(TRAY_ID) {
         Some(tray) => tray.set_menu(Some(menu(app)?)),
@@ -80,6 +90,7 @@ fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
         SETTINGS => Action::OpenSettings.run(app),
         SHORTCUTS => Action::ShowShortcuts.run(app),
         QUIT => app.exit(0),
+        UPDATE => update::open_release_page(app),
         _ => {}
     }
 }
