@@ -13,6 +13,10 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 - Remembers window size and position
 - No access to native APIs for the web page ([ADR 0005](docs/adr/0005-remote-content-security.md))
 
+## Known limitations
+
+- **Linux (Wayland):** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position; the compositor places windows. On KDE you can use a window rule to remember the position.
+
 ## Install
 
 Download the installer for your platform from [Releases](https://github.com/ZanderHammer/LichessDesktop/releases):
