@@ -1,7 +1,25 @@
 {
   "desktop.showHide": "Show/Hide",
+  "desktop.settingsMenu": "Settings…",
   "desktop.quit": "Quit",
   "desktop.cantReachLichess": "Can't reach lichess.org",
   "desktop.checkConnection": "Check your internet connection and try again.",
-  "desktop.retry": "Retry"
+  "desktop.retry": "Retry",
+  "desktop.settings": "Settings",
+  "desktop.about": "About",
+  "desktop.general": "General",
+  "desktop.closeToTray": "Close to tray",
+  "desktop.closeToTrayHint": "Closing the window keeps Lichess Desktop running in the tray",
+  "desktop.checkForUpdates": "Check for updates",
+  "desktop.language": "Language",
+  "desktop.systemLanguage": "System (%s)",
+  "desktop.notifications": "Notifications",
+  "desktop.notifyYourTurn": "Your turn",
+  "desktop.notifyGameOver": "Game over",
+  "desktop.attention": "Taskbar attention",
+  "desktop.attentionHint": "Flash the taskbar or bounce the Dock when a game needs you",
+  "desktop.unofficial": "Unofficial, not affiliated with Lichess",
+  "desktop.version": "Version %s",
+  "desktop.sourceCode": "Source code",
+  "desktop.license": "License"
 }

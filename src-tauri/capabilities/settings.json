@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings",
+  "description": "The bundled settings/about window (ADR 0012). Event listen/unlisten let the page follow language changes pushed from Rust.",
+  "windows": ["settings"],
+  "permissions": [
+    "allow-get-strings",
+    "allow-get-settings",
+    "allow-set-setting",
+    "allow-get-app-info",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten"
+  ]
+}

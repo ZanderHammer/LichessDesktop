@@ -195,7 +195,6 @@ macro_rules! keys {
         }
 
         impl Key {
-            #[cfg(test)]
             pub const ALL: &[Key] = &[$(Key::$variant,)*];
 
             pub const fn id(self) -> &'static str {
@@ -209,10 +208,28 @@ macro_rules! keys {
 
 keys! {
     ShowHide => "desktop.showHide",
+    SettingsMenu => "desktop.settingsMenu",
     Quit => "desktop.quit",
     CantReachLichess => "desktop.cantReachLichess",
     CheckConnection => "desktop.checkConnection",
     Retry => "desktop.retry",
+    Settings => "desktop.settings",
+    About => "desktop.about",
+    General => "desktop.general",
+    CloseToTray => "desktop.closeToTray",
+    CloseToTrayHint => "desktop.closeToTrayHint",
+    CheckForUpdates => "desktop.checkForUpdates",
+    Language => "desktop.language",
+    SystemLanguage => "desktop.systemLanguage",
+    Notifications => "desktop.notifications",
+    NotifyYourTurn => "desktop.notifyYourTurn",
+    NotifyGameOver => "desktop.notifyGameOver",
+    Attention => "desktop.attention",
+    AttentionHint => "desktop.attentionHint",
+    Unofficial => "desktop.unofficial",
+    Version => "desktop.version",
+    SourceCode => "desktop.sourceCode",
+    License => "desktop.license",
 }
 
 /// Strings of one language, with the base language behind it.
@@ -253,6 +270,14 @@ impl Strings {
         }
     }
 
+    /// Every string by key id, for a bundled page.
+    pub fn all(&self) -> HashMap<&'static str, &str> {
+        Key::ALL
+            .iter()
+            .map(|&key| (key.id(), self.get(key)))
+            .collect()
+    }
+
     /// The string for `key`, from this language or else the base language.
     pub fn get(&self, key: Key) -> &str {
         let id = key.id();
@@ -281,7 +306,6 @@ impl Current {
         )
     }
 
-    #[expect(dead_code, reason = "used by the settings window's language switch")]
     pub fn set(&self, strings: Strings) {
         *self
             .0

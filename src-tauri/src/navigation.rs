@@ -32,6 +32,18 @@ pub fn is_internal(url: &Url) -> bool {
     }
 }
 
+/// Returns `true` if `url` is on the origin of the bundled app pages
+/// (`frontendDist`): `tauri://localhost` on macOS and Linux,
+/// `http://tauri.localhost` on Windows. Bundled windows may show only these.
+pub fn is_bundled(url: &Url) -> bool {
+    let (scheme, host) = if cfg!(windows) {
+        ("http", "tauri.localhost")
+    } else {
+        ("tauri", "localhost")
+    };
+    url.scheme() == scheme && url.host_str() == Some(host) && url.port().is_none()
+}
+
 fn is_allowed_host(host: &str) -> bool {
     host == ALLOWED_HOST
         || host
@@ -82,5 +94,20 @@ mod tests {
         assert!(!is_internal(&url("https://lichess.org.evil.com/")));
         assert!(!is_internal(&url("http://lichess.org/")));
         assert!(!is_internal(&url("mailto:contact@lichess.org")));
+    }
+
+    #[test]
+    fn recognises_only_the_bundled_origin() {
+        if cfg!(windows) {
+            assert!(is_bundled(&url("http://tauri.localhost/settings.html")));
+            assert!(!is_bundled(&url("https://tauri.localhost/settings.html")));
+            assert!(!is_bundled(&url("http://tauri.localhost:8080/")));
+        } else {
+            assert!(is_bundled(&url("tauri://localhost/settings.html")));
+            assert!(!is_bundled(&url("tauri://evil.com/")));
+        }
+        assert!(!is_bundled(&url("https://lichess.org/")));
+        assert!(!is_bundled(&offline::page_url()));
+        assert!(!is_bundled(&url("http://localhost/")));
     }
 }

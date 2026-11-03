@@ -2,9 +2,17 @@ use std::fmt::Write as _;
 use std::path::Path;
 use std::{env, fs};
 
+/// Every app command. Listing them creates the app's ACL manifest, so each
+/// command needs an `allow-<command>` permission in a capability (ADR 0012).
+const COMMANDS: &[&str] = &["get_strings", "get_settings", "set_setting", "get_app_info"];
+
 fn main() {
     embed_translations();
-    tauri_build::build()
+    tauri_build::try_build(
+        tauri_build::Attributes::new()
+            .app_manifest(tauri_build::AppManifest::new().commands(COMMANDS)),
+    )
+    .expect("failed to run tauri-build");
 }
 
 /// Writes `$OUT_DIR/translations.rs`: one `(tag, json)` entry per file in
