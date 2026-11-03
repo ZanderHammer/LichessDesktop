@@ -31,5 +31,6 @@
   "desktop.openInBrowser": "Open in browser",
   "desktop.zoomIn": "Zoom in",
   "desktop.zoomOut": "Zoom out",
-  "desktop.zoomReset": "Reset zoom"
+  "desktop.zoomReset": "Reset zoom",
+  "desktop.fullscreen": "Full screen"
 }
