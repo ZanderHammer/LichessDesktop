@@ -12,6 +12,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 - Links to other sites open in your default browser
 - Remembers window size and position
 - Shows a simple offline page with a Retry link if lichess.org is unreachable at startup ([ADR 0011](docs/adr/0011-offline-page-from-a-startup-probe.md))
+- Opens `lichess-desktop://<path>` links as `https://lichess.org/<path>`, e.g. `lichess-desktop://tv` ([ADR 0013](docs/adr/0013-lichess-desktop-deep-link-scheme.md))
 - No access to native APIs for the web page ([ADR 0005](docs/adr/0005-remote-content-security.md))
 - Does not inject or modify anything on lichess.org: no JavaScript, no CSS, no DOM access — the page is shown exactly as served ([ADR 0008](docs/adr/0008-no-code-injection-into-lichess-org.md))
 
