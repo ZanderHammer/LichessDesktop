@@ -20,7 +20,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 ## Known limitations
 
 - **Linux (Wayland):** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position; the compositor places windows. On KDE you can use a window rule to remember the position.
-- **Linux (GNOME):** the tray icon only appears with the [AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/) (Ubuntu enables it by default). Without it, launch the app again to bring back a window hidden to the tray.
+- **Linux (GNOME):** the tray icon only appears with the [AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/) (Ubuntu enables it by default). Without it there is no tray, and closing the window always quits.
 
 ## Install
 
