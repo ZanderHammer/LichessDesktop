@@ -11,6 +11,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 - lichess.org in its own window
 - Links to other sites open in your default browser
 - Remembers window size and position
+- Tray icon to show, hide or quit the app; closing the window can hide it to the tray instead of quitting (off by default)
 - Shows a simple offline page with a Retry link if lichess.org is unreachable at startup ([ADR 0011](docs/adr/0011-offline-page-from-a-startup-probe.md))
 - Opens `lichess-desktop://<path>` links as `https://lichess.org/<path>`, e.g. `lichess-desktop://tv` ([ADR 0013](docs/adr/0013-lichess-desktop-deep-link-scheme.md))
 - No access to native APIs for the web page ([ADR 0005](docs/adr/0005-remote-content-security.md))
@@ -19,6 +20,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 ## Known limitations
 
 - **Linux (Wayland):** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position; the compositor places windows. On KDE you can use a window rule to remember the position.
+- **Linux (GNOME):** the tray icon only appears with the [AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/) (Ubuntu enables it by default). Without it, launch the app again to bring back a window hidden to the tray.
 
 ## Install
 
