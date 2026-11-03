@@ -11,6 +11,10 @@ const COMMANDS: &[&str] = &[
     "get_app_info",
     "get_shortcuts",
     "settings_ready",
+    "list_actions",
+    "run_action",
+    "palette_ready",
+    "close_palette",
 ];
 
 fn main() {

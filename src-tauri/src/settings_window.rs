@@ -1,13 +1,13 @@
 //! The settings/about window (#15): bundled HTML in `ui/settings.html` with
 //! scoped IPC (ADR 0012). Its capability, `capabilities/settings.json`,
 //! grants exactly the commands below; every command is also listed in
-//! `build.rs`.
+//! `build.rs` and in `crate::invoke_handler`. The palette uses
+//! `get_strings` too.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
-use tauri::ipc::Invoke;
 use tauri::webview::{NewWindowResponse, PageLoadEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
@@ -134,19 +134,6 @@ fn show<R: Runtime>(window: &tauri::Window<R>) {
 #[tauri::command]
 pub fn settings_ready<R: Runtime>(webview: tauri::Webview<R>) {
     show(&webview.window());
-}
-
-/// The handler for every app command. Keep it in step with `COMMANDS` in
-/// `build.rs` and with `capabilities/settings.json`.
-pub fn invoke_handler<R: Runtime>() -> impl Fn(Invoke<R>) -> bool + Send + Sync + 'static {
-    tauri::generate_handler![
-        get_strings,
-        get_settings,
-        set_setting,
-        get_app_info,
-        get_shortcuts,
-        settings_ready
-    ]
 }
 
 /// The strings of the UI language, keyed by id.
@@ -364,7 +351,7 @@ mod tests {
     #[test]
     fn only_the_settings_page_may_call_app_commands() {
         let app = mock_builder()
-            .invoke_handler(invoke_handler::<MockRuntime>())
+            .invoke_handler(crate::invoke_handler::<MockRuntime>())
             .build(crate::context())
             .unwrap();
         app.manage(i18n::Current::new(i18n::Strings::load(i18n::BASE)));

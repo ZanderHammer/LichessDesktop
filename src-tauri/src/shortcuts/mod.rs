@@ -152,6 +152,8 @@ pub const SHORTCUTS: &[Shortcut] = {
         // The settings convention on every platform (macOS: Cmd+, in the
         // app menu). lichess binds no `,`.
         row(Mods::PRIMARY, K::Comma, A::OpenSettings, All),
+        // Free in lichess (ADR 0010).
+        row(Mods::PRIMARY, K::Letter('k'), A::CommandPalette, All),
         // lichess binds plain `/` (search), but no modifier with it, nor F1.
         // `/` needs Shift on some layouts (German: Shift+7), so F1 is the
         // layout-independent one.

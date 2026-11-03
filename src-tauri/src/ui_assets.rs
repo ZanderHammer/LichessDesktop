@@ -21,6 +21,17 @@ fn shared_assets_are_embedded() {
 }
 
 #[test]
+fn palette_assets_are_embedded() {
+    let context = crate::context::<tauri::Wry>();
+    for asset in ["palette.html", "palette.js", "fuzzy.js"] {
+        assert!(
+            context.assets().get(&asset.into()).is_some(),
+            "{asset} is not bundled"
+        );
+    }
+}
+
+#[test]
 fn csp_allows_only_bundled_content_and_ipc() {
     let config = config();
     let csp = config["app"]["security"]["csp"]

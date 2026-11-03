@@ -9,6 +9,8 @@ mod i18n;
 mod native;
 mod navigation;
 mod offline;
+#[cfg(desktop)]
+mod palette;
 #[cfg(test)]
 mod pinned_deps;
 mod settings;
@@ -46,7 +48,7 @@ fn main() {
             .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
                 focus_main_window(app);
             }))
-            .invoke_handler(settings_window::invoke_handler());
+            .invoke_handler(invoke_handler());
     }
 
     builder
@@ -184,6 +186,24 @@ fn main() {
 /// macOS it embeds the Info.plist under a fixed symbol, so tests call this too.
 fn context<R: Runtime>() -> tauri::Context<R> {
     tauri::generate_context!()
+}
+
+/// The handler for every app command. Keep it in step with `COMMANDS` in
+/// `build.rs` and with the capabilities in `capabilities/` (ADR 0012).
+#[cfg(desktop)]
+fn invoke_handler<R: Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send + Sync + 'static {
+    tauri::generate_handler![
+        settings_window::get_strings,
+        settings_window::get_settings,
+        settings_window::set_setting,
+        settings_window::get_app_info,
+        settings_window::get_shortcuts,
+        settings_window::settings_ready,
+        palette::list_actions,
+        palette::run_action,
+        palette::palette_ready,
+        palette::close_palette,
+    ]
 }
 
 /// Brings the main window to the front: unminimizes, shows and focuses it.
