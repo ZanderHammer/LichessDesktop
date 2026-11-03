@@ -11,7 +11,17 @@ const START_URL: &str = "https://lichess.org";
 const MAIN_WINDOW: &str = "main";
 
 fn main() {
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+    // Registered first, as the plugin docs require, so a second launch exits
+    // before other plugins run. Its launch arguments arrive in `_args`.
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            focus_main_window(app);
+        }));
+    }
+
+    builder
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
@@ -48,6 +58,21 @@ fn main() {
         })
         .run(tauri::generate_context!())
         .expect("error while running Lichess Desktop");
+}
+
+/// Brings the main window to the front: unminimizes, shows and focuses it.
+#[cfg(desktop)]
+fn focus_main_window(app: &AppHandle) {
+    let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
+        return;
+    };
+    if let Err(err) = window
+        .unminimize()
+        .and_then(|()| window.show())
+        .and_then(|()| window.set_focus())
+    {
+        eprintln!("failed to focus the main window: {err}");
+    }
 }
 
 fn open_in_browser(app: &AppHandle, url: &Url) {
