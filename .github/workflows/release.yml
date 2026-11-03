@@ -90,8 +90,8 @@ jobs:
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
-        # tauri-cli finds the tray library with pkg-config, adds it to the deb and rpm
-        # dependencies and copies it into the AppImage. Ayatana is the maintained one.
+        # tauri-cli needs an appindicator library for the tray-icon feature: it adds it to
+        # the deb and rpm dependencies and the AppImage. The app itself uses ksni (ADR 0012).
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
