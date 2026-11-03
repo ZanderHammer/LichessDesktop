@@ -406,3 +406,6 @@ button.row {
   .palette-option[aria-selected="true"] { outline: 2px solid Highlight; }
   .row-icon { background: CanvasText; }
 }
+
+/* Pages hide until Rust has sent their strings, so no key ids flash. */
+.loading body { visibility: hidden; }

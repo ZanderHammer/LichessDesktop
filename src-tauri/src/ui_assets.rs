@@ -11,7 +11,7 @@ fn config() -> Value {
 
 #[test]
 fn shared_assets_are_embedded() {
-    let context = crate::context();
+    let context = crate::context::<tauri::Wry>();
     for asset in ["app.css", "ipc.js"] {
         assert!(
             context.assets().get(&asset.into()).is_some(),

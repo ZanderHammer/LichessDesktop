@@ -46,6 +46,19 @@ impl Language {
         }
     }
 
+    /// The stored form: `system` or a language tag.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::System => Self::SYSTEM,
+            Self::Tag(tag) => tag,
+        }
+    }
+
+    /// Parses the stored form; `None` for an empty string.
+    pub fn parse(value: &str) -> Option<Self> {
+        Self::from_value(&Value::from(value))
+    }
+
     fn to_value(&self) -> Value {
         match self {
             Self::System => Self::SYSTEM.into(),
@@ -129,7 +142,6 @@ pub struct SettingsStore<R: Runtime> {
     store: Arc<Store<R>>,
 }
 
-#[expect(dead_code, reason = "written by the upcoming settings UI")]
 impl<R: Runtime> SettingsStore<R> {
     /// Current settings, with defaults for anything missing or invalid.
     pub fn get(&self) -> Settings {

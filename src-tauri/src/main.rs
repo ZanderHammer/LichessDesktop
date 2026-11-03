@@ -9,6 +9,8 @@ mod navigation;
 mod offline;
 mod settings;
 #[cfg(desktop)]
+mod settings_window;
+#[cfg(desktop)]
 mod tray;
 #[cfg(test)]
 mod ui_assets;
@@ -32,9 +34,11 @@ fn main() {
     // deep link in `_args` on to the deep-link plugin when this runs.
     #[cfg(desktop)]
     {
-        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            focus_main_window(app);
-        }));
+        builder = builder
+            .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+                focus_main_window(app);
+            }))
+            .invoke_handler(settings_window::invoke_handler());
     }
 
     builder
@@ -158,7 +162,7 @@ fn main() {
 
 /// The app context. `generate_context!` may only expand once per binary: on
 /// macOS it embeds the Info.plist under a fixed symbol, so tests call this too.
-fn context() -> tauri::Context<Wry> {
+fn context<R: Runtime>() -> tauri::Context<R> {
     tauri::generate_context!()
 }
 
@@ -205,7 +209,7 @@ fn hide_main_window<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-fn open_in_browser(app: &AppHandle, url: &Url) {
+fn open_in_browser<R: Runtime>(app: &AppHandle<R>, url: &Url) {
     if let Err(err) = app.opener().open_url(url.as_str(), None::<&str>) {
         eprintln!("failed to open {url} in the system browser: {err}");
     }

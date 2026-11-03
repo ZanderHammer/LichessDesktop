@@ -14,19 +14,12 @@ use crate::i18n::{self, Key};
 
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
+const SETTINGS: &str = "settings";
 const QUIT: &str = "quit";
 
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
-    let strings = app.state::<i18n::Current>().get();
-    let menu = Menu::with_items(
-        app,
-        &[
-            &MenuItem::with_id(app, TOGGLE, strings.get(Key::ShowHide), true, None::<&str>)?,
-            &PredefinedMenuItem::separator(app)?,
-            &MenuItem::with_id(app, QUIT, strings.get(Key::Quit), true, None::<&str>)?,
-        ],
-    )?;
+    let menu = menu(app)?;
 
     let mut tray = TrayIconBuilder::with_id(TRAY_ID)
         .tooltip("Lichess Desktop")
@@ -48,6 +41,30 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     Ok(())
 }
 
+/// The tray menu in the current UI language.
+fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
+    let strings = app.state::<i18n::Current>().get();
+    let item =
+        |id: &str, key: Key| MenuItem::with_id(app, id, strings.get(key), true, None::<&str>);
+    Menu::with_items(
+        app,
+        &[
+            &item(TOGGLE, Key::ShowHide)?,
+            &item(SETTINGS, Key::SettingsMenu)?,
+            &PredefinedMenuItem::separator(app)?,
+            &item(QUIT, Key::Quit)?,
+        ],
+    )
+}
+
+/// Rebuilds the menu after a language change.
+pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+    match app.tray_by_id(TRAY_ID) {
+        Some(tray) => tray.set_menu(Some(menu(app)?)),
+        None => Ok(()),
+    }
+}
+
 /// Whether the tray icon exists. Without it a hidden window could only come
 /// back through a second launch.
 pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
@@ -57,6 +74,11 @@ pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
 fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     match event.id.as_ref() {
         TOGGLE => toggle_main_window(app),
+        SETTINGS => {
+            if let Err(err) = crate::settings_window::open(app) {
+                eprintln!("failed to open the settings window: {err}");
+            }
+        }
         QUIT => app.exit(0),
         _ => {}
     }
