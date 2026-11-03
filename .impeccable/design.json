@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-03T14:24:05.692868+00:00",
+  "title": "Design System: Lichess Desktop",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "OS Accent",
+        "canonical": "#1c71d8",
+        "tonalRamp": [
+          "#0b2d57",
+          "#103f7b",
+          "#1556a6",
+          "#1c71d8",
+          "#3584e4",
+          "#62a0ea",
+          "#99c1f1",
+          "#d6e6fb"
+        ]
+      },
+      "window-bg": {
+        "role": "neutral",
+        "displayName": "Window Ground",
+        "canonical": "#f6f5f4",
+        "tonalRamp": [
+          "#1e1e20",
+          "#2e2e32",
+          "#3d3d42",
+          "#5e5c64",
+          "#9a9996",
+          "#c0bfbc",
+          "#deddda",
+          "#f6f5f4"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1e1e20"
+      },
+      "danger": {
+        "role": "error",
+        "displayName": "Danger",
+        "canonical": "#c01c28"
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Title",
+        "purpose": "Window headings and palette search text."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Row titles, controls, tabs, section titles."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Subtitles, notes, group labels, key caps."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tab-lift",
+        "value": "0 1px 2px rgb(0 0 0 / 0.12), 0 1px 1px rgb(0 0 0 / 0.06)",
+        "purpose": "Selected segmented tab only."
+      },
+      {
+        "name": "thumb",
+        "value": "0 1px 2px rgb(0 0 0 / 0.25)",
+        "purpose": "Switch thumb only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "160ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Background and thumb transitions on state change; off under reduced motion."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Switch",
+      "kind": "custom",
+      "refersTo": "switch-on",
+      "description": "Native checkbox with role=switch.",
+      "html": "<input type=\"checkbox\" role=\"switch\" class=\"ds-switch\" checked aria-label=\"Your turn\">",
+      "css": ".ds-switch{appearance:none;position:relative;width:44px;height:24px;margin:0;border-radius:12px;background:#87858b;cursor:pointer;transition:background-color 160ms}.ds-switch::before{content:\"\";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(0 0 0/.25);transition:transform 160ms}.ds-switch:checked{background:#1c71d8}.ds-switch:checked::before{transform:translateX(20px)}.ds-switch:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #1c71d8}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action in a view.",
+      "html": "<button class=\"ds-btn-primary\">Open release page</button>",
+      "css": ".ds-btn-primary{min-height:32px;padding:0 12px;border:0;border-radius:6px;background:#1c71d8;color:#fff;font:600 14px/1.4 system-ui,sans-serif;cursor:pointer}.ds-btn-primary:hover{background:#1964be}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #1c71d8}"
+    },
+    {
+      "name": "List Box Row",
+      "kind": "card",
+      "refersTo": "row",
+      "description": "Rounded list box with 48px rows, label start, control end.",
+      "html": "<div class=\"ds-list\"><label class=\"ds-row\"><span>Check for updates</span><input type=\"checkbox\" checked></label><label class=\"ds-row\"><span>Close to tray</span><input type=\"checkbox\"></label></div>",
+      "css": ".ds-list{border:1px solid #deddda;border-radius:12px;background:#fff;overflow:hidden;font:14px/1.4 system-ui,sans-serif;color:#1e1e20}.ds-row{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:8px 16px;cursor:pointer}.ds-row+.ds-row{border-top:1px solid #deddda}.ds-row:hover{background:#f1f0ef}"
+    },
+    {
+      "name": "Segmented Tabs",
+      "kind": "nav",
+      "refersTo": "tabs",
+      "description": "Centred tablist for Settings | About.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button role=\"tab\" aria-selected=\"true\">Settings</button><button role=\"tab\" aria-selected=\"false\">About</button></div>",
+      "css": ".ds-tabs{display:inline-flex;gap:2px;padding:2px;border-radius:8px;background:rgb(30 30 32/.08)}.ds-tabs [role=tab]{min-width:96px;padding:5px 16px;border:0;border-radius:6px;background:transparent;color:#5e5c64;font:600 14px/1.4 system-ui,sans-serif}.ds-tabs [role=tab]:hover{color:#1e1e20}.ds-tabs [aria-selected=true]{background:#fff;color:#1e1e20;box-shadow:0 1px 2px rgb(0 0 0/.12),0 1px 1px rgb(0 0 0/.06)}"
+    },
+    {
+      "name": "Palette Option",
+      "kind": "custom",
+      "refersTo": "palette-option",
+      "description": "Listbox option with right-aligned shortcut.",
+      "html": "<div class=\"ds-opt\" aria-selected=\"true\"><span>Reload</span><span class=\"ds-keys\"><kbd>Ctrl</kbd><kbd>R</kbd></span></div>",
+      "css": ".ds-opt{display:flex;align-items:center;justify-content:space-between;min-height:36px;padding:8px 12px;border-radius:8px;background:#dfe9f8;font:14px/1.4 system-ui,sans-serif;color:#1e1e20}.ds-opt:hover{background:#f1f0ef}.ds-keys{display:inline-flex;gap:4px}.ds-keys kbd{padding:1px 6px;border:1px solid #deddda;border-bottom-width:2px;border-radius:4px;background:#f1f0ef;color:#5e5c64;font:600 13px/1.4 system-ui,sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Native Settings Pane",
+    "overview": "The app's own windows should look like they belong to the operating system, not to lichess and not to a brand. The user chose the category standard on purpose. The quality bar is GNOME Settings (libadwaita) and Windows 11 Settings. A window is opened for a few seconds to change or run one thing, so everything has to be where a desktop user expects it.\n\nDensity is native: 48px rows in rounded list boxes, label on the left, control on the right. One accent colour (the OS accent, for now a native blue) marks what is on, focused or selected, and nothing else. Surfaces are flat. The theme follows the OS (light/dark), and the windows honour forced colours, reduced motion and right-to-left languages.",
+    "keyCharacteristics": [
+      "System UI font only, at three sizes and two weights",
+      "Grouped list boxes with hairline row dividers and no shadows",
+      "One accent, used only for state (on, focus, selection, primary action)",
+      "Logical properties throughout, so RTL works without overrides",
+      "Every control is a native element (checkbox, select, button) styled lightly"
+    ],
+    "rules": [
+      {
+        "name": "The State-Only Accent Rule",
+        "body": "The accent marks on, focused, selected or primary, and is never decoration. If a screen shows accent on something that isn't one of those, it is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fed Accent Rule",
+        "body": "Never hard-code the accent in a component. Use `var(--accent)`, `var(--accent-fg)` and `var(--focus-color)` so the OS colour can flow in from Rust.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Voice Rule",
+        "body": "One family, three sizes. Hierarchy never adds a display face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Box Rule",
+        "body": "A list box never gets a shadow. Its border is its elevation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** build every view from list boxes and rows: label on the inline start, control on the inline end, 48px rows.",
+      "**Do** use native elements (checkbox with `role=\"switch\"`, `select`, `button`, `a`) and style them, so keyboard and screen-reader behaviour stays native.",
+      "**Do** keep text at 4.5:1 and non-text state at 3:1 in both themes. Check the dark theme separately.",
+      "**Do** use logical properties and test RTL. Shortcuts keep LTR key order."
+    ],
+    "donts": [
+      "**Don't** make it look like lichess (no lichess colours, logo or layout). The app is unofficial.",
+      "**Don't** use the accent for decoration, or add a second accent colour.",
+      "**Don't** add shadows to list boxes, or nest list boxes in cards.",
+      "**Don't** add a display font, eyebrow labels above headings, or emoji/Unicode glyphs as icons. Icons are authored SVG at 16px.",
+      "**Don't** add motion beyond 160ms state transitions. Everything is disabled under `prefers-reduced-motion`."
+    ]
+  }
+}
