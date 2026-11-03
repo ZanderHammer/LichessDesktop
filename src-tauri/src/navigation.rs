@@ -35,7 +35,12 @@ pub fn is_internal(url: &Url) -> bool {
 /// Returns `true` if `url` is on the origin of the bundled app pages
 /// (`frontendDist`): `tauri://localhost` on macOS and Linux,
 /// `http://tauri.localhost` on Windows. Bundled windows may show only these.
-pub fn is_bundled(url: &Url) -> bool {
+/// `dev_url` is the dev server origin under `cargo tauri dev`; pass `None` in
+/// release builds.
+pub fn is_bundled(url: &Url, dev_url: Option<&Url>) -> bool {
+    if dev_url.is_some_and(|dev| url.origin() == dev.origin()) {
+        return true;
+    }
     let (scheme, host) = if cfg!(windows) {
         ("http", "tauri.localhost")
     } else {
@@ -96,18 +101,42 @@ mod tests {
         assert!(!is_internal(&url("mailto:contact@lichess.org")));
     }
 
+    fn is_bundled_url(url: &Url) -> bool {
+        is_bundled(url, None)
+    }
+
+    #[test]
+    fn allows_the_dev_server_origin_only_when_given() {
+        let dev = url("http://127.0.0.1:1430/");
+        assert!(is_bundled(
+            &url("http://127.0.0.1:1430/settings.html"),
+            Some(&dev)
+        ));
+        assert!(!is_bundled(
+            &url("http://127.0.0.1:1431/settings.html"),
+            Some(&dev)
+        ));
+        assert!(!is_bundled(&url("https://lichess.org/"), Some(&dev)));
+        assert!(!is_bundled(
+            &url("http://127.0.0.1:1430/settings.html"),
+            None
+        ));
+    }
+
     #[test]
     fn recognises_only_the_bundled_origin() {
         if cfg!(windows) {
-            assert!(is_bundled(&url("http://tauri.localhost/settings.html")));
-            assert!(!is_bundled(&url("https://tauri.localhost/settings.html")));
-            assert!(!is_bundled(&url("http://tauri.localhost:8080/")));
+            assert!(is_bundled_url(&url("http://tauri.localhost/settings.html")));
+            assert!(!is_bundled_url(&url(
+                "https://tauri.localhost/settings.html"
+            )));
+            assert!(!is_bundled_url(&url("http://tauri.localhost:8080/")));
         } else {
-            assert!(is_bundled(&url("tauri://localhost/settings.html")));
-            assert!(!is_bundled(&url("tauri://evil.com/")));
+            assert!(is_bundled_url(&url("tauri://localhost/settings.html")));
+            assert!(!is_bundled_url(&url("tauri://evil.com/")));
         }
-        assert!(!is_bundled(&url("https://lichess.org/")));
-        assert!(!is_bundled(&offline::page_url()));
-        assert!(!is_bundled(&url("http://localhost/")));
+        assert!(!is_bundled_url(&url("https://lichess.org/")));
+        assert!(!is_bundled_url(&offline::page_url()));
+        assert!(!is_bundled_url(&url("http://localhost/")));
     }
 }
