@@ -3,12 +3,14 @@
 
 #[cfg(test)]
 mod capabilities;
+mod deep_link;
 mod navigation;
 mod offline;
 mod settings;
 
 use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, Url, WebviewUrl, WebviewWindowBuilder};
+use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
 
 const START_URL: &str = "https://lichess.org";
@@ -20,7 +22,8 @@ fn main() {
 
     let mut builder = tauri::Builder::default();
     // Registered first, as the plugin docs require, so a second launch exits
-    // before other plugins run. Its launch arguments arrive in `_args`.
+    // before other plugins run. Its `deep-link` feature has already passed a
+    // deep link in `_args` on to the deep-link plugin when this runs.
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -29,14 +32,26 @@ fn main() {
     }
 
     builder
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_store::Builder::default().build())
         .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
         .setup(move |app| {
             settings::init(app)?;
+            #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+            register_deep_links(app.handle());
+            // Set on Linux and Windows when this launch came from a deep link.
+            // macOS delivers it later, through `on_open_url`.
+            let start_link = app
+                .deep_link()
+                .get_current()?
+                .and_then(|links| deep_link::target(&links));
             let url = if offline::wait_for_probe(&probe) {
-                WebviewUrl::External(START_URL.parse().expect("START_URL is a valid URL"))
+                WebviewUrl::External(
+                    start_link
+                        .unwrap_or_else(|| START_URL.parse().expect("START_URL is a valid URL")),
+                )
             } else {
                 WebviewUrl::CustomProtocol(offline::page_url())
             };
@@ -68,6 +83,20 @@ fn main() {
                     NewWindowResponse::Deny
                 })
                 .build()?;
+
+            let link_handle = app.handle().clone();
+            app.deep_link().on_open_url(move |event| {
+                let Some(url) = deep_link::target(&event.urls()) else {
+                    return;
+                };
+                if let Some(window) = link_handle.get_webview_window(MAIN_WINDOW)
+                    && let Err(err) = window.navigate(url)
+                {
+                    eprintln!("failed to open deep link: {err}");
+                }
+                #[cfg(desktop)]
+                focus_main_window(&link_handle);
+            });
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -87,6 +116,24 @@ fn focus_main_window(app: &AppHandle) {
     {
         eprintln!("failed to focus the main window: {err}");
     }
+}
+
+/// Makes this executable the handler for the deep link scheme where no
+/// installer did: an AppImage (which may also have moved since the last run)
+/// and debug builds. Runs in the background, as it spawns `xdg-mime` on Linux.
+/// macOS only supports the scheme from the bundle's Info.plist.
+#[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+fn register_deep_links(app: &AppHandle) {
+    #[cfg(all(target_os = "linux", not(debug_assertions)))]
+    if app.env().appimage.is_none() {
+        return;
+    }
+    let app = app.clone();
+    std::thread::spawn(move || {
+        if let Err(err) = app.deep_link().register_all() {
+            eprintln!("failed to register the {} scheme: {err}", deep_link::SCHEME);
+        }
+    });
 }
 
 fn open_in_browser(app: &AppHandle, url: &Url) {

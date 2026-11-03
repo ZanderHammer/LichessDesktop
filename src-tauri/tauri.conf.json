@@ -8,6 +8,13 @@
       "csp": null
     }
   },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["lichess-desktop"]
+      }
+    }
+  },
   "bundle": {
     "active": true,
     "targets": ["deb", "rpm", "appimage", "nsis", "msi", "app", "dmg"],
