@@ -1,15 +1,25 @@
-//! Navigation policy: lichess.org stays in the app, everything else opens in
-//! the system browser. See docs/adr/0005-remote-content-security.md.
+//! Navigation policy: lichess.org (and the few frames it embeds) stays in the
+//! app, everything else opens in the system browser. See ADR 0005 and 0007.
 
 use tauri::Url;
 
 /// Hosts whose pages may be shown inside the app window.
 const ALLOWED_HOST: &str = "lichess.org";
 
+/// Third-party hosts that lichess embeds in iframes and that must load in the
+/// app. On Linux and macOS the navigation handler also sees iframe loads, so
+/// without this they would be blocked and opened in the system browser.
+const FRAME_HOSTS: &[&str] = &[
+    // Cloudflare Turnstile, the bot check on the login and signup forms.
+    "challenges.cloudflare.com",
+];
+
 /// Returns `true` if `url` may be displayed inside the app window.
 pub fn is_internal(url: &Url) -> bool {
     match url.scheme() {
-        "https" => url.host_str().is_some_and(is_allowed_host),
+        "https" => url
+            .host_str()
+            .is_some_and(|host| is_allowed_host(host) || FRAME_HOSTS.contains(&host)),
         // In-page helpers (e.g. blob downloads, blank frames) never leave the app.
         "about" | "blob" => true,
         _ => false,
@@ -37,6 +47,17 @@ mod tests {
         assert!(is_internal(&url("https://lichess.org/@/someone")));
         assert!(is_internal(&url("https://en.lichess.org/")));
         assert!(is_internal(&url("about:blank")));
+    }
+
+    #[test]
+    fn allows_cloudflare_turnstile_frame() {
+        assert!(is_internal(&url(
+            "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/av0/rch/1i5ib/0x4AAAAAAC_aOMpwtdCnD5y5/auto/fbE/crashed_retry/normal?lang=de-de"
+        )));
+        assert!(!is_internal(&url("https://cloudflare.com/")));
+        assert!(!is_internal(&url(
+            "https://evil.challenges.cloudflare.com/"
+        )));
     }
 
     #[test]
