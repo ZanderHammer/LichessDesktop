@@ -44,6 +44,8 @@ It uses the OS webview instead of bundling a browser engine, so it stays small (
 - Icon: an original pawn (`src-tauri/app-icon.svg`). The Lichess logo is never used.
 - The app's own UI must not look like lichess's UI.
 - Character: an invisible utility. It should feel like part of the OS, with lichess as the star.
+- Visual standard: native OS settings, played straight (chosen 2026-11-03). Quality bar: GNOME Settings (libadwaita) and Windows 11 Settings.
+- Accent: the OS accent colour, read by Rust. Until that exists, a native blue fallback. CSS `AccentColor` can't be used: WebKit and Firefox return a fixed blue, and Chromium returns the real colour only for installed web apps (MDN browser-compat-data).
 - License: AGPL-3.0-or-later. Translations come from lila and are credited in the README.
 
 ## Evidence on Hand
