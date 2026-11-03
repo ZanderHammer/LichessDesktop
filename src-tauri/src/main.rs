@@ -48,8 +48,12 @@ fn main() {
         .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
         .setup(move |app| {
             settings::init(app)?;
+            // Without a tray (e.g. GNOME without a StatusNotifierWatcher) the
+            // app still runs; close then always quits.
             #[cfg(desktop)]
-            tray::init(app.handle())?;
+            if let Err(err) = tray::init(app.handle()) {
+                eprintln!("failed to create the tray icon: {err}");
+            }
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
             // Set on Linux and Windows when this launch came from a deep link.
@@ -108,9 +112,12 @@ fn main() {
                 #[cfg(desktop)]
                 focus_main_window(&link_handle);
             });
+            #[cfg(desktop)]
             let close_handle = app.handle().clone();
+            #[cfg(desktop)]
             window.on_window_event(move |event| {
                 if let WindowEvent::CloseRequested { api, .. } = event
+                    && tray::is_shown(&close_handle)
                     && close_handle
                         .state::<settings::SettingsStore<Wry>>()
                         .get()
