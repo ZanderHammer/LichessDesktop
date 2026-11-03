@@ -53,7 +53,11 @@ fn main() {
         })
         .setup(move |app| {
             settings::init(app)?;
-            app.manage(i18n::Strings::load(i18n::BASE));
+            let language = app.state::<settings::SettingsStore<Wry>>().get().language;
+            app.manage(i18n::Strings::load(i18n::resolve(
+                &language,
+                sys_locale::get_locales(),
+            )));
             // Without a tray (e.g. GNOME without a StatusNotifierWatcher) the
             // app still runs; close then always quits.
             #[cfg(desktop)]
