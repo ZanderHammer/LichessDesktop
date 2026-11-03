@@ -57,7 +57,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             &item(SETTINGS, Action::OpenSettings.label())?,
             &item(SHORTCUTS, Action::ShowShortcuts.label())?,
             &PredefinedMenuItem::separator(app)?,
-            &item(QUIT, Key::Quit)?,
+            &item(QUIT, Action::Quit.label())?,
         ],
     )?;
     if let Some(update) = update::available(app) {
@@ -89,7 +89,7 @@ fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
         TOGGLE => toggle_main_window(app),
         SETTINGS => Action::OpenSettings.run(app),
         SHORTCUTS => Action::ShowShortcuts.run(app),
-        QUIT => app.exit(0),
+        QUIT => Action::Quit.run(app),
         UPDATE => update::open_release_page(app),
         _ => {}
     }
