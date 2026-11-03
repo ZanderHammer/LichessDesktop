@@ -36,5 +36,6 @@
   "desktop.alwaysOnTop": "Always on top",
   "desktop.shortcuts": "Shortcuts",
   "desktop.mouseBack": "Mouse back button",
-  "desktop.mouseForward": "Mouse forward button"
+  "desktop.mouseForward": "Mouse forward button",
+  "desktop.keyboardShortcuts": "Keyboard shortcuts"
 }
