@@ -12,6 +12,7 @@ use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, Url, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_window_state::StateFlags;
 
 const START_URL: &str = "https://lichess.org";
 const MAIN_WINDOW: &str = "main";
@@ -34,7 +35,13 @@ fn main() {
     builder
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(
+            // Visibility is not restored: quitting from the tray while the
+            // window is hidden must not start the next launch hidden.
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::all() - StateFlags::VISIBLE)
+                .build(),
+        )
         .plugin(tauri_plugin_store::Builder::default().build())
         .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
         .setup(move |app| {
@@ -58,7 +65,7 @@ fn main() {
             let nav_handle = app.handle().clone();
             let popup_handle = app.handle().clone();
 
-            WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
+            let window = WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
                 .title("Lichess Desktop")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(480.0, 360.0)
@@ -97,6 +104,8 @@ fn main() {
                 #[cfg(desktop)]
                 focus_main_window(&link_handle);
             });
+            window.show()?;
+            window.set_focus()?;
             Ok(())
         })
         .run(tauri::generate_context!())
