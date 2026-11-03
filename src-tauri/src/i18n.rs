@@ -246,6 +246,7 @@ keys! {
     MouseBack => "desktop.mouseBack",
     MouseForward => "desktop.mouseForward",
     KeyboardShortcuts => "desktop.keyboardShortcuts",
+    UpdateAvailable => "desktop.updateAvailable",
 }
 
 /// Strings of one language, with the base language behind it.
@@ -301,6 +302,14 @@ impl Strings {
             .get(id)
             .or_else(|| self.base.get(id))
             .map_or(id, String::as_str)
+    }
+
+    /// The string for `key` with its lila placeholder (`%s` or `%1$s`)
+    /// filled in, like `t()` in the bundled pages.
+    pub fn format(&self, key: Key, arg: &str) -> String {
+        self.get(key)
+            .replacen("%1$s", arg, 1)
+            .replacen("%s", arg, 1)
     }
 }
 
@@ -378,6 +387,12 @@ mod tests {
         let strings = Strings::load("xx-XX");
         assert_eq!(strings.get(Key::Quit), "Quit");
         assert_eq!(strings.lang(), "xx-XX");
+    }
+
+    #[test]
+    fn format_fills_in_the_placeholder() {
+        let strings = Strings::load(BASE);
+        assert_eq!(strings.format(Key::Version, "1.2.3"), "Version 1.2.3");
     }
 
     #[test]
