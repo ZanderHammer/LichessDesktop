@@ -157,14 +157,21 @@ pub const SHORTCUTS: &[Shortcut] = {
         // layout-independent one.
         row(Mods::PRIMARY, K::Slash, A::ShowShortcuts, All),
         row(Mods::NONE, K::F1, A::ShowShortcuts, NotMacOs),
+        // macOS has Cmd+Q in its app menu (MACOS_BUILT_IN).
+        row(Mods::PRIMARY, K::Letter('q'), A::Quit, NotMacOs),
     ]
 };
 
 /// Actions that Tauri's default macOS menu already has, so they get no row
 /// and no menu item of ours there. View > Toggle Full Screen is AppKit's
-/// `toggleFullScreen:` on Ctrl+Cmd+F.
+/// `toggleFullScreen:` on Ctrl+Cmd+F, and Quit is in the app menu on Cmd+Q.
 #[cfg(any(target_os = "macos", test))]
-pub const MACOS_BUILT_IN: &[Action] = &[Action::Fullscreen];
+pub const MACOS_BUILT_IN: &[Action] = &[Action::Fullscreen, Action::Quit];
+
+/// Actions without a shortcut on any platform. They are rarely needed, so
+/// they are left to the palette and the menus. They get no macOS menu item
+/// (the app menu's own About item covers About) and no row in the overview.
+pub const UNBOUND: &[Action] = &[Action::About];
 
 /// The rows of [`SHORTCUTS`] for this platform.
 pub fn current() -> impl Iterator<Item = &'static Shortcut> {
@@ -227,8 +234,24 @@ pub fn macos_built_in_key_caps(action: Action) -> Option<Vec<String>> {
     match action {
         // AppKit's View > Enter Full Screen.
         Action::Fullscreen => Some(vec!["⌃".to_owned(), "⌘".to_owned(), "F".to_owned()]),
+        // AppKit's Quit item in the app menu.
+        Action::Quit => Some(vec!["⌘".to_owned(), "Q".to_owned()]),
         _ => None,
     }
+}
+
+/// The key caps of every shortcut of `action` on macOS or on Linux and
+/// Windows, from [`SHORTCUTS`] or the built-in macOS menu. Empty for
+/// [`UNBOUND`] actions.
+pub fn action_key_caps(action: Action, macos: bool) -> Vec<Vec<String>> {
+    #[cfg(any(target_os = "macos", test))]
+    if macos && let Some(caps) = macos_built_in_key_caps(action) {
+        return vec![caps];
+    }
+    for_platform(macos)
+        .filter(|shortcut| shortcut.action == action)
+        .map(|shortcut| key_caps(shortcut, macos))
+        .collect()
 }
 
 /// The mouse button that also runs `action`, for the overview. The side
@@ -308,6 +331,18 @@ mod tests {
     }
 
     #[test]
+    fn unbound_actions_have_no_shortcut() {
+        for macos in [false, true] {
+            for action in UNBOUND {
+                assert!(
+                    action_key_caps(*action, macos).is_empty(),
+                    "{action:?} has a shortcut (macOS: {macos})"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn prints_key_caps_in_platform_order() {
         let copy = row(
             Mods::PRIMARY_SHIFT,
@@ -336,7 +371,7 @@ mod tests {
     fn every_action_has_a_shortcut_on_every_platform() {
         for macos in [false, true] {
             for action in Action::ALL {
-                if macos && MACOS_BUILT_IN.contains(action) {
+                if UNBOUND.contains(action) || macos && MACOS_BUILT_IN.contains(action) {
                     continue;
                 }
                 assert!(
