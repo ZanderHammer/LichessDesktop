@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "palette",
+  "description": "The bundled command palette window (ADR 0012). It lives for one use, so it needs no events.",
+  "windows": ["palette"],
+  "permissions": [
+    "allow-get-strings",
+    "allow-list-actions",
+    "allow-run-action",
+    "allow-palette-ready",
+    "allow-close-palette"
+  ]
+}

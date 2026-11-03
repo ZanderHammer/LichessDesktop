@@ -9,7 +9,7 @@
 use tauri::{AppHandle, Manager, Runtime, Url, WebviewWindow};
 
 use crate::i18n::Key as Text;
-use crate::{MAIN_WINDOW, START_URL, native, navigation, settings_window, zoom};
+use crate::{MAIN_WINDOW, START_URL, native, navigation, palette, settings_window, zoom};
 
 /// Declares [`Action`], the function each variant runs and its label (an
 /// [`i18n::Key`](Text)) in one place, so the list can't drift from the enum.
@@ -75,6 +75,8 @@ actions! {
     AlwaysOnTop => toggle_always_on_top, AlwaysOnTop,
     /// Opens the settings window.
     OpenSettings => open_settings, SettingsMenu,
+    /// Opens the command palette over the main window.
+    CommandPalette => show_palette, CommandPalette,
     /// Opens the settings window on the Shortcuts tab.
     ShowShortcuts => show_shortcuts, KeyboardShortcuts,
     /// Opens the settings window on the About tab.
@@ -160,6 +162,12 @@ pub fn toggle_always_on_top<R: Runtime>(app: &AppHandle<R>) {
             .and_then(|always_on_top| window.set_always_on_top(!always_on_top))
     {
         eprintln!("failed to toggle always on top: {err}");
+    }
+}
+
+pub fn show_palette<R: Runtime>(app: &AppHandle<R>) {
+    if let Err(err) = palette::open(app) {
+        eprintln!("failed to open the command palette: {err}");
     }
 }
 

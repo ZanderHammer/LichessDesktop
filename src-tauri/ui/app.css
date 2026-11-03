@@ -344,6 +344,8 @@ button.row {
   display: flex;
   flex-direction: column;
   block-size: 100vh;
+  /* The window has no frame of its own. */
+  border: 1px solid var(--control-border);
   background: var(--surface);
 }
 
@@ -399,6 +401,9 @@ button.row {
   color: var(--fg-muted);
   text-align: center;
 }
+
+/* Stays in the page as a live region while there are results. */
+.palette-empty:empty { padding: 0; }
 
 /* Accessibility modes */
 
