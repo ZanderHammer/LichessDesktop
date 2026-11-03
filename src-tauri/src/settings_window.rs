@@ -321,15 +321,30 @@ pub struct AppInfo {
     version: &'static str,
     repository: &'static str,
     license_url: String,
+    /// A newer release, if the update check found one.
+    update: Option<UpdateView>,
+}
+
+/// A newer release for the About tab.
+#[derive(Serialize)]
+pub struct UpdateView {
+    /// As shown to the user, e.g. `v0.3.0`.
+    version: String,
+    /// Its release page, opened in the browser.
+    url: String,
 }
 
 #[tauri::command]
-pub fn get_app_info() -> AppInfo {
+pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> AppInfo {
     let repository = env!("CARGO_PKG_REPOSITORY");
     AppInfo {
         version: env!("CARGO_PKG_VERSION"),
         repository,
         license_url: format!("{repository}/blob/main/LICENSE"),
+        update: crate::update::available(&app).map(|update| UpdateView {
+            version: update.label(),
+            url: update.url().into(),
+        }),
     }
 }
 
