@@ -133,7 +133,7 @@ fn main() {
             window.set_focus()?;
             Ok(())
         })
-        .build(tauri::generate_context!())
+        .build(context())
         .expect("error while building Lichess Desktop")
         .run(|_app, _event| {
             // macOS: a Dock click brings back a window hidden to the tray.
@@ -146,6 +146,12 @@ fn main() {
                 focus_main_window(_app);
             }
         });
+}
+
+/// The app context. `generate_context!` may only expand once per binary: on
+/// macOS it embeds the Info.plist under a fixed symbol, so tests call this too.
+fn context() -> tauri::Context<Wry> {
+    tauri::generate_context!()
 }
 
 /// Brings the main window to the front: unminimizes, shows and focuses it.
