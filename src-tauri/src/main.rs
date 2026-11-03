@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod navigation;
+mod offline;
 mod settings;
 
 use tauri::webview::NewWindowResponse;
@@ -12,6 +13,9 @@ const START_URL: &str = "https://lichess.org";
 const MAIN_WINDOW: &str = "main";
 
 fn main() {
+    // Runs while Tauri starts up, so a reachable lichess.org costs no extra time.
+    let probe = offline::spawn_probe();
+
     let mut builder = tauri::Builder::default();
     // Registered first, as the plugin docs require, so a second launch exits
     // before other plugins run. Its launch arguments arrive in `_args`.
@@ -26,13 +30,18 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_store::Builder::default().build())
-        .setup(|app| {
+        .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
+        .setup(move |app| {
             settings::init(app)?;
-            let url = START_URL.parse().expect("START_URL is a valid URL");
+            let url = if offline::wait_for_probe(&probe) {
+                WebviewUrl::External(START_URL.parse().expect("START_URL is a valid URL"))
+            } else {
+                WebviewUrl::CustomProtocol(offline::page_url())
+            };
             let nav_handle = app.handle().clone();
             let popup_handle = app.handle().clone();
 
-            WebviewWindowBuilder::new(app, MAIN_WINDOW, WebviewUrl::External(url))
+            WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
                 .title("Lichess Desktop")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(480.0, 360.0)
