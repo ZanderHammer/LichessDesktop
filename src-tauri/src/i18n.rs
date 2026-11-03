@@ -230,6 +230,13 @@ keys! {
     Version => "desktop.version",
     SourceCode => "desktop.sourceCode",
     License => "desktop.license",
+    Navigation => "desktop.navigation",
+    Back => "desktop.back",
+    Forward => "desktop.forward",
+    Reload => "desktop.reload",
+    Home => "desktop.home",
+    CopyUrl => "desktop.copyUrl",
+    OpenInBrowser => "desktop.openInBrowser",
 }
 
 /// Strings of one language, with the base language behind it.

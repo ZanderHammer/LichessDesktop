@@ -21,5 +21,12 @@
   "desktop.unofficial": "Unofficial, not affiliated with Lichess",
   "desktop.version": "Version %s",
   "desktop.sourceCode": "Source code",
-  "desktop.license": "License"
+  "desktop.license": "License",
+  "desktop.navigation": "Navigation",
+  "desktop.back": "Back",
+  "desktop.forward": "Forward",
+  "desktop.reload": "Reload",
+  "desktop.home": "Home",
+  "desktop.copyUrl": "Copy page address",
+  "desktop.openInBrowser": "Open in browser"
 }

@@ -219,13 +219,18 @@ fn parse_language(value: &str) -> Result<Language, String> {
     }
 }
 
-/// Switches the UI language: strings, tray menu, and this window.
+/// Switches the UI language: strings, tray menu, the macOS app menu, and this
+/// window.
 fn apply_language<R: Runtime>(app: &AppHandle<R>, language: &Language) {
     let strings = i18n::Strings::load(i18n::resolve(language, sys_locale::get_locales()));
     let title = strings.get(Key::Settings).to_owned();
     app.state::<i18n::Current>().set(strings);
     if let Err(err) = crate::tray::refresh_menu(app) {
         eprintln!("failed to rebuild the tray menu: {err}");
+    }
+    #[cfg(target_os = "macos")]
+    if let Err(err) = crate::shortcuts::refresh_menu(app) {
+        eprintln!("failed to rebuild the app menu: {err}");
     }
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.set_title(&title);

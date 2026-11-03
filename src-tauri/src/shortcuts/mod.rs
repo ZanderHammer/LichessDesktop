@@ -20,6 +20,10 @@ use crate::actions::Action;
 
 #[cfg(target_os = "linux")]
 mod linux;
+#[cfg(target_os = "macos")]
+mod macos;
+#[cfg(target_os = "macos")]
+pub use macos::refresh_menu;
 #[cfg(windows)]
 mod windows;
 
@@ -141,6 +145,8 @@ pub fn init<R: Runtime>(window: &WebviewWindow<R>) -> tauri::Result<()> {
     linux::init(window)?;
     #[cfg(windows)]
     self::windows::init(window)?;
+    #[cfg(target_os = "macos")]
+    macos::init(window)?;
     Ok(())
 }
 
