@@ -20,6 +20,8 @@ use crate::actions::Action;
 
 #[cfg(target_os = "linux")]
 mod linux;
+#[cfg(windows)]
+mod windows;
 
 /// Modifier keys. `primary` is Ctrl on Linux and Windows and Cmd on macOS.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -137,6 +139,8 @@ fn for_platform(macos: bool) -> impl Iterator<Item = &'static Shortcut> {
 pub fn init<R: Runtime>(window: &WebviewWindow<R>) -> tauri::Result<()> {
     #[cfg(target_os = "linux")]
     linux::init(window)?;
+    #[cfg(windows)]
+    self::windows::init(window)?;
     Ok(())
 }
 
