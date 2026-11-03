@@ -2053,6 +2053,8 @@ dependencies = [
  "tauri-plugin-window-state",
  "tray-icon 0.26.1",
  "webkit2gtk",
+ "webview2-com",
+ "windows",
 ]
 
 [[package]]
