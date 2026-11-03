@@ -64,9 +64,7 @@ fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
     };
     let on_screen = window.is_visible().unwrap_or(false) && !window.is_minimized().unwrap_or(false);
     if on_screen {
-        if let Err(err) = window.hide() {
-            eprintln!("failed to hide the main window: {err}");
-        }
+        crate::hide_main_window(app);
     } else {
         crate::focus_main_window(app);
     }

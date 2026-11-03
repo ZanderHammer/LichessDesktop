@@ -11,7 +11,7 @@ mod settings;
 mod tray;
 
 use tauri::webview::NewWindowResponse;
-use tauri::{AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindowBuilder, WindowEvent, Wry};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_window_state::StateFlags;
@@ -108,12 +108,35 @@ fn main() {
                 #[cfg(desktop)]
                 focus_main_window(&link_handle);
             });
+            let close_handle = app.handle().clone();
+            window.on_window_event(move |event| {
+                if let WindowEvent::CloseRequested { api, .. } = event
+                    && close_handle
+                        .state::<settings::SettingsStore<Wry>>()
+                        .get()
+                        .close_to_tray
+                {
+                    api.prevent_close();
+                    hide_main_window(&close_handle);
+                }
+            });
             window.show()?;
             window.set_focus()?;
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running Lichess Desktop");
+        .build(tauri::generate_context!())
+        .expect("error while building Lichess Desktop")
+        .run(|_app, _event| {
+            // macOS: a Dock click brings back a window hidden to the tray.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows: false,
+                ..
+            } = _event
+            {
+                focus_main_window(_app);
+            }
+        });
 }
 
 /// Brings the main window to the front: unminimizes, shows and focuses it.
@@ -147,6 +170,16 @@ fn register_deep_links(app: &AppHandle) {
             eprintln!("failed to register the {} scheme: {err}", deep_link::SCHEME);
         }
     });
+}
+
+/// Hides the main window. The tray icon brings it back.
+fn hide_main_window<R: Runtime>(app: &AppHandle<R>) {
+    let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
+        return;
+    };
+    if let Err(err) = window.hide() {
+        eprintln!("failed to hide the main window: {err}");
+    }
 }
 
 fn open_in_browser(app: &AppHandle, url: &Url) {

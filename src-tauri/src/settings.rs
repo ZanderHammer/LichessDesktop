@@ -125,18 +125,11 @@ fn field<T: DeserializeOwned>(entries: &HashMap<String, Value>, key: &str) -> Op
 }
 
 /// Typed access to the settings store. Register it with [`init`].
-#[expect(
-    dead_code,
-    reason = "read by upcoming features (zoom, tray, notifications)"
-)]
 pub struct SettingsStore<R: Runtime> {
     store: Arc<Store<R>>,
 }
 
-#[expect(
-    dead_code,
-    reason = "read by upcoming features (zoom, tray, notifications)"
-)]
+#[expect(dead_code, reason = "written by the upcoming settings UI")]
 impl<R: Runtime> SettingsStore<R> {
     /// Current settings, with defaults for anything missing or invalid.
     pub fn get(&self) -> Settings {
