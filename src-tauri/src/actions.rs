@@ -2,17 +2,19 @@
 //! and the tray can do. Each action is a plain function on the [`AppHandle`],
 //! and [`Action`] names it so a table or a menu can refer to it.
 //!
-//! To add an action, add a line to the `actions!` list below and write its
-//! function in this module. Its shortcuts go in [`crate::shortcuts::SHORTCUTS`].
+//! To add an action, add a line to the `actions!` list below (variant,
+//! function, label key) and write its function in this module. Its shortcuts
+//! go in [`crate::shortcuts::SHORTCUTS`].
 
 use tauri::{AppHandle, Manager, Runtime, Url, WebviewWindow};
 
+use crate::i18n::Key as Text;
 use crate::{MAIN_WINDOW, START_URL, native, navigation, zoom};
 
-/// Declares [`Action`] and the function each variant runs in one place, so
-/// the list can't drift from the enum.
+/// Declares [`Action`], the function each variant runs and its label (an
+/// [`i18n::Key`](Text)) in one place, so the list can't drift from the enum.
 macro_rules! actions {
-    ($($(#[$doc:meta])* $variant:ident => $function:ident,)*) => {
+    ($($(#[$doc:meta])* $variant:ident => $function:ident, $label:ident,)*) => {
         /// Something the user can trigger. [`Action::run`] calls the function
         /// of the same name in this module.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -33,6 +35,14 @@ macro_rules! actions {
                 }
             }
 
+            /// The action's name in menus and the shortcuts overview.
+            #[allow(dead_code, reason = "used by the macOS menu")]
+            pub const fn label(self) -> Text {
+                match self {
+                    $(Action::$variant => Text::$label,)*
+                }
+            }
+
             pub fn run<R: Runtime>(self, app: &AppHandle<R>) {
                 match self {
                     $(Action::$variant => $function(app),)*
@@ -44,27 +54,27 @@ macro_rules! actions {
 
 actions! {
     /// Goes back in the main window's history.
-    Back => back,
+    Back => back, Back,
     /// Goes forward in the main window's history.
-    Forward => forward,
+    Forward => forward, Forward,
     /// Reloads the page in the main window.
-    Reload => reload,
+    Reload => reload, Reload,
     /// Opens the lichess.org start page in the main window.
-    Home => home,
+    Home => home, Home,
     /// Copies the address of the lichess page in the main window.
-    CopyUrl => copy_url,
+    CopyUrl => copy_url, CopyUrl,
     /// Opens the lichess page of the main window in the system browser.
-    OpenInBrowser => open_in_browser,
+    OpenInBrowser => open_in_browser, OpenInBrowser,
     /// Zooms the page of the main window in one step.
-    ZoomIn => zoom_in,
+    ZoomIn => zoom_in, ZoomIn,
     /// Zooms the page of the main window out one step.
-    ZoomOut => zoom_out,
+    ZoomOut => zoom_out, ZoomOut,
     /// Resets the zoom of the main window's page to 100 %.
-    ZoomReset => zoom_reset,
+    ZoomReset => zoom_reset, ZoomReset,
     /// Turns fullscreen on or off for the main window, for this session.
-    Fullscreen => toggle_fullscreen,
+    Fullscreen => toggle_fullscreen, Fullscreen,
     /// Turns always-on-top on or off for the main window, for this session.
-    AlwaysOnTop => toggle_always_on_top,
+    AlwaysOnTop => toggle_always_on_top, AlwaysOnTop,
 }
 
 pub fn back<R: Runtime>(app: &AppHandle<R>) {
