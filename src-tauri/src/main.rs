@@ -49,10 +49,11 @@ fn main() {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(
-            // Visibility is not restored: quitting from the tray while the
-            // window is hidden must not start the next launch hidden.
+            // Visibility and fullscreen are not restored: quitting from the
+            // tray while hidden must not start hidden, and fullscreen is
+            // session-only.
             tauri_plugin_window_state::Builder::default()
-                .with_state_flags(StateFlags::all() - StateFlags::VISIBLE)
+                .with_state_flags(StateFlags::all() - StateFlags::VISIBLE - StateFlags::FULLSCREEN)
                 .build(),
         )
         .plugin(tauri_plugin_store::Builder::default().build())
