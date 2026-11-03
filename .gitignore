@@ -12,3 +12,10 @@ Thumbs.db
 
 # Local Claude Code settings
 .claude/settings.local.json
+
+# Impeccable design tooling: keep briefs and design data, ignore scratch files
+/.impeccable/mocks/
+/.impeccable/review/
+/.impeccable/build/
+/.impeccable/decision-payload.json
+/.impeccable/config.local.json
