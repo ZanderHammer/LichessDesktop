@@ -13,6 +13,7 @@ const MAIN_WINDOW: &str = "main";
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
             let url = START_URL.parse().expect("START_URL is a valid URL");
             let nav_handle = app.handle().clone();
@@ -22,6 +23,8 @@ fn main() {
                 .title("Lichess Desktop")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(480.0, 360.0)
+                // Hidden until the window-state plugin restores size and position.
+                .visible(false)
                 .on_navigation(move |url| {
                     if navigation::is_internal(url) {
                         return true;
