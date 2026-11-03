@@ -76,6 +76,7 @@ fn label(action: Action) -> Text {
         Action::ZoomOut => Text::ZoomOut,
         Action::ZoomReset => Text::ZoomReset,
         Action::Fullscreen => Text::Fullscreen,
+        Action::AlwaysOnTop => Text::AlwaysOnTop,
     }
 }
 

@@ -63,6 +63,8 @@ actions! {
     ZoomReset => zoom_reset,
     /// Turns fullscreen on or off for the main window, for this session.
     Fullscreen => toggle_fullscreen,
+    /// Turns always-on-top on or off for the main window, for this session.
+    AlwaysOnTop => toggle_always_on_top,
 }
 
 pub fn back<R: Runtime>(app: &AppHandle<R>) {
@@ -132,6 +134,16 @@ pub fn toggle_fullscreen<R: Runtime>(app: &AppHandle<R>) {
             .and_then(|fullscreen| window.set_fullscreen(!fullscreen))
     {
         eprintln!("failed to toggle fullscreen: {err}");
+    }
+}
+
+pub fn toggle_always_on_top<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = main_window(app)
+        && let Err(err) = window
+            .is_always_on_top()
+            .and_then(|always_on_top| window.set_always_on_top(!always_on_top))
+    {
+        eprintln!("failed to toggle always on top: {err}");
     }
 }
 

@@ -144,6 +144,7 @@ pub const SHORTCUTS: &[Shortcut] = {
         row(Mods::PRIMARY, K::Digit0, A::ZoomReset, All),
         row(Mods::PRIMARY, K::Kp0, A::ZoomReset, NotMacOs),
         row(Mods::NONE, K::F11, A::Fullscreen, NotMacOs),
+        row(Mods::PRIMARY_SHIFT, K::Letter('t'), A::AlwaysOnTop, All),
     ]
 };
 
