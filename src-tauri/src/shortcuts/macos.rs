@@ -6,7 +6,8 @@
 //! "Settings…" in the app menu below About, "Keyboard shortcuts" in Help, and
 //! the rest in a new Navigation submenu. The item's
 //! accelerator is the action's macOS row of [`super::SHORTCUTS`]. Actions in
-//! [`super::MACOS_BUILT_IN`] are already in the default menu and get no item.
+//! [`super::MACOS_BUILT_IN`] are already in the default menu, and
+//! [`super::UNBOUND`] ones have no shortcut, so neither gets an item.
 
 use tauri::menu::{
     HELP_SUBMENU_ID, IsMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu, WINDOW_SUBMENU_ID,
@@ -54,7 +55,9 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     let navigation: Vec<Action> = Action::ALL
         .iter()
         .copied()
-        .filter(|action| !super::MACOS_BUILT_IN.contains(action))
+        .filter(|action| {
+            !super::MACOS_BUILT_IN.contains(action) && !super::UNBOUND.contains(action)
+        })
         .filter(|action| !matches!(action, Action::OpenSettings | Action::ShowShortcuts))
         .collect();
 

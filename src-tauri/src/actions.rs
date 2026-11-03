@@ -1,5 +1,5 @@
-//! App actions: what a shortcut, the macOS menu, and later the command palette
-//! and the tray can do. Each action is a plain function on the [`AppHandle`],
+//! App actions: what a shortcut, the macOS menu, the command palette and the
+//! tray can do. Each action is a plain function on the [`AppHandle`],
 //! and [`Action`] names it so a table or a menu can refer to it.
 //!
 //! To add an action, add a line to the `actions!` list below (variant,
@@ -77,6 +77,10 @@ actions! {
     OpenSettings => open_settings, SettingsMenu,
     /// Opens the settings window on the Shortcuts tab.
     ShowShortcuts => show_shortcuts, KeyboardShortcuts,
+    /// Opens the settings window on the About tab.
+    About => show_about, About,
+    /// Quits the app, also when it would close to the tray.
+    Quit => quit, Quit,
 }
 
 pub fn back<R: Runtime>(app: &AppHandle<R>) {
@@ -169,6 +173,16 @@ pub fn show_shortcuts<R: Runtime>(app: &AppHandle<R>) {
     if let Err(err) = settings_window::open_tab(app, settings_window::Tab::Shortcuts) {
         eprintln!("failed to open the shortcuts overview: {err}");
     }
+}
+
+pub fn show_about<R: Runtime>(app: &AppHandle<R>) {
+    if let Err(err) = settings_window::open_tab(app, settings_window::Tab::About) {
+        eprintln!("failed to open the about tab: {err}");
+    }
+}
+
+pub fn quit<R: Runtime>(app: &AppHandle<R>) {
+    app.exit(0);
 }
 
 fn main_window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {

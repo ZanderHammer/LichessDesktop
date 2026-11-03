@@ -32,12 +32,14 @@ const SHOW_TAB: &str = "show-tab";
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tab {
     Shortcuts,
+    About,
 }
 
 impl Tab {
     const fn id(self) -> &'static str {
         match self {
             Tab::Shortcuts => "shortcuts",
+            Tab::About => "about",
         }
     }
 }
@@ -179,8 +181,8 @@ pub struct ShortcutView {
     mouse: Option<String>,
 }
 
-/// The shortcuts of this platform, one entry per action, straight from the
-/// shortcut table, so the overview can't drift from what is bound.
+/// The shortcuts of this platform, one entry per bound action, straight from
+/// the shortcut table, so the overview can't drift from what is bound.
 #[tauri::command]
 pub fn get_shortcuts(strings: tauri::State<'_, i18n::Current>) -> Vec<ShortcutView> {
     shortcuts_view(&strings.get(), cfg!(target_os = "macos"))
@@ -189,23 +191,12 @@ pub fn get_shortcuts(strings: tauri::State<'_, i18n::Current>) -> Vec<ShortcutVi
 fn shortcuts_view(strings: &i18n::Strings, macos: bool) -> Vec<ShortcutView> {
     Action::ALL
         .iter()
+        .filter(|action| !shortcuts::UNBOUND.contains(action))
         .map(|&action| ShortcutView {
             label: strings.get(action.label()).to_owned(),
-            keys: keys(action, macos),
+            keys: shortcuts::action_key_caps(action, macos),
             mouse: shortcuts::mouse_button(action).map(|key| strings.get(key).to_owned()),
         })
-        .collect()
-}
-
-/// The key caps of every shortcut of `action` on this platform.
-fn keys(action: Action, macos: bool) -> Vec<Vec<String>> {
-    #[cfg(any(target_os = "macos", test))]
-    if macos && let Some(caps) = shortcuts::macos_built_in_key_caps(action) {
-        return vec![caps];
-    }
-    shortcuts::for_platform(macos)
-        .filter(|shortcut| shortcut.action == action)
-        .map(|shortcut| shortcuts::key_caps(shortcut, macos))
         .collect()
 }
 
@@ -415,7 +406,8 @@ mod tests {
     fn lists_every_action_with_its_shortcuts() {
         let strings = i18n::Strings::load(i18n::BASE);
         let view = shortcuts_view(&strings, false);
-        assert_eq!(view.len(), Action::ALL.len());
+        assert_eq!(view.len(), Action::ALL.len() - shortcuts::UNBOUND.len());
+        assert!(view.iter().all(|entry| !entry.keys.is_empty()));
         let reload = view.iter().find(|entry| entry.label == "Reload").unwrap();
         assert!(reload.keys.iter().all(|keys| !keys.is_empty()));
         assert!(!reload.keys.is_empty());
