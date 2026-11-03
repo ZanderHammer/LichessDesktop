@@ -1,0 +1,7 @@
+# Commit message lint, see https://github.com/crate-ci/committed/blob/master/docs/reference.md
+# Conventions: docs/adr/0004-conventional-commits-and-semver.md
+style = "conventional"
+allowed_types = ["feat", "fix", "perf", "refactor", "docs", "test", "style", "chore", "ci", "build", "revert"]
+subject_capitalized = false
+subject_length = 72
+merge_commit = false
