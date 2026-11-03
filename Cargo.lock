@@ -2040,6 +2040,7 @@ dependencies = [
 name = "lichess-desktop"
 version = "0.1.0"
 dependencies = [
+ "gtk",
  "serde",
  "serde_json",
  "sys-locale",
@@ -2051,6 +2052,7 @@ dependencies = [
  "tauri-plugin-store",
  "tauri-plugin-window-state",
  "tray-icon 0.26.1",
+ "webkit2gtk",
 ]
 
 [[package]]

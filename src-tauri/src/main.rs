@@ -1,15 +1,18 @@
 // Prevents an additional console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod actions;
 #[cfg(test)]
 mod capabilities;
 mod deep_link;
 mod i18n;
+mod native;
 mod navigation;
 mod offline;
 mod settings;
 #[cfg(desktop)]
 mod settings_window;
+mod shortcuts;
 #[cfg(desktop)]
 mod tray;
 #[cfg(test)]
@@ -112,6 +115,10 @@ fn main() {
                     NewWindowResponse::Deny
                 })
                 .build()?;
+            // Without them the app still works, through the page and the tray.
+            if let Err(err) = shortcuts::init(&window) {
+                eprintln!("failed to set up the keyboard shortcuts: {err}");
+            }
 
             let link_handle = app.handle().clone();
             app.deep_link().on_open_url(move |event| {
