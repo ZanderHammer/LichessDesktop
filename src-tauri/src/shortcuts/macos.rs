@@ -45,7 +45,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             MenuItem::with_id(
                 app,
                 action.id(),
-                strings.get(label(action)),
+                strings.get(action.label()),
                 true,
                 accelerator(action).as_deref(),
             )
@@ -62,22 +62,6 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         .unwrap_or(items.len());
     menu.insert(&navigation, position)?;
     Ok(menu)
-}
-
-fn label(action: Action) -> Text {
-    match action {
-        Action::Back => Text::Back,
-        Action::Forward => Text::Forward,
-        Action::Reload => Text::Reload,
-        Action::Home => Text::Home,
-        Action::CopyUrl => Text::CopyUrl,
-        Action::OpenInBrowser => Text::OpenInBrowser,
-        Action::ZoomIn => Text::ZoomIn,
-        Action::ZoomOut => Text::ZoomOut,
-        Action::ZoomReset => Text::ZoomReset,
-        Action::Fullscreen => Text::Fullscreen,
-        Action::AlwaysOnTop => Text::AlwaysOnTop,
-    }
 }
 
 /// The action's macOS shortcut in muda's accelerator syntax.
