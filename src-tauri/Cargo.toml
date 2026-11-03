@@ -48,3 +48,21 @@ windows = { version = "0.62.2", features = [
   "Win32_System_Ole",
   "Win32_UI_Input_KeyboardAndMouse",
 ] }
+
+# WKWebView history calls and the pasteboard for the navigation actions.
+# Must stay on the versions wry uses.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "0.3.2", default-features = false, features = [
+  "std",
+  "NSPasteboard",
+] }
+objc2-foundation = { version = "0.3.2", default-features = false, features = [
+  "std",
+  "NSString",
+] }
+objc2-web-kit = { version = "0.3.2", default-features = false, features = [
+  "std",
+  "objc2-app-kit",
+  "WKNavigation",
+  "WKWebView",
+] }

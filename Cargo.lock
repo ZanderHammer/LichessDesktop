@@ -2041,6 +2041,9 @@ name = "lichess-desktop"
 version = "0.1.0"
 dependencies = [
  "gtk",
+ "objc2-app-kit",
+ "objc2-foundation",
+ "objc2-web-kit",
  "serde",
  "serde_json",
  "sys-locale",
