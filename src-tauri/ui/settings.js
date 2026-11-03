@@ -112,7 +112,11 @@ function bindSettings() {
   });
 }
 
-/** WAI-ARIA tabs: arrow keys, Home and End move between tabs. */
+/**
+ * WAI-ARIA tabs: arrow keys, Home and End move between tabs. Returns a
+ * function that selects the tab `tab-<id>`, for Rust's `show-tab` event and
+ * the URL fragment a window is opened with (`settings.html#shortcuts`).
+ */
 function bindTabs() {
   const tabs = [...document.querySelectorAll('[role="tab"]')];
   const select = (tab) => {
@@ -140,10 +144,15 @@ function bindTabs() {
       }
     });
   }
+  return (id) => {
+    const tab = document.getElementById(`tab-${id}`);
+    if (tab && tabs.includes(tab)) select(tab);
+  };
 }
 
 async function main() {
-  bindTabs();
+  const showTab = bindTabs();
+  if (location.hash) showTab(location.hash.slice(1));
   bindSettings();
   await loadStrings();
   await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
@@ -151,6 +160,7 @@ async function main() {
   // The content is in place: Rust shows the window now. (No
   // requestAnimationFrame here: hidden windows don't get animation frames.)
   await invoke("settings_ready");
+  await listen("show-tab", (event) => showTab(event.payload));
   await listen("strings-changed", async () => {
     await loadStrings();
     await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);

@@ -24,12 +24,42 @@ const SHOW_FALLBACK: Duration = Duration::from_millis(1500);
 /// Tells the page to fetch its strings again after a language change.
 const STRINGS_CHANGED: &str = "strings-changed";
 
+/// Tells an open page to switch to the tab in the payload.
+const SHOW_TAB: &str = "show-tab";
+
+/// A tab the window can be opened on. The id is the tab's suffix in
+/// `settings.html` (`tab-<id>`) and the URL fragment of a new window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Tab {
+    Shortcuts,
+}
+
+impl Tab {
+    const fn id(self) -> &'static str {
+        match self {
+            Tab::Shortcuts => "shortcuts",
+        }
+    }
+}
+
 /// Opens the window, or brings it to the front if it is already open. The
 /// main window is its parent, so it is shown first. A new window stays
 /// hidden until the page has drawn its content (`settings_ready`), so it
 /// never shows up empty.
 pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+    open_at(app, None)
+}
+
+/// Like [`open`], on `tab`.
+pub fn open_tab<R: Runtime>(app: &AppHandle<R>, tab: Tab) -> tauri::Result<()> {
+    open_at(app, Some(tab))
+}
+
+fn open_at<R: Runtime>(app: &AppHandle<R>, tab: Option<Tab>) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(LABEL) {
+        if let Some(tab) = tab {
+            window.emit_to(LABEL, SHOW_TAB, tab.id())?;
+        }
         window.unminimize()?;
         window.show()?;
         return window.set_focus();
@@ -52,7 +82,11 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .get()
         .get(Key::Settings)
         .to_owned();
-    WebviewWindowBuilder::new(app, LABEL, WebviewUrl::App("settings.html".into()))
+    let page = match tab {
+        Some(tab) => format!("settings.html#{}", tab.id()),
+        None => "settings.html".to_owned(),
+    };
+    WebviewWindowBuilder::new(app, LABEL, WebviewUrl::App(page.into()))
         .title(title)
         .inner_size(640.0, 560.0)
         .resizable(false)

@@ -2,12 +2,12 @@
 //!
 //! macOS always shows a menu bar, and AppKit resolves menu key equivalents
 //! before the webview gets the key. The app keeps Tauri's default menu (app,
-//! File, Edit, View, Window, Help) and adds a Navigation submenu with an item
-//! per [`Action`]; the item's accelerator is the action's macOS row of
-//! [`super::SHORTCUTS`]. Actions in [`super::MACOS_BUILT_IN`] are already in
-//! the default menu and get no item.
+//! File, Edit, View, Window, Help) and adds an item per [`Action`]: "Keyboard
+//! shortcuts" in Help, the rest in a new Navigation submenu. The item's
+//! accelerator is the action's macOS row of [`super::SHORTCUTS`]. Actions in
+//! [`super::MACOS_BUILT_IN`] are already in the default menu and get no item.
 
-use tauri::menu::{IsMenuItem, Menu, MenuItem, Submenu, WINDOW_SUBMENU_ID};
+use tauri::menu::{HELP_SUBMENU_ID, IsMenuItem, Menu, MenuItem, Submenu, WINDOW_SUBMENU_ID};
 use tauri::{AppHandle, Manager, Runtime, WebviewWindow};
 
 use super::{Key, Mods};
@@ -35,21 +35,27 @@ pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     Ok(())
 }
 
-/// Tauri's default menu with the Navigation submenu before Window.
+/// Tauri's default menu with the Navigation submenu before Window, and the
+/// help actions in Help.
 fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     let strings = app.state::<i18n::Current>().get();
-    let items = Action::ALL
+    let item = |action: Action| {
+        MenuItem::with_id(
+            app,
+            action.id(),
+            strings.get(action.label()),
+            true,
+            accelerator(action).as_deref(),
+        )
+    };
+    let (help, navigation): (Vec<Action>, Vec<Action>) = Action::ALL
         .iter()
         .filter(|action| !super::MACOS_BUILT_IN.contains(action))
-        .map(|&action| {
-            MenuItem::with_id(
-                app,
-                action.id(),
-                strings.get(action.label()),
-                true,
-                accelerator(action).as_deref(),
-            )
-        })
+        .partition(|&&action| matches!(action, Action::ShowShortcuts));
+
+    let items = navigation
+        .into_iter()
+        .map(item)
         .collect::<tauri::Result<Vec<_>>>()?;
     let items: Vec<&dyn IsMenuItem<R>> = items.iter().map(|item| item as _).collect();
     let navigation = Submenu::with_items(app, strings.get(Text::Navigation), true, &items)?;
@@ -61,6 +67,15 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         .position(|item| item.id().as_ref() == WINDOW_SUBMENU_ID)
         .unwrap_or(items.len());
     menu.insert(&navigation, position)?;
+    if let Some(help_menu) = items
+        .iter()
+        .find(|item| item.id().as_ref() == HELP_SUBMENU_ID)
+        .and_then(|item| item.as_submenu())
+    {
+        for action in help {
+            help_menu.append(&item(action)?)?;
+        }
+    }
     Ok(menu)
 }
 
@@ -86,8 +101,10 @@ fn accelerator(action: Action) -> Option<String> {
         Key::Left => "ArrowLeft".to_owned(),
         Key::Right => "ArrowRight".to_owned(),
         Key::Home => "Home".to_owned(),
+        Key::F1 => "F1".to_owned(),
         Key::F5 => "F5".to_owned(),
         Key::F11 => "F11".to_owned(),
+        Key::Slash => "/".to_owned(),
         Key::BracketLeft => "[".to_owned(),
         Key::BracketRight => "]".to_owned(),
         Key::Letter(c) => c.to_ascii_uppercase().to_string(),

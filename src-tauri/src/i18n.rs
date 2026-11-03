@@ -245,6 +245,7 @@ keys! {
     Shortcuts => "desktop.shortcuts",
     MouseBack => "desktop.mouseBack",
     MouseForward => "desktop.mouseForward",
+    KeyboardShortcuts => "desktop.keyboardShortcuts",
 }
 
 /// Strings of one language, with the base language behind it.
