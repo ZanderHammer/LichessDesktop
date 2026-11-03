@@ -29,7 +29,7 @@ Chosen option: "a custom scheme mapped to lichess.org", because it needs no veri
 * Cold start: the mapped URL replaces the start URL, unless the offline probe failed (ADR 0011). While running: the main window navigates to it and is focused. If several links arrive at once (macOS), the last valid one wins.
 * The app registers the scheme itself only where no installer did: in an AppImage, on every start (in a background thread, as it spawns `xdg-mime`), and in debug builds on Linux and Windows so `cargo tauri dev` can be tested.
 * No `https://lichess.org` links are claimed. Desktop has no verified links, and taking over the browser's lichess links would surprise users.
-* The deep-link plugin's commands stay ungranted. The page has no IPC, and the plugin is used from Rust only.
+* The plugin is used from Rust only. The main window has no capability (ADR 0012), so its commands stay unreachable.
 
 ### Consequences
 
