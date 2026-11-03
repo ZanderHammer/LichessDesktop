@@ -29,6 +29,13 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let Some(main) = app.get_webview_window(crate::MAIN_WINDOW) else {
         return Ok(());
     };
+    // `cargo tauri dev` serves `ui/` from its own server instead.
+    let dev_url = app
+        .config()
+        .build
+        .dev_url
+        .clone()
+        .filter(|_| tauri::is_dev());
     let nav_handle = app.clone();
     let popup_handle = app.clone();
     let title = app
@@ -46,7 +53,7 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .parent(&main)?
         // Only the bundled page itself; its links open in the browser.
         .on_navigation(move |url| {
-            if crate::navigation::is_bundled(url) {
+            if crate::navigation::is_bundled(url, dev_url.as_ref()) {
                 return true;
             }
             crate::open_in_browser(&nav_handle, url);
