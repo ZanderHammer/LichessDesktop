@@ -8,6 +8,7 @@
 //! `desktop.<key>` for our own.
 
 use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 
 use crate::settings::Language;
 
@@ -259,6 +260,33 @@ impl Strings {
             .get(id)
             .or_else(|| self.base.get(id))
             .map_or(id, String::as_str)
+    }
+}
+
+/// The strings of the current UI language, in managed state. Replaced when
+/// the language setting changes.
+pub struct Current(RwLock<Arc<Strings>>);
+
+impl Current {
+    pub fn new(strings: Strings) -> Self {
+        Self(RwLock::new(Arc::new(strings)))
+    }
+
+    pub fn get(&self) -> Arc<Strings> {
+        Arc::clone(
+            &self
+                .0
+                .read()
+                .unwrap_or_else(|poisoned| poisoned.into_inner()),
+        )
+    }
+
+    #[expect(dead_code, reason = "used by the settings window's language switch")]
+    pub fn set(&self, strings: Strings) {
+        *self
+            .0
+            .write()
+            .unwrap_or_else(|poisoned| poisoned.into_inner()) = Arc::new(strings);
     }
 }
 
