@@ -32,6 +32,12 @@ pub fn is_internal(url: &Url) -> bool {
     }
 }
 
+/// Returns `true` if `url` is a lichess.org page (not the offline page or a
+/// third-party frame).
+pub fn is_lichess(url: &Url) -> bool {
+    url.scheme() == "https" && url.host_str().is_some_and(is_allowed_host)
+}
+
 /// Returns `true` if `url` is on the origin of the bundled app pages
 /// (`frontendDist`): `tauri://localhost` on macOS and Linux,
 /// `http://tauri.localhost` on Windows. Bundled windows may show only these.
@@ -99,6 +105,18 @@ mod tests {
         assert!(!is_internal(&url("https://lichess.org.evil.com/")));
         assert!(!is_internal(&url("http://lichess.org/")));
         assert!(!is_internal(&url("mailto:contact@lichess.org")));
+    }
+
+    #[test]
+    fn recognises_lichess_pages_only() {
+        assert!(is_lichess(&url("https://lichess.org/")));
+        assert!(is_lichess(&url("https://lichess.org/abcd1234")));
+        assert!(is_lichess(&url("https://en.lichess.org/")));
+        assert!(!is_lichess(&url("http://lichess.org/")));
+        assert!(!is_lichess(&url("https://evillichess.org/")));
+        assert!(!is_lichess(&url("https://challenges.cloudflare.com/")));
+        assert!(!is_lichess(&url("about:blank")));
+        assert!(!is_lichess(&offline::page_url()));
     }
 
     fn is_bundled_url(url: &Url) -> bool {
