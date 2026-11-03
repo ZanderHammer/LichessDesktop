@@ -1,4 +1,4 @@
-// Settings/about window (#15). Strings, settings and app facts come from
+// Settings/shortcuts/about window (#15). Strings, settings and app facts come from
 // Rust; every change is saved at once through `set_setting` (ADR 0012).
 
 import { invoke, listen } from "./ipc.js";
@@ -48,6 +48,42 @@ async function loadAbout() {
   document.getElementById("version").textContent = t("desktop.version", info.version);
   document.getElementById("link-source").href = info.repository;
   document.getElementById("link-license").href = info.license_url;
+}
+
+/** The shortcuts tab, built from Rust's shortcut table (`get_shortcuts`). */
+async function loadShortcuts() {
+  const view = await invoke("get_shortcuts");
+  const rows = view.map(({ label, keys, mouse }) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const text = document.createElement("span");
+    text.className = "row-text";
+    const title = document.createElement("span");
+    title.className = "row-title";
+    title.textContent = label;
+    text.append(title);
+    if (mouse) {
+      const subtitle = document.createElement("span");
+      subtitle.className = "row-subtitle";
+      subtitle.textContent = mouse;
+      text.append(subtitle);
+    }
+    const shortcuts = document.createElement("span");
+    shortcuts.className = "shortcut-list";
+    for (const caps of keys) {
+      const group = document.createElement("span");
+      group.className = "shortcut";
+      for (const cap of caps) {
+        const kbd = document.createElement("kbd");
+        kbd.textContent = cap;
+        group.append(kbd);
+      }
+      shortcuts.append(group);
+    }
+    row.append(text, shortcuts);
+    return row;
+  });
+  document.getElementById("shortcut-list").replaceChildren(...rows);
 }
 
 async function save(key, value) {
@@ -110,14 +146,14 @@ async function main() {
   bindTabs();
   bindSettings();
   await loadStrings();
-  await Promise.all([loadSettings(), loadAbout()]);
+  await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
   document.documentElement.classList.remove("loading");
   // The content is in place: Rust shows the window now. (No
   // requestAnimationFrame here: hidden windows don't get animation frames.)
   await invoke("settings_ready");
   await listen("strings-changed", async () => {
     await loadStrings();
-    await Promise.all([loadSettings(), loadAbout()]);
+    await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
   });
 }
 
