@@ -61,6 +61,8 @@ actions! {
     ZoomOut => zoom_out,
     /// Resets the zoom of the main window's page to 100 %.
     ZoomReset => zoom_reset,
+    /// Turns fullscreen on or off for the main window, for this session.
+    Fullscreen => toggle_fullscreen,
 }
 
 pub fn back<R: Runtime>(app: &AppHandle<R>) {
@@ -120,6 +122,16 @@ pub fn zoom_out<R: Runtime>(app: &AppHandle<R>) {
 pub fn zoom_reset<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = main_window(app) {
         zoom::change(&window, |_| zoom::DEFAULT);
+    }
+}
+
+pub fn toggle_fullscreen<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = main_window(app)
+        && let Err(err) = window
+            .is_fullscreen()
+            .and_then(|fullscreen| window.set_fullscreen(!fullscreen))
+    {
+        eprintln!("failed to toggle fullscreen: {err}");
     }
 }
 

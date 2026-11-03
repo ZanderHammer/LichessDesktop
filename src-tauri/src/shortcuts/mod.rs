@@ -63,6 +63,7 @@ pub enum Key {
     Right,
     Home,
     F5,
+    F11,
     BracketLeft,
     BracketRight,
     /// A letter key, given as an ASCII lowercase letter.
@@ -142,8 +143,15 @@ pub const SHORTCUTS: &[Shortcut] = {
         row(Mods::PRIMARY, K::KpSubtract, A::ZoomOut, NotMacOs),
         row(Mods::PRIMARY, K::Digit0, A::ZoomReset, All),
         row(Mods::PRIMARY, K::Kp0, A::ZoomReset, NotMacOs),
+        row(Mods::NONE, K::F11, A::Fullscreen, NotMacOs),
     ]
 };
+
+/// Actions that Tauri's default macOS menu already has, so they get no row
+/// and no menu item of ours there. View > Toggle Full Screen is AppKit's
+/// `toggleFullScreen:` on Ctrl+Cmd+F.
+#[cfg(any(target_os = "macos", test))]
+pub const MACOS_BUILT_IN: &[Action] = &[Action::Fullscreen];
 
 /// The rows of [`SHORTCUTS`] for this platform.
 pub fn current() -> impl Iterator<Item = &'static Shortcut> {
@@ -199,6 +207,16 @@ mod tests {
     }
 
     #[test]
+    fn macos_built_in_actions_have_no_macos_row() {
+        for shortcut in for_platform(true) {
+            assert!(
+                !MACOS_BUILT_IN.contains(&shortcut.action),
+                "{shortcut:?} duplicates a macOS menu item"
+            );
+        }
+    }
+
+    #[test]
     fn letters_are_ascii_lowercase() {
         for shortcut in SHORTCUTS {
             if let Key::Letter(c) = shortcut.key {
@@ -211,6 +229,9 @@ mod tests {
     fn every_action_has_a_shortcut_on_every_platform() {
         for macos in [false, true] {
             for action in Action::ALL {
+                if macos && MACOS_BUILT_IN.contains(action) {
+                    continue;
+                }
                 assert!(
                     for_platform(macos).any(|shortcut| shortcut.action == *action),
                     "{action:?} has no shortcut (macOS: {macos})"

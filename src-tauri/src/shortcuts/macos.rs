@@ -4,7 +4,8 @@
 //! before the webview gets the key. The app keeps Tauri's default menu (app,
 //! File, Edit, View, Window, Help) and adds a Navigation submenu with an item
 //! per [`Action`]; the item's accelerator is the action's macOS row of
-//! [`super::SHORTCUTS`].
+//! [`super::SHORTCUTS`]. Actions in [`super::MACOS_BUILT_IN`] are already in
+//! the default menu and get no item.
 
 use tauri::menu::{IsMenuItem, Menu, MenuItem, Submenu, WINDOW_SUBMENU_ID};
 use tauri::{AppHandle, Manager, Runtime, WebviewWindow};
@@ -39,6 +40,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     let strings = app.state::<i18n::Current>().get();
     let items = Action::ALL
         .iter()
+        .filter(|action| !super::MACOS_BUILT_IN.contains(action))
         .map(|&action| {
             MenuItem::with_id(
                 app,
@@ -73,6 +75,7 @@ fn label(action: Action) -> Text {
         Action::ZoomIn => Text::ZoomIn,
         Action::ZoomOut => Text::ZoomOut,
         Action::ZoomReset => Text::ZoomReset,
+        Action::Fullscreen => Text::Fullscreen,
     }
 }
 
@@ -99,6 +102,7 @@ fn accelerator(action: Action) -> Option<String> {
         Key::Right => "ArrowRight".to_owned(),
         Key::Home => "Home".to_owned(),
         Key::F5 => "F5".to_owned(),
+        Key::F11 => "F11".to_owned(),
         Key::BracketLeft => "[".to_owned(),
         Key::BracketRight => "]".to_owned(),
         Key::Letter(c) => c.to_ascii_uppercase().to_string(),

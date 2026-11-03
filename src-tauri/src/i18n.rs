@@ -240,6 +240,7 @@ keys! {
     ZoomIn => "desktop.zoomIn",
     ZoomOut => "desktop.zoomOut",
     ZoomReset => "desktop.zoomReset",
+    Fullscreen => "desktop.fullscreen",
 }
 
 /// Strings of one language, with the base language behind it.
