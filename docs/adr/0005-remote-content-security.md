@@ -22,7 +22,7 @@ Chosen option: "No IPC for remote content + host allowlist".
 * `src-tauri/src/navigation.rs` allows only `https://lichess.org` and its subdomains (plus `about:` and `blob:`) inside the app.
   * Any other navigation is cancelled and opened in the system browser via `tauri-plugin-opener`.
   * `target=_blank` links to lichess are loaded in the main window; external ones go to the browser.
-* Debug-only tooling (the MCP bridge, see `.mcp.json`) is compiled only with `debug_assertions` and never ships in release builds.
+* Debug tooling that needs IPC from the page is not used. One example is the `tauri-plugin-mcp-bridge` of `@hypothesi/tauri-mcp-server`: it needs `window.__TAURI__` and binds to `0.0.0.0` by default. Adopting it requires a new ADR.
 
 ### Consequences
 
