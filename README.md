@@ -12,6 +12,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 - Links to other sites open in your default browser
 - Remembers window size and position
 - Tray icon to show, hide or quit the app; closing the window can hide it to the tray instead of quitting (off by default)
+- Settings and About window from the tray menu: close to tray, update checks, language, notifications; the only app window with (scoped) native access ([ADR 0012](docs/adr/0012-scoped-ipc-for-bundled-app-windows.md))
 - Shows a simple offline page with a Retry link if lichess.org is unreachable at startup ([ADR 0011](docs/adr/0011-offline-page-from-a-startup-probe.md))
 - Opens `lichess-desktop://<path>` links as `https://lichess.org/<path>`, e.g. `lichess-desktop://tv` ([ADR 0013](docs/adr/0013-lichess-desktop-deep-link-scheme.md))
 - No access to native APIs for the web page ([ADR 0005](docs/adr/0005-remote-content-security.md))
