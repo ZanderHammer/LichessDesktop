@@ -112,6 +112,9 @@ async function main() {
   await loadStrings();
   await Promise.all([loadSettings(), loadAbout()]);
   document.documentElement.classList.remove("loading");
+  // The content is in place: Rust shows the window now. (No
+  // requestAnimationFrame here: hidden windows don't get animation frames.)
+  await invoke("settings_ready");
   await listen("strings-changed", async () => {
     await loadStrings();
     await Promise.all([loadSettings(), loadAbout()]);

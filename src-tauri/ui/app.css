@@ -407,5 +407,23 @@ button.row {
   .row-icon { background: CanvasText; }
 }
 
-/* Pages hide until Rust has sent their strings, so no key ids flash. */
-.loading body { visibility: hidden; }
+/* Pages hide until Rust has sent their strings, so no key ids flash. If that
+   takes a moment, a spinner appears after a short delay. */
+.loading .window { visibility: hidden; }
+
+.loading body::after {
+  content: "";
+  position: fixed;
+  inset-block-start: calc(50% - 12px);
+  inset-inline-start: calc(50% - 12px);
+  inline-size: 24px;
+  block-size: 24px;
+  border: 2px solid var(--border);
+  border-block-start-color: var(--fg-muted);
+  border-radius: 50%;
+  opacity: 0;
+  animation: spinner-in 0s 400ms forwards, spin 800ms linear infinite;
+}
+
+@keyframes spinner-in { to { opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
