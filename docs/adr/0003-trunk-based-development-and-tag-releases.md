@@ -20,6 +20,7 @@ We need a simple, repeatable release process for an open-source app with cross-p
 Chosen option: "Trunk-based on `main`, manual semver tag, git-cliff notes", because a release is one deliberate action (push a `vX.Y.Z` tag) with no bot PRs or long-lived branches.
 
 * All work lands on `main` in small commits or short-lived PRs. Merge commits are not used (linear history).
+  * To update a PR branch with `main`, rebase it (`git pull --rebase origin main` or `git rebase origin/main`) and force-push with `--force-with-lease`. Never merge `main` into a branch: the commit lint (`merge_commit = false` in `committed.toml`) rejects merge commits.
 * A release:
   1. bump `version` in `src-tauri/Cargo.toml` (the only version source; `tauri.conf.json` has none)
   2. commit `chore(release): vX.Y.Z`
