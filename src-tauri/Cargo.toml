@@ -28,4 +28,4 @@ tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 # through feature unification: it reports left clicks and doesn't load libayatana.
 # Must stay on the tray-icon version tauri uses (ADR 0014).
 [target.'cfg(target_os = "linux")'.dependencies]
-tray-icon = { version = "0.25.1", default-features = false, features = ["ksni"] }
+tray-icon = { version = "0.26.1", default-features = false, features = ["ksni"] }
