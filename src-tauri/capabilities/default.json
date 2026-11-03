@@ -1,7 +1,0 @@
-{
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "Local-only capability. No remote URLs are granted, so lichess.org has no IPC access (see ADR 0005).",
-  "windows": ["main"],
-  "permissions": ["core:default"]
-}
