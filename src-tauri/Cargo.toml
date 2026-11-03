@@ -1,0 +1,16 @@
+[package]
+name = "lichess-desktop"
+version = "0.1.0"
+description = "Unofficial lightweight desktop app for lichess.org"
+authors = ["Alexander Hammer"]
+license = "MIT"
+repository = "https://github.com/ZanderHammer/LichessDesktop"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = [] }
