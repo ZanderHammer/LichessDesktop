@@ -10,11 +10,13 @@ use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime};
 
+use crate::actions::Action;
 use crate::i18n::{self, Key};
 
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
 const SETTINGS: &str = "settings";
+const SHORTCUTS: &str = "shortcuts";
 const QUIT: &str = "quit";
 
 /// Creates the tray icon. The app keeps it alive until exit.
@@ -51,6 +53,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         &[
             &item(TOGGLE, Key::ShowHide)?,
             &item(SETTINGS, Key::SettingsMenu)?,
+            &item(SHORTCUTS, Action::ShowShortcuts.label())?,
             &PredefinedMenuItem::separator(app)?,
             &item(QUIT, Key::Quit)?,
         ],
@@ -79,6 +82,7 @@ fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
                 eprintln!("failed to open the settings window: {err}");
             }
         }
+        SHORTCUTS => Action::ShowShortcuts.run(app),
         QUIT => app.exit(0),
         _ => {}
     }
