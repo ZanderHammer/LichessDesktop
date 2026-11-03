@@ -135,6 +135,15 @@ kbd {
   direction: ltr; /* key order stays as printed on the keyboard */
 }
 
+/* Several shortcuts for one action, at the end of a row. */
+
+.shortcut-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 /* Window layout */
 
 .window {

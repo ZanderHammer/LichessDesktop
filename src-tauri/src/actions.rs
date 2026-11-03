@@ -24,7 +24,6 @@ macro_rules! actions {
 
         impl Action {
             /// Every action, in menu order.
-            #[allow(dead_code, reason = "used by the macOS menu and the tests")]
             pub const ALL: &[Action] = &[$(Action::$variant,)*];
 
             /// A stable id, for example for menu items.
@@ -36,7 +35,6 @@ macro_rules! actions {
             }
 
             /// The action's name in menus and the shortcuts overview.
-            #[allow(dead_code, reason = "used by the macOS menu")]
             pub const fn label(self) -> Text {
                 match self {
                     $(Action::$variant => Text::$label,)*

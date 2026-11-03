@@ -11,8 +11,10 @@ use tauri::ipc::Invoke;
 use tauri::webview::{NewWindowResponse, PageLoadEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
+use crate::actions::Action;
 use crate::i18n::{self, Key};
 use crate::settings::{Language, SettingsStore};
+use crate::shortcuts;
 
 pub const LABEL: &str = "settings";
 
@@ -106,6 +108,7 @@ pub fn invoke_handler<R: Runtime>() -> impl Fn(Invoke<R>) -> bool + Send + Sync 
         get_settings,
         set_setting,
         get_app_info,
+        get_shortcuts,
         settings_ready
     ]
 }
@@ -130,6 +133,46 @@ pub fn get_strings(strings: tauri::State<'_, i18n::Current>) -> StringsView {
             .map(|(id, text)| (id, text.to_owned()))
             .collect(),
     }
+}
+
+/// One action in the shortcuts overview.
+#[derive(Debug, Serialize, PartialEq)]
+pub struct ShortcutView {
+    label: String,
+    /// Each shortcut as its key caps, e.g. `["Ctrl", "R"]`.
+    keys: Vec<Vec<String>>,
+    /// A mouse button that also runs the action.
+    mouse: Option<String>,
+}
+
+/// The shortcuts of this platform, one entry per action, straight from the
+/// shortcut table, so the overview can't drift from what is bound.
+#[tauri::command]
+pub fn get_shortcuts(strings: tauri::State<'_, i18n::Current>) -> Vec<ShortcutView> {
+    shortcuts_view(&strings.get(), cfg!(target_os = "macos"))
+}
+
+fn shortcuts_view(strings: &i18n::Strings, macos: bool) -> Vec<ShortcutView> {
+    Action::ALL
+        .iter()
+        .map(|&action| ShortcutView {
+            label: strings.get(action.label()).to_owned(),
+            keys: keys(action, macos),
+            mouse: shortcuts::mouse_button(action).map(|key| strings.get(key).to_owned()),
+        })
+        .collect()
+}
+
+/// The key caps of every shortcut of `action` on this platform.
+fn keys(action: Action, macos: bool) -> Vec<Vec<String>> {
+    #[cfg(any(target_os = "macos", test))]
+    if macos && let Some(caps) = shortcuts::macos_built_in_key_caps(action) {
+        return vec![caps];
+    }
+    shortcuts::for_platform(macos)
+        .filter(|shortcut| shortcut.action == action)
+        .map(|shortcut| shortcuts::key_caps(shortcut, macos))
+        .collect()
 }
 
 #[derive(Serialize)]
@@ -297,7 +340,12 @@ mod tests {
             "tauri://localhost"
         };
 
-        for cmd in ["get_strings", "get_app_info", "settings_ready"] {
+        for cmd in [
+            "get_strings",
+            "get_app_info",
+            "get_shortcuts",
+            "settings_ready",
+        ] {
             assert!(
                 get_ipc_response(&settings, request(cmd, local)).is_ok(),
                 "{cmd} denied"
@@ -312,6 +360,17 @@ mod tests {
             );
         }
         assert!(get_ipc_response(&main, request("plugin:event|listen", local)).is_err());
+    }
+
+    #[test]
+    fn lists_every_action_with_its_shortcuts() {
+        let strings = i18n::Strings::load(i18n::BASE);
+        let view = shortcuts_view(&strings, false);
+        assert_eq!(view.len(), Action::ALL.len());
+        let reload = view.iter().find(|entry| entry.label == "Reload").unwrap();
+        assert!(reload.keys.iter().all(|keys| !keys.is_empty()));
+        assert!(!reload.keys.is_empty());
+        assert!(reload.mouse.is_none());
     }
 
     #[test]

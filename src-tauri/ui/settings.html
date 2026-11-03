@@ -12,6 +12,7 @@
   <header class="window-header">
     <div class="tabs" role="tablist" aria-label="Lichess Desktop">
       <button type="button" role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="true" data-i18n="desktop.settings"></button>
+      <button type="button" role="tab" id="tab-shortcuts" aria-controls="panel-shortcuts" aria-selected="false" tabindex="-1" data-i18n="desktop.shortcuts"></button>
       <button type="button" role="tab" id="tab-about" aria-controls="panel-about" aria-selected="false" tabindex="-1" data-i18n="desktop.about"></button>
     </div>
   </header>
@@ -57,6 +58,12 @@
           <input type="checkbox" role="switch" class="switch" data-setting="attention" aria-describedby="hint-attention">
         </label>
       </div>
+    </section>
+  </main>
+
+  <main class="window-content" id="panel-shortcuts" role="tabpanel" aria-labelledby="tab-shortcuts" hidden>
+    <section class="section">
+      <div class="list" id="shortcut-list"></div>
     </section>
   </main>
 

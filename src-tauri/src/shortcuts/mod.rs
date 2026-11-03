@@ -17,6 +17,7 @@
 use tauri::{Runtime, WebviewWindow};
 
 use crate::actions::Action;
+use crate::i18n;
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -159,10 +160,75 @@ pub fn current() -> impl Iterator<Item = &'static Shortcut> {
     for_platform(cfg!(target_os = "macos"))
 }
 
-fn for_platform(macos: bool) -> impl Iterator<Item = &'static Shortcut> {
+/// The rows of [`SHORTCUTS`] for macOS or for Linux and Windows.
+pub fn for_platform(macos: bool) -> impl Iterator<Item = &'static Shortcut> {
     SHORTCUTS
         .iter()
         .filter(move |shortcut| shortcut.platforms.includes(macos))
+}
+
+/// The key caps of `shortcut` for the shortcuts overview, in the order the
+/// platform prints them: Ctrl, Alt, Shift on Linux and Windows, and ⌥ ⇧ ⌘
+/// on macOS, then the key.
+pub fn key_caps(shortcut: &Shortcut, macos: bool) -> Vec<String> {
+    let Mods {
+        primary,
+        shift,
+        alt,
+    } = shortcut.mods;
+    let mods: [(bool, &str); 3] = if macos {
+        [(alt, "⌥"), (shift, "⇧"), (primary, "⌘")]
+    } else {
+        [(primary, "Ctrl"), (alt, "Alt"), (shift, "Shift")]
+    };
+    let mut caps: Vec<String> = mods
+        .into_iter()
+        .filter(|(held, _)| *held)
+        .map(|(_, cap)| cap.to_owned())
+        .collect();
+    caps.push(match shortcut.key {
+        Key::Left => "←".to_owned(),
+        Key::Right => "→".to_owned(),
+        Key::Home => "Home".to_owned(),
+        Key::F5 => "F5".to_owned(),
+        Key::F11 => "F11".to_owned(),
+        Key::BracketLeft => "[".to_owned(),
+        Key::BracketRight => "]".to_owned(),
+        Key::Letter(c) => c.to_ascii_uppercase().to_string(),
+        Key::Equal => "=".to_owned(),
+        Key::Plus => "+".to_owned(),
+        Key::Minus => "-".to_owned(),
+        Key::Digit0 => "0".to_owned(),
+        Key::KpAdd => "Num +".to_owned(),
+        Key::KpSubtract => "Num -".to_owned(),
+        Key::Kp0 => "Num 0".to_owned(),
+    });
+    caps
+}
+
+/// The key caps of the built-in macOS menu item that serves `action`
+/// ([`MACOS_BUILT_IN`]), for the overview.
+#[cfg(any(target_os = "macos", test))]
+pub fn macos_built_in_key_caps(action: Action) -> Option<Vec<String>> {
+    match action {
+        // AppKit's View > Enter Full Screen.
+        Action::Fullscreen => Some(vec!["⌃".to_owned(), "⌘".to_owned(), "F".to_owned()]),
+        _ => None,
+    }
+}
+
+/// The mouse button that also runs `action`, for the overview. The side
+/// buttons go back and forward on Linux (`linux.rs`) and Windows (WebView2
+/// itself); macOS isn't handled.
+pub fn mouse_button(action: Action) -> Option<i18n::Key> {
+    if cfg!(target_os = "macos") {
+        return None;
+    }
+    match action {
+        Action::Back => Some(i18n::Key::MouseBack),
+        Action::Forward => Some(i18n::Key::MouseForward),
+        _ => None,
+    }
 }
 
 /// Wires [`SHORTCUTS`] to the main window.
@@ -215,6 +281,32 @@ mod tests {
                 "{shortcut:?} duplicates a macOS menu item"
             );
         }
+    }
+
+    #[test]
+    fn macos_built_in_actions_have_key_caps() {
+        for action in MACOS_BUILT_IN {
+            assert!(
+                macos_built_in_key_caps(*action).is_some(),
+                "{action:?} has no key caps"
+            );
+        }
+    }
+
+    #[test]
+    fn prints_key_caps_in_platform_order() {
+        let copy = row(
+            Mods::PRIMARY_SHIFT,
+            Key::Letter('c'),
+            Action::CopyUrl,
+            Platforms::All,
+        );
+        assert_eq!(key_caps(&copy, false), ["Ctrl", "Shift", "C"]);
+        assert_eq!(key_caps(&copy, true), ["⇧", "⌘", "C"]);
+        let back = row(Mods::ALT, Key::Left, Action::Back, Platforms::NotMacOs);
+        assert_eq!(key_caps(&back, false), ["Alt", "←"]);
+        let reload = row(Mods::NONE, Key::F5, Action::Reload, Platforms::NotMacOs);
+        assert_eq!(key_caps(&reload, false), ["F5"]);
     }
 
     #[test]

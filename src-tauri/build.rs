@@ -9,6 +9,7 @@ const COMMANDS: &[&str] = &[
     "get_settings",
     "set_setting",
     "get_app_info",
+    "get_shortcuts",
     "settings_ready",
 ];
 

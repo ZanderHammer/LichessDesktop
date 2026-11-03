@@ -242,6 +242,9 @@ keys! {
     ZoomReset => "desktop.zoomReset",
     Fullscreen => "desktop.fullscreen",
     AlwaysOnTop => "desktop.alwaysOnTop",
+    Shortcuts => "desktop.shortcuts",
+    MouseBack => "desktop.mouseBack",
+    MouseForward => "desktop.mouseForward",
 }
 
 /// Strings of one language, with the base language behind it.
