@@ -2,27 +2,7 @@
 // Rust; every change is saved at once through `set_setting` (ADR 0012).
 
 import { invoke, listen } from "./ipc.js";
-
-let strings = {};
-
-/** The string `id` with lila's `%s` / `%1$s` placeholders filled in. */
-function t(id, ...args) {
-  let text = strings[id] ?? id;
-  args.forEach((arg, i) => {
-    text = text.replace(`%${i + 1}$s`, arg).replace("%s", arg);
-  });
-  return text;
-}
-
-async function loadStrings() {
-  const view = await invoke("get_strings");
-  strings = view.strings;
-  document.documentElement.lang = view.lang;
-  document.documentElement.dir = view.dir;
-  for (const el of document.querySelectorAll("[data-i18n]")) {
-    el.textContent = t(el.dataset.i18n);
-  }
-}
+import { loadStrings, t } from "./strings.js";
 
 async function loadSettings() {
   const settings = await invoke("get_settings");

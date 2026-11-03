@@ -12,7 +12,7 @@ fn config() -> Value {
 #[test]
 fn shared_assets_are_embedded() {
     let context = crate::context::<tauri::Wry>();
-    for asset in ["app.css", "ipc.js"] {
+    for asset in ["app.css", "ipc.js", "strings.js"] {
         assert!(
             context.assets().get(&asset.into()).is_some(),
             "{asset} is not bundled"
