@@ -1,0 +1,408 @@
+/*
+ * Shared stylesheet for the bundled app windows (settings/about, command
+ * palette). A native settings look in the spirit of GNOME Settings and
+ * Windows 11 Settings; it must not look like lichess. Follows the OS theme,
+ * forced colours and reduced motion. Logical properties keep RTL working.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* The OS accent. Rust may override --accent and --accent-fg on <html>;
+     CSS AccentColor can't be used because webviews return a fixed blue. */
+  --accent: #1c71d8;
+  --accent-fg: #ffffff;
+  --accent-text: #1a5fb4;
+  --focus-color: var(--accent);
+
+  --bg: #f6f5f4;
+  --surface: #ffffff;
+  --surface-hover: #f1f0ef;
+  --surface-active: #e8e7e6;
+  --fg: #1e1e20;
+  --fg-muted: #5e5c64;
+  --border: #deddda;
+  --control: #ffffff;
+  --control-border: #c0bfbc;
+  --switch-off: #87858b;
+  --kbd-bg: #f1f0ef;
+  --danger: #c01c28;
+
+  --font: system-ui, -apple-system, "Segoe UI", "Cantarell", "Ubuntu", sans-serif;
+  --text-sm: 0.8125rem; /* 13px: secondary text, kbd */
+  --text-md: 0.875rem;  /* 14px: body, rows, controls */
+  --text-lg: 1rem;      /* 16px: section and window headings */
+
+  --radius: 12px;
+  --radius-control: 6px;
+  --row-height: 48px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus-color);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 160ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent-text: #99c1f1;
+    --focus-color: #78aeed;
+    --bg: #222226;
+    --surface: #2e2e32;
+    --surface-hover: #37373c;
+    --surface-active: #404046;
+    --fg: #f6f5f4;
+    --fg-muted: #c0bfc4;
+    --border: #3d3d42;
+    --control: #38383d;
+    --control-border: #55555b;
+    --switch-off: #8b8a91;
+    --kbd-bg: #38383d;
+    --danger: #ff7b63;
+  }
+}
+
+/* Base */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: var(--text-md) / 1.4 var(--font);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  scrollbar-color: var(--control-border) transparent;
+  accent-color: var(--accent);
+  caret-color: var(--accent);
+  cursor: default;
+  user-select: none;
+}
+
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* Text the user may want to copy (version, paths) opts back in. */
+.selectable { user-select: text; cursor: auto; }
+
+:focus { outline: none; }
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+h1, h2, h3, p { margin: 0; }
+
+h1 { font-size: var(--text-lg); font-weight: 700; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+a {
+  color: var(--accent-text);
+  text-underline-offset: 0.2em;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+kbd {
+  display: inline-block;
+  min-inline-size: 1.75em;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-block-end-width: 2px;
+  border-radius: 4px;
+  background: var(--kbd-bg);
+  color: var(--fg-muted);
+  font: 600 var(--text-sm) / 1.4 var(--font);
+  text-align: center;
+}
+
+/* A shortcut: <span class="shortcut"><kbd>Ctrl</kbd><kbd>K</kbd></span> */
+
+.shortcut {
+  display: inline-flex;
+  flex: none;
+  gap: var(--space-1);
+  direction: ltr; /* key order stays as printed on the keyboard */
+}
+
+/* Window layout */
+
+.window {
+  display: flex;
+  flex-direction: column;
+  block-size: 100vh;
+}
+
+.window-header {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+}
+
+.window-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-5) var(--space-5);
+}
+
+/* Segmented tabs: role="tablist" with button[role="tab"][aria-selected]. */
+
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.tabs [role="tab"] {
+  min-inline-size: 96px;
+  padding: 5px var(--space-4);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-muted);
+  font: 600 var(--text-md) / 1.4 var(--font);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+.tabs [role="tab"]:hover { color: var(--fg); }
+
+.tabs [role="tab"][aria-selected="true"] {
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 1px 1px rgb(0 0 0 / 0.06);
+}
+
+/* Sections and grouped list boxes */
+
+.section + .section { margin-block-start: var(--space-5); }
+
+.section-title {
+  margin-block-end: var(--space-2);
+  padding-inline: var(--space-1);
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+
+.section-note {
+  margin-block-start: var(--space-2);
+  padding-inline: var(--space-1);
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--row-height);
+  padding: var(--space-2) var(--space-4);
+}
+
+.row + .row { border-block-start: 1px solid var(--border); }
+
+/* A whole row that is one control (a <label> or <a>) gets row feedback. */
+label.row, a.row, button.row { cursor: pointer; color: inherit; text-decoration: none; }
+label.row:hover, a.row:hover, button.row:hover { background: var(--surface-hover); }
+label.row:active, a.row:active, button.row:active { background: var(--surface-active); }
+a.row:focus-visible, button.row:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-color); }
+
+button.row {
+  inline-size: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+}
+
+.row-text { flex: 1; min-inline-size: 0; }
+.row-title { display: block; }
+.row-subtitle { display: block; color: var(--fg-muted); font-size: var(--text-sm); }
+.row-value { color: var(--fg-muted); }
+
+/* Trailing icon of an activatable row: <span class="row-icon" aria-hidden="true">
+   for a page, add .external for a link that opens the browser. */
+.row-icon {
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  background: var(--fg-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3.5 10.5 8 6 12.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3.5 10.5 8 6 12.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.row-icon.external {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:dir(rtl) .row-icon:not(.external) { transform: scaleX(-1); }
+
+/* Switch: <input type="checkbox" role="switch" class="switch"> */
+
+.switch {
+  appearance: none;
+  flex: none;
+  position: relative;
+  inline-size: 44px;
+  block-size: 24px;
+  margin: 0;
+  border-radius: 12px;
+  background: var(--switch-off);
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease);
+}
+
+.switch::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform var(--duration) var(--ease);
+}
+
+.switch:checked { background: var(--accent); }
+.switch:checked::before { transform: translateX(20px); }
+:dir(rtl) .switch:checked::before { transform: translateX(-20px); }
+.switch:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Select and buttons */
+
+.select, .button {
+  min-block-size: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  background: var(--control);
+  color: var(--fg);
+  font: var(--text-md) / 1.4 var(--font);
+}
+
+.select { max-inline-size: 60%; cursor: pointer; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease);
+}
+
+.button:hover { background: var(--surface-hover); }
+.button:active { background: var(--surface-active); }
+
+.button.primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.button.primary:hover { background: color-mix(in srgb, var(--accent) 88%, #000); }
+.button.destructive { color: var(--danger); }
+.select:disabled, .button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Command palette: a search field over a listbox of options. */
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  block-size: 100vh;
+  background: var(--surface);
+}
+
+.palette-search {
+  inline-size: 100%;
+  min-block-size: 48px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-block-end: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font: var(--text-lg) / 1.4 var(--font);
+  user-select: text;
+}
+
+.palette-search:focus-visible { box-shadow: inset 0 -2px var(--focus-color); }
+.palette-search::placeholder { color: var(--fg-muted); }
+
+.palette-results {
+  flex: 1;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  overflow-y: auto;
+}
+
+.palette-group {
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.palette-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: 36px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.palette-option:hover { background: var(--surface-hover); }
+.palette-option[aria-selected="true"] {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+
+.palette-option .row-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.palette-empty {
+  padding: var(--space-5) var(--space-4);
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+/* Accessibility modes */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; }
+}
+
+@media (forced-colors: active) {
+  :focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .switch { border: 1px solid ButtonText; background: Canvas; forced-color-adjust: none; }
+  .switch::before { background: ButtonText; box-shadow: none; }
+  .switch:checked { background: Highlight; }
+  .switch:checked::before { background: HighlightText; }
+  .tabs [role="tab"][aria-selected="true"] { outline: 2px solid Highlight; }
+  .palette-option[aria-selected="true"] { outline: 2px solid Highlight; }
+  .row-icon { background: CanvasText; }
+}
