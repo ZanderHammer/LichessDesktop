@@ -67,6 +67,13 @@ pub enum Key {
     BracketRight,
     /// A letter key, given as an ASCII lowercase letter.
     Letter(char),
+    Equal,
+    Plus,
+    Minus,
+    Digit0,
+    KpAdd,
+    KpSubtract,
+    Kp0,
 }
 
 /// The platforms a row applies to.
@@ -125,6 +132,16 @@ pub const SHORTCUTS: &[Shortcut] = {
         row(Mods::ALT, K::Home, A::Home, All),
         row(Mods::PRIMARY_SHIFT, K::Letter('c'), A::CopyUrl, All),
         row(Mods::PRIMARY_SHIFT, K::Letter('o'), A::OpenInBrowser, All),
+        // Browser conventions: Ctrl/Cmd + =/+ zooms in, - zooms out, 0
+        // resets. On layouts where `=` needs Shift the `equal` keyval still
+        // matches, the `+` key needs its own row (ADR 0010, spike #4).
+        row(Mods::PRIMARY, K::Equal, A::ZoomIn, All),
+        row(Mods::PRIMARY, K::Plus, A::ZoomIn, NotMacOs),
+        row(Mods::PRIMARY, K::KpAdd, A::ZoomIn, NotMacOs),
+        row(Mods::PRIMARY, K::Minus, A::ZoomOut, All),
+        row(Mods::PRIMARY, K::KpSubtract, A::ZoomOut, NotMacOs),
+        row(Mods::PRIMARY, K::Digit0, A::ZoomReset, All),
+        row(Mods::PRIMARY, K::Kp0, A::ZoomReset, NotMacOs),
     ]
 };
 
