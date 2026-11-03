@@ -52,7 +52,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         app,
         &[
             &item(TOGGLE, Key::ShowHide)?,
-            &item(SETTINGS, Key::SettingsMenu)?,
+            &item(SETTINGS, Action::OpenSettings.label())?,
             &item(SHORTCUTS, Action::ShowShortcuts.label())?,
             &PredefinedMenuItem::separator(app)?,
             &item(QUIT, Key::Quit)?,
@@ -77,11 +77,7 @@ pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
 fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     match event.id.as_ref() {
         TOGGLE => toggle_main_window(app),
-        SETTINGS => {
-            if let Err(err) = crate::settings_window::open(app) {
-                eprintln!("failed to open the settings window: {err}");
-            }
-        }
+        SETTINGS => Action::OpenSettings.run(app),
         SHORTCUTS => Action::ShowShortcuts.run(app),
         QUIT => app.exit(0),
         _ => {}
