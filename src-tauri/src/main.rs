@@ -49,15 +49,15 @@ fn main() {
         )
         .plugin(tauri_plugin_store::Builder::default().build())
         .register_uri_scheme_protocol(offline::SCHEME, |ctx, _request| {
-            offline::response(&ctx.app_handle().state::<i18n::Strings>())
+            offline::response(&ctx.app_handle().state::<i18n::Current>().get())
         })
         .setup(move |app| {
             settings::init(app)?;
             let language = app.state::<settings::SettingsStore<Wry>>().get().language;
-            app.manage(i18n::Strings::load(i18n::resolve(
+            app.manage(i18n::Current::new(i18n::Strings::load(i18n::resolve(
                 &language,
                 sys_locale::get_locales(),
-            )));
+            ))));
             // Without a tray (e.g. GNOME without a StatusNotifierWatcher) the
             // app still runs; close then always quits.
             #[cfg(desktop)]
