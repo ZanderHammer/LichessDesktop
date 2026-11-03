@@ -9,6 +9,8 @@ mod i18n;
 mod native;
 mod navigation;
 mod offline;
+#[cfg(test)]
+mod pinned_deps;
 mod settings;
 #[cfg(desktop)]
 mod settings_window;
