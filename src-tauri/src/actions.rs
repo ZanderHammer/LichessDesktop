@@ -7,7 +7,7 @@
 
 use tauri::{AppHandle, Manager, Runtime, Url, WebviewWindow};
 
-use crate::{MAIN_WINDOW, START_URL, native, navigation};
+use crate::{MAIN_WINDOW, START_URL, native, navigation, zoom};
 
 /// Declares [`Action`] and the function each variant runs in one place, so
 /// the list can't drift from the enum.
@@ -55,6 +55,12 @@ actions! {
     CopyUrl => copy_url,
     /// Opens the lichess page of the main window in the system browser.
     OpenInBrowser => open_in_browser,
+    /// Zooms the page of the main window in one step.
+    ZoomIn => zoom_in,
+    /// Zooms the page of the main window out one step.
+    ZoomOut => zoom_out,
+    /// Resets the zoom of the main window's page to 100 %.
+    ZoomReset => zoom_reset,
 }
 
 pub fn back<R: Runtime>(app: &AppHandle<R>) {
@@ -96,6 +102,24 @@ pub fn copy_url<R: Runtime>(app: &AppHandle<R>) {
 pub fn open_in_browser<R: Runtime>(app: &AppHandle<R>) {
     if let Some((_, url)) = lichess_page(app) {
         crate::open_in_browser(app, &url);
+    }
+}
+
+pub fn zoom_in<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = main_window(app) {
+        zoom::change(&window, zoom::step_in);
+    }
+}
+
+pub fn zoom_out<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = main_window(app) {
+        zoom::change(&window, zoom::step_out);
+    }
+}
+
+pub fn zoom_reset<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = main_window(app) {
+        zoom::change(&window, |_| zoom::DEFAULT);
     }
 }
 

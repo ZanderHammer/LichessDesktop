@@ -74,6 +74,13 @@ fn keyval(key: Key) -> gdk::keys::Key {
         Key::BracketLeft => constants::bracketleft,
         Key::BracketRight => constants::bracketright,
         Key::Letter(c) => gdk::keys::Key::from_unicode(c),
+        Key::Equal => constants::equal,
+        Key::Plus => constants::plus,
+        Key::Minus => constants::minus,
+        Key::Digit0 => constants::_0,
+        Key::KpAdd => constants::KP_Add,
+        Key::KpSubtract => constants::KP_Subtract,
+        Key::Kp0 => constants::KP_0,
     }
 }
 

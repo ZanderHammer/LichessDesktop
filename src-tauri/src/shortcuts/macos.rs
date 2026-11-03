@@ -70,6 +70,9 @@ fn label(action: Action) -> Text {
         Action::Home => Text::Home,
         Action::CopyUrl => Text::CopyUrl,
         Action::OpenInBrowser => Text::OpenInBrowser,
+        Action::ZoomIn => Text::ZoomIn,
+        Action::ZoomOut => Text::ZoomOut,
+        Action::ZoomReset => Text::ZoomReset,
     }
 }
 
@@ -99,6 +102,13 @@ fn accelerator(action: Action) -> Option<String> {
         Key::BracketLeft => "[".to_owned(),
         Key::BracketRight => "]".to_owned(),
         Key::Letter(c) => c.to_ascii_uppercase().to_string(),
+        Key::Equal => "=".to_owned(),
+        Key::Plus => "+".to_owned(),
+        Key::Minus => "-".to_owned(),
+        Key::Digit0 => "0".to_owned(),
+        Key::KpAdd => "NumPadAdd".to_owned(),
+        Key::KpSubtract => "NumPadSubtract".to_owned(),
+        Key::Kp0 => "NumPad0".to_owned(),
     });
     Some(parts.join("+"))
 }

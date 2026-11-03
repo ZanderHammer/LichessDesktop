@@ -28,5 +28,8 @@
   "desktop.reload": "Reload",
   "desktop.home": "Home",
   "desktop.copyUrl": "Copy page address",
-  "desktop.openInBrowser": "Open in browser"
+  "desktop.openInBrowser": "Open in browser",
+  "desktop.zoomIn": "Zoom in",
+  "desktop.zoomOut": "Zoom out",
+  "desktop.zoomReset": "Reset zoom"
 }
