@@ -9,6 +9,8 @@ mod offline;
 mod settings;
 #[cfg(desktop)]
 mod tray;
+#[cfg(test)]
+mod ui_assets;
 
 use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindowBuilder, WindowEvent, Wry};
