@@ -32,5 +32,6 @@
   "desktop.zoomIn": "Zoom in",
   "desktop.zoomOut": "Zoom out",
   "desktop.zoomReset": "Reset zoom",
-  "desktop.fullscreen": "Full screen"
+  "desktop.fullscreen": "Full screen",
+  "desktop.alwaysOnTop": "Always on top"
 }

@@ -241,6 +241,7 @@ keys! {
     ZoomOut => "desktop.zoomOut",
     ZoomReset => "desktop.zoomReset",
     Fullscreen => "desktop.fullscreen",
+    AlwaysOnTop => "desktop.alwaysOnTop",
 }
 
 /// Strings of one language, with the base language behind it.
