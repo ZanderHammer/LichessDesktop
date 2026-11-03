@@ -48,6 +48,13 @@ async function loadAbout() {
   document.getElementById("version").textContent = t("desktop.version", info.version);
   document.getElementById("link-source").href = info.repository;
   document.getElementById("link-license").href = info.license_url;
+  // A newer release found by the update check (ADR 0017), if any.
+  const update = document.getElementById("link-update");
+  update.hidden = !info.update;
+  if (info.update) {
+    update.href = info.update.url;
+    document.getElementById("update-available").textContent = t("desktop.updateAvailable", info.update.version);
+  }
 }
 
 /** The shortcuts tab, built from Rust's shortcut table (`get_shortcuts`). */
@@ -161,6 +168,7 @@ async function main() {
   // requestAnimationFrame here: hidden windows don't get animation frames.)
   await invoke("settings_ready");
   await listen("show-tab", (event) => showTab(event.payload));
+  await listen("update-changed", loadAbout);
   await listen("strings-changed", async () => {
     await loadStrings();
     await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);

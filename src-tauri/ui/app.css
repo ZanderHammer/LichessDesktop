@@ -230,6 +230,7 @@ kbd {
 }
 
 .row + .row { border-block-start: 1px solid var(--border); }
+.row[hidden] { display: none; }
 
 /* A whole row that is one control (a <label> or <a>) gets row feedback. */
 label.row, a.row, button.row { cursor: pointer; color: inherit; text-decoration: none; }
