@@ -32,7 +32,7 @@ tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 # through feature unification: it reports left clicks and doesn't load libayatana.
 # Must stay on the tray-icon version tauri uses (ADR 0014).
 [target.'cfg(target_os = "linux")'.dependencies]
-tray-icon = { version = "0.26.1", default-features = false, features = ["ksni"] }
+tray-icon = { version = "0.25.1", default-features = false, features = ["ksni"] }
 # The GTK window and WebKitGTK webview for the shortcuts and mouse back/forward
 # (ADR 0010). Must stay on the versions tauri uses.
 gtk = "0.18.2"
