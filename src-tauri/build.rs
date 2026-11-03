@@ -4,7 +4,13 @@ use std::{env, fs};
 
 /// Every app command. Listing them creates the app's ACL manifest, so each
 /// command needs an `allow-<command>` permission in a capability (ADR 0012).
-const COMMANDS: &[&str] = &["get_strings", "get_settings", "set_setting", "get_app_info"];
+const COMMANDS: &[&str] = &[
+    "get_strings",
+    "get_settings",
+    "set_setting",
+    "get_app_info",
+    "settings_ready",
+];
 
 fn main() {
     embed_translations();

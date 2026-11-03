@@ -5,8 +5,10 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::thread;
+use std::time::Duration;
 use tauri::ipc::Invoke;
-use tauri::webview::NewWindowResponse;
+use tauri::webview::{NewWindowResponse, PageLoadEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
 use crate::i18n::{self, Key};
@@ -14,11 +16,16 @@ use crate::settings::{Language, SettingsStore};
 
 pub const LABEL: &str = "settings";
 
+/// Shows the window anyway if the page never reports `settings_ready`.
+const SHOW_FALLBACK: Duration = Duration::from_millis(1500);
+
 /// Tells the page to fetch its strings again after a language change.
 const STRINGS_CHANGED: &str = "strings-changed";
 
 /// Opens the window, or brings it to the front if it is already open. The
-/// main window is its parent, so it is shown first.
+/// main window is its parent, so it is shown first. A new window stays
+/// hidden until the page has drawn its content (`settings_ready`), so it
+/// never shows up empty.
 pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(LABEL) {
         window.unminimize()?;
@@ -50,6 +57,7 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .minimizable(false)
         .maximizable(false)
         .center()
+        .visible(false)
         .parent(&main)?
         // Only the bundled page itself; its links open in the browser.
         .on_navigation(move |url| {
@@ -63,14 +71,43 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             crate::open_in_browser(&popup_handle, &url);
             NewWindowResponse::Deny
         })
+        .on_page_load(|window, payload| {
+            if payload.event() == PageLoadEvent::Finished {
+                let window = window.clone();
+                thread::spawn(move || {
+                    thread::sleep(SHOW_FALLBACK);
+                    if !window.is_visible().unwrap_or(true) {
+                        show(&window.as_ref().window());
+                    }
+                });
+            }
+        })
         .build()?;
     Ok(())
+}
+
+fn show<R: Runtime>(window: &tauri::Window<R>) {
+    if let Err(err) = window.show().and_then(|()| window.set_focus()) {
+        eprintln!("failed to show the settings window: {err}");
+    }
+}
+
+/// The page has drawn its content: show the window.
+#[tauri::command]
+pub fn settings_ready<R: Runtime>(webview: tauri::Webview<R>) {
+    show(&webview.window());
 }
 
 /// The handler for every app command. Keep it in step with `COMMANDS` in
 /// `build.rs` and with `capabilities/settings.json`.
 pub fn invoke_handler<R: Runtime>() -> impl Fn(Invoke<R>) -> bool + Send + Sync + 'static {
-    tauri::generate_handler![get_strings, get_settings, set_setting, get_app_info]
+    tauri::generate_handler![
+        get_strings,
+        get_settings,
+        set_setting,
+        get_app_info,
+        settings_ready
+    ]
 }
 
 /// The strings of the UI language, keyed by id.
@@ -255,7 +292,7 @@ mod tests {
             "tauri://localhost"
         };
 
-        for cmd in ["get_strings", "get_app_info"] {
+        for cmd in ["get_strings", "get_app_info", "settings_ready"] {
             assert!(
                 get_ipc_response(&settings, request(cmd, local)).is_ok(),
                 "{cmd} denied"
