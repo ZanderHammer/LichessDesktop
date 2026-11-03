@@ -1,9 +1,10 @@
 //! The tray icon, which is always shown: on Linux and Windows there is no
 //! menu bar, so it is the only mouse path to app actions.
 //!
-//! A left click toggles the main window on Windows and macOS. Linux (libappindicator)
-//! emits no click events and opens the menu on any click, so the menu
-//! repeats the toggle as "Show/Hide".
+//! A left click toggles the main window and a right click opens the menu. On
+//! Linux the icon is a StatusNotifierItem from tray-icon's ksni backend
+//! (ADR 0012). Panels report a left click as `Activate`, which arrives here as a click.
+//! The menu repeats the toggle as "Show/Hide" for panels that only show menus.
 
 use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
@@ -31,6 +32,12 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .show_menu_on_left_click(false)
         .on_menu_event(on_menu_event)
         .on_tray_icon_event(on_tray_icon_event);
+    // On Linux the title names the item in the panel and heads its tooltip.
+    // On macOS it would be drawn as text next to the icon.
+    #[cfg(target_os = "linux")]
+    {
+        tray = tray.title("Lichess Desktop");
+    }
     if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
