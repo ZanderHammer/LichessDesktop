@@ -7,9 +7,11 @@ mod deep_link;
 mod navigation;
 mod offline;
 mod settings;
+#[cfg(desktop)]
+mod tray;
 
 use tauri::webview::NewWindowResponse;
-use tauri::{AppHandle, Manager, Url, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_window_state::StateFlags;
@@ -46,6 +48,8 @@ fn main() {
         .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
         .setup(move |app| {
             settings::init(app)?;
+            #[cfg(desktop)]
+            tray::init(app.handle())?;
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
             // Set on Linux and Windows when this launch came from a deep link.
@@ -114,7 +118,7 @@ fn main() {
 
 /// Brings the main window to the front: unminimizes, shows and focuses it.
 #[cfg(desktop)]
-fn focus_main_window(app: &AppHandle) {
+fn focus_main_window<R: Runtime>(app: &AppHandle<R>) {
     let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
         return;
     };
