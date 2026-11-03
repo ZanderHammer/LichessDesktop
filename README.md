@@ -12,6 +12,7 @@ It is built with [Tauri v2](https://v2.tauri.app) and uses your operating system
 - Links to other sites open in your default browser
 - Remembers window size and position
 - No access to native APIs for the web page ([ADR 0005](docs/adr/0005-remote-content-security.md))
+- Does not inject or modify anything on lichess.org: no JavaScript, no CSS, no DOM access — the page is shown exactly as served ([ADR 0008](docs/adr/0008-no-code-injection-into-lichess-org.md))
 
 ## Known limitations
 
