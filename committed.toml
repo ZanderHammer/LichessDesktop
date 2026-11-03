@@ -4,4 +4,7 @@ style = "conventional"
 allowed_types = ["feat", "fix", "perf", "refactor", "docs", "test", "style", "chore", "ci", "build", "revert"]
 subject_capitalized = false
 subject_length = 72
+# The mood check is a word-list heuristic that rejects valid subjects such as
+# "always show ...". Commits can't be reworded once pushed without a force push.
+imperative_subject = false
 merge_commit = false
