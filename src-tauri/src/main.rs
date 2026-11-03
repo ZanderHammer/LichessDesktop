@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod navigation;
+mod settings;
 
 use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, Url, WebviewUrl, WebviewWindowBuilder};
@@ -24,7 +25,9 @@ fn main() {
     builder
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
+            settings::init(app)?;
             let url = START_URL.parse().expect("START_URL is a valid URL");
             let nav_handle = app.handle().clone();
             let popup_handle = app.handle().clone();
