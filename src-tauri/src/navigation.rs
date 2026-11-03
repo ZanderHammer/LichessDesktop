@@ -1,7 +1,10 @@
 //! Navigation policy: lichess.org (and the few frames it embeds) stays in the
-//! app, everything else opens in the system browser. See ADR 0005 and 0007.
+//! app, everything else opens in the system browser. The bundled offline page
+//! is the only local page allowed. See ADR 0005, 0007 and 0011.
 
 use tauri::Url;
+
+use crate::offline;
 
 /// Hosts whose pages may be shown inside the app window.
 const ALLOWED_HOST: &str = "lichess.org";
@@ -16,6 +19,9 @@ const FRAME_HOSTS: &[&str] = &[
 
 /// Returns `true` if `url` may be displayed inside the app window.
 pub fn is_internal(url: &Url) -> bool {
+    if offline::is_page(url) {
+        return true;
+    }
     match url.scheme() {
         "https" => url
             .host_str()
@@ -47,6 +53,15 @@ mod tests {
         assert!(is_internal(&url("https://lichess.org/@/someone")));
         assert!(is_internal(&url("https://en.lichess.org/")));
         assert!(is_internal(&url("about:blank")));
+    }
+
+    #[test]
+    fn allows_the_offline_page_and_no_other_local_page() {
+        assert!(is_internal(&offline::page_url()));
+        assert!(!is_internal(&url("tauri://localhost/")));
+        assert!(!is_internal(&url("http://tauri.localhost/")));
+        assert!(!is_internal(&url("http://localhost/")));
+        assert!(!is_internal(&url("file:///etc/passwd")));
     }
 
     #[test]

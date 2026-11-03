@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lichess Desktop</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f7f7f7;
+    --fg: #222;
+    --muted: #666;
+    --link: #1a5fb4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1e;
+      --fg: #e6e6e6;
+      --muted: #a0a0a0;
+      --link: #78aeed;
+    }
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 28rem; padding: 2rem; text-align: center; }
+  h1 { font-size: 1.375rem; font-weight: 600; margin: 0 0 0.5rem; }
+  p { color: var(--muted); margin: 0 0 1.5rem; }
+  a { color: var(--link); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Can't reach lichess.org</h1>
+  <p>Check your internet connection and try again.</p>
+  <a href="https://lichess.org/">Retry</a>
+</main>
+</body>
+</html>
