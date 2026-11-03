@@ -10,6 +10,8 @@ use std::time::{Duration, Instant};
 use tauri::Url;
 use tauri::http::{Response, header};
 
+use crate::i18n::{Key, Strings};
+
 /// URI scheme the page is served from. Registered with
 /// `Builder::register_uri_scheme_protocol`.
 pub const SCHEME: &str = "offline";
@@ -44,14 +46,32 @@ pub fn is_page(url: &Url) -> bool {
     url.scheme() == page.scheme() && url.host_str() == page.host_str() && url.port().is_none()
 }
 
-/// Response for every request to [`SCHEME`]. The page has no subresources.
-pub fn response() -> Response<Vec<u8>> {
+/// Response for every request to [`SCHEME`], in the UI language. The page has
+/// no subresources.
+pub fn response(strings: &Strings) -> Response<Vec<u8>> {
     Response::builder()
         .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
         .header(header::CONTENT_SECURITY_POLICY, CSP)
         .header(header::CACHE_CONTROL, "no-store")
-        .body(PAGE.as_bytes().to_vec())
+        .body(render(strings).into_bytes())
         .expect("static offline response is valid")
+}
+
+/// The page with its placeholders filled in, HTML-escaped.
+fn render(strings: &Strings) -> String {
+    PAGE.replace("{{lang}}", strings.lang())
+        .replace("{{dir}}", strings.dir())
+        .replace("{{title}}", &escape(strings.get(Key::CantReachLichess)))
+        .replace("{{hint}}", &escape(strings.get(Key::CheckConnection)))
+        .replace("{{retry}}", &escape(strings.get(Key::Retry)))
+}
+
+fn escape(text: &str) -> String {
+    text.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
 }
 
 /// Starts probing lichess.org in the background. The receiver yields `true`
@@ -93,6 +113,7 @@ fn lichess_reachable(timeout: Duration) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::i18n;
 
     fn url(s: &str) -> Url {
         s.parse().unwrap()
@@ -122,7 +143,7 @@ mod tests {
 
     #[test]
     fn response_forbids_scripts() {
-        let response = response();
+        let response = response(&Strings::load(i18n::BASE));
         let csp = response.headers()[header::CONTENT_SECURITY_POLICY]
             .to_str()
             .unwrap();
@@ -135,5 +156,13 @@ mod tests {
     fn page_links_back_to_lichess_only() {
         assert!(PAGE.contains(r#"href="https://lichess.org/""#));
         assert_eq!(PAGE.matches("href=").count(), 1);
+    }
+
+    #[test]
+    fn renders_every_placeholder_in_the_ui_language() {
+        let page = render(&Strings::load("ar-SA"));
+        assert!(!page.contains("{{"), "unfilled placeholder");
+        assert!(page.contains(r#"<html lang="ar-SA" dir="rtl">"#));
+        assert!(page.contains("<h1>Can&#39;t reach lichess.org</h1>"));
     }
 }

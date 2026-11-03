@@ -4,6 +4,7 @@
 #[cfg(test)]
 mod capabilities;
 mod deep_link;
+mod i18n;
 mod navigation;
 mod offline;
 mod settings;
@@ -47,9 +48,12 @@ fn main() {
                 .build(),
         )
         .plugin(tauri_plugin_store::Builder::default().build())
-        .register_uri_scheme_protocol(offline::SCHEME, |_ctx, _request| offline::response())
+        .register_uri_scheme_protocol(offline::SCHEME, |ctx, _request| {
+            offline::response(&ctx.app_handle().state::<i18n::Strings>())
+        })
         .setup(move |app| {
             settings::init(app)?;
+            app.manage(i18n::Strings::load(i18n::BASE));
             // Without a tray (e.g. GNOME without a StatusNotifierWatcher) the
             // app still runs; close then always quits.
             #[cfg(desktop)]

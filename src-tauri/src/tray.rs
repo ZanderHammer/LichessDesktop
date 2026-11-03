@@ -10,18 +10,21 @@ use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime};
 
+use crate::i18n::{Key, Strings};
+
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
 const QUIT: &str = "quit";
 
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+    let strings = app.state::<Strings>();
     let menu = Menu::with_items(
         app,
         &[
-            &MenuItem::with_id(app, TOGGLE, "Show/Hide", true, None::<&str>)?,
+            &MenuItem::with_id(app, TOGGLE, strings.get(Key::ShowHide), true, None::<&str>)?,
             &PredefinedMenuItem::separator(app)?,
-            &MenuItem::with_id(app, QUIT, "Quit", true, None::<&str>)?,
+            &MenuItem::with_id(app, QUIT, strings.get(Key::Quit), true, None::<&str>)?,
         ],
     )?;
 
