@@ -237,6 +237,9 @@ keys! {
     Home => "desktop.home",
     CopyUrl => "desktop.copyUrl",
     OpenInBrowser => "desktop.openInBrowser",
+    ZoomIn => "desktop.zoomIn",
+    ZoomOut => "desktop.zoomOut",
+    ZoomReset => "desktop.zoomReset",
 }
 
 /// Strings of one language, with the base language behind it.
