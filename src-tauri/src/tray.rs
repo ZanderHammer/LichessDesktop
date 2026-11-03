@@ -3,7 +3,7 @@
 //!
 //! A left click toggles the main window and a right click opens the menu. On
 //! Linux the icon is a StatusNotifierItem from tray-icon's ksni backend
-//! (ADR 0012). Panels report a left click as `Activate`, which arrives here as a click.
+//! (ADR 0014). Panels report a left click as `Activate`, which arrives here as a click.
 //! The menu repeats the toggle as "Show/Hide" for panels that only show menus.
 
 use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
