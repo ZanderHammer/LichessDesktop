@@ -10,6 +10,16 @@ updates:
     groups:
       cargo:
         patterns: ["*"]
+    # Pinned to the versions tauri/wry use (see src-tauri/Cargo.toml). A bump
+    # on its own adds a second copy that tauri doesn't use (#50). Bump them
+    # together with tauri, by hand.
+    ignore:
+      - dependency-name: "tray-icon"
+      - dependency-name: "gtk"
+      - dependency-name: "webkit2gtk"
+      - dependency-name: "webview2-com"
+      - dependency-name: "windows"
+      - dependency-name: "objc2-*"
 
   - package-ecosystem: github-actions
     directory: /
