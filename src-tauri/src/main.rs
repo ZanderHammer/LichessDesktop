@@ -17,6 +17,7 @@ mod shortcuts;
 mod tray;
 #[cfg(test)]
 mod ui_assets;
+mod zoom;
 
 use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindowBuilder, WindowEvent, Wry};
@@ -115,6 +116,9 @@ fn main() {
                     NewWindowResponse::Deny
                 })
                 .build()?;
+            if let Err(err) = zoom::apply_saved(&window) {
+                eprintln!("failed to apply the saved zoom level: {err}");
+            }
             // Without them the app still works, through the page and the tray.
             if let Err(err) = shortcuts::init(&window) {
                 eprintln!("failed to set up the keyboard shortcuts: {err}");
