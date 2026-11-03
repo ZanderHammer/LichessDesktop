@@ -16,6 +16,7 @@ use crate::update;
 
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
+const PALETTE: &str = "palette";
 const SETTINGS: &str = "settings";
 const SHORTCUTS: &str = "shortcuts";
 const QUIT: &str = "quit";
@@ -54,6 +55,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         app,
         &[
             &item(TOGGLE, Key::ShowHide)?,
+            &item(PALETTE, Action::CommandPalette.label())?,
             &item(SETTINGS, Action::OpenSettings.label())?,
             &item(SHORTCUTS, Action::ShowShortcuts.label())?,
             &PredefinedMenuItem::separator(app)?,
@@ -87,6 +89,7 @@ pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
 fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     match event.id.as_ref() {
         TOGGLE => toggle_main_window(app),
+        PALETTE => Action::CommandPalette.run(app),
         SETTINGS => Action::OpenSettings.run(app),
         SHORTCUTS => Action::ShowShortcuts.run(app),
         QUIT => Action::Quit.run(app),
