@@ -49,4 +49,8 @@ cargo tauri build   # build installers into target/release/bundle/
 
 ## License
 
-[MIT](LICENSE)
+[GNU AGPL-3.0-or-later](LICENSE) ([ADR 0009](docs/adr/0009-agpl-license-and-bundled-lila-translations.md)).
+
+## Credits
+
+Translations come from [lila](https://github.com/lichess-org/lila) (`translation/dest`), the software behind lichess.org. They are copyright the [lila authors](https://github.com/lichess-org/lila/graphs/contributors) and the Lichess translators, and licensed under the [GNU AGPL-3.0-or-later](https://github.com/lichess-org/lila/blob/master/COPYING.md).
