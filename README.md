@@ -57,7 +57,7 @@ Grab the installer for your platform from the [latest release](https://github.co
 
 ### Known limitations
 
-- **Linux on Wayland:** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position. On KDE, a window rule can remember it for you.
+- **Linux on Wayland:** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position. Always on top (Ctrl+Shift+T) is also a no-op under Wayland because `xdg_shell` does not support client-controlled window stacking. On KDE Plasma, a window rule can configure both position and always-on-top.
 - **Linux on GNOME:** the tray icon needs the [AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/) (Ubuntu enables it by default). Without it there is no tray, and closing the window always quits.
 - **Linux AppImage:** it bundles WebKitGTK, so it's about 110 MB. Prefer `.deb` or `.rpm` if you can.
 
