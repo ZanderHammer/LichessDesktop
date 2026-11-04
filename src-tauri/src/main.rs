@@ -286,6 +286,11 @@ fn open_in_browser<R: Runtime>(app: &AppHandle<R>, url: &Url) {
         eprintln!("refused to open a {} link", url.scheme());
         return;
     }
+    #[cfg(target_os = "linux")]
+    match audio::open_url(url.as_str()) {
+        Ok(()) => return,
+        Err(err) => eprintln!("failed to start xdg-open: {err}"),
+    }
     if let Err(err) = app.opener().open_url(url.as_str(), None::<&str>) {
         eprintln!("failed to open {url} in the system browser: {err}");
     }

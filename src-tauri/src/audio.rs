@@ -5,12 +5,19 @@
 //! environment its web process inherits. See ADR 0026.
 
 use std::env;
+use std::io;
+use std::process::{Command, Stdio};
+use std::sync::OnceLock;
+use std::thread;
 
 const VARIABLE: &str = "PULSE_PROP";
 const KEY: &str = "pulse.min.req";
 /// 150 ms. Smaller values fail on Bluetooth: up to 3600 frames still cut out,
 /// and 4800 leaves gaps in the sound.
 const VALUE: &str = "7200/48000";
+
+/// The variable before [`configure`] changed it. Not set if it didn't.
+static ORIGINAL: OnceLock<Option<String>> = OnceLock::new();
 
 /// Sets the minimum PulseAudio request size for this process and its children.
 /// Must run before any other thread starts, as it changes the environment.
@@ -22,9 +29,41 @@ pub fn configure() {
         Err(env::VarError::NotUnicode(_)) => return,
     };
     if let Some(value) = with_min_request(current.as_deref()) {
+        let _ = ORIGINAL.set(current);
         // SAFETY: `main` calls this first, while no other thread exists that
         // could read the environment at the same time.
         unsafe { env::set_var(VARIABLE, value) };
+    }
+}
+
+/// Opens `url` with the variable as the user had it, so a browser this starts
+/// doesn't keep the setting for as long as it runs (ADR 0028).
+///
+/// shortcut: only `xdg-open`, and only a failure to start it reports an error,
+/// add the opener's other launchers if a system without a working one turns up.
+pub fn open_url(url: &str) -> io::Result<()> {
+    let mut command = Command::new("xdg-open");
+    command
+        .arg(url)
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    restore(&mut command, ORIGINAL.get());
+    let mut child = command.spawn()?;
+    // It may wait for the browser, and the app must collect it when it ends.
+    thread::spawn(move || child.wait());
+    Ok(())
+}
+
+fn restore(command: &mut Command, original: Option<&Option<String>>) {
+    match original {
+        Some(Some(value)) => {
+            command.env(VARIABLE, value);
+        }
+        Some(None) => {
+            command.env_remove(VARIABLE);
+        }
+        None => {}
     }
 }
 
@@ -48,6 +87,33 @@ fn is_min_request(property: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn env_after_restore(original: Option<&Option<String>>) -> Vec<(String, Option<String>)> {
+        let mut command = Command::new("xdg-open");
+        restore(&mut command, original);
+        command
+            .get_envs()
+            .map(|(key, value)| {
+                let text = |text: &std::ffi::OsStr| text.to_str().unwrap().to_owned();
+                (text(key), value.map(text))
+            })
+            .collect()
+    }
+
+    #[test]
+    fn programs_the_app_starts_get_the_variable_as_it_was() {
+        assert_eq!(
+            env_after_restore(Some(&None)),
+            [(VARIABLE.to_owned(), None)]
+        );
+        let theirs = "media.role=game".to_owned();
+        assert_eq!(
+            env_after_restore(Some(&Some(theirs.clone()))),
+            [(VARIABLE.to_owned(), Some(theirs))]
+        );
+        // The variable wasn't changed, so it is inherited as it is.
+        assert!(env_after_restore(None).is_empty());
+    }
 
     #[test]
     fn sets_the_request_size_when_the_variable_is_unset_or_empty() {
