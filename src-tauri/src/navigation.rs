@@ -15,6 +15,12 @@ const ALLOWED_HOST: &str = "lichess.org";
 const FRAME_HOSTS: &[&str] = &[
     // Cloudflare Turnstile, the bot check on the login and signup forms.
     "challenges.cloudflare.com",
+    // Video players on lichess's video, streamer, coach and broadcast pages
+    // (lila `ContentSecurityPolicy.scala`). `www.youtube.com` is left out on
+    // purpose: it is a whole site, and lichess links to it.
+    "www.youtube-nocookie.com",
+    "player.twitch.tv",
+    "player.vimeo.com",
 ];
 
 /// Returns `true` if `url` may be displayed inside the app window.
@@ -103,6 +109,24 @@ mod tests {
         assert!(!is_internal(&url(
             "https://evil.challenges.cloudflare.com/"
         )));
+    }
+
+    #[test]
+    fn allows_the_video_players_but_not_their_sites() {
+        for player in [
+            "https://www.youtube-nocookie.com/embed/abc?autoplay=1",
+            "https://player.twitch.tv/?channel=someone&parent=lichess.org",
+            "https://player.vimeo.com/video/123",
+        ] {
+            assert!(is_internal(&url(player)), "{player}");
+        }
+        for site in [
+            "https://www.youtube.com/watch?v=abc",
+            "https://www.twitch.tv/someone",
+            "https://vimeo.com/123",
+        ] {
+            assert!(!is_internal(&url(site)), "{site}");
+        }
     }
 
     #[test]
