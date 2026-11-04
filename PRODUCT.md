@@ -34,7 +34,7 @@ It uses the OS webview instead of bundling a browser engine, so it stays small (
 
 - Bundled windows get scoped IPC only through per-window capabilities and a small set of typed commands (ADR 0012). Pages call `__TAURI_INTERNALS__.invoke` through a single `ipc.js` wrapper. `withGlobalTauri` stays off.
 - A strict CSP applies to bundled assets: no inline scripts, no remote loads.
-- All UI strings go through i18n, with every lichess language supported and English as the fallback (#18, #19). Strings come from Rust.
+- All UI strings go through i18n, with 83 of the lichess languages supported (ADR 0020) and English as the fallback (#18, #19). Strings come from Rust.
 - Follows the OS light/dark theme.
 - Planned settings: close to tray, check for updates, language, notification toggles, and later a Lichess account connection (v0.5).
 
@@ -64,4 +64,4 @@ It uses the OS webview instead of bundling a browser engine, so it stays small (
 
 ## Accessibility & Inclusion
 
-WCAG 2.2 AA for all bundled windows: contrast, visible focus, full keyboard operation, and labelled controls for screen readers. They also respect `prefers-reduced-motion` and OS high-contrast/forced-colors modes. They must work in every lichess language, including right-to-left ones.
+WCAG 2.2 AA for all bundled windows: contrast, visible focus, full keyboard operation, and labelled controls for screen readers. They also respect `prefers-reduced-motion` and OS high-contrast/forced-colors modes. They must work in every language the app offers, including right-to-left ones.
