@@ -15,6 +15,7 @@ mod offline;
 mod palette;
 #[cfg(test)]
 mod pinned_deps;
+mod plugins;
 mod settings;
 #[cfg(desktop)]
 mod settings_window;
@@ -57,8 +58,8 @@ fn main() {
 
     builder
         .plugin(tauri_plugin_deep_link::init())
-        .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(plugins::notification())
+        .plugin(plugins::opener())
         .plugin(
             // Visibility and fullscreen are not restored: quitting from the
             // tray while hidden must not start hidden, and fullscreen is
