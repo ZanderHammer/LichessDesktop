@@ -12,6 +12,7 @@ mod oauth;
 mod stream;
 mod token_store;
 
+use std::fmt::Display;
 use std::sync::Mutex;
 use std::sync::mpsc::{self, Sender};
 use std::thread;
@@ -480,11 +481,7 @@ fn redeem<R: Runtime>(app: &AppHandle<R>, code: &str, verifier: &str) -> Status 
             };
         }
     };
-    if let Err(err) = token_store::write(&token) {
-        eprintln!("failed to save the token: {err}");
-        if let Err(err) = api::revoke(&token) {
-            eprintln!("failed to revoke the unsaved token: {err}");
-        }
+    if !save_or_revoke(&token, token_store::write, api::revoke) {
         return Status::Disconnected {
             notice: Some(Notice::NoKeyring),
         };
@@ -493,10 +490,28 @@ fn redeem<R: Runtime>(app: &AppHandle<R>, code: &str, verifier: &str) -> Status 
     status_of_token(app, &token)
 }
 
+/// Saves `token`, or revokes it if it can't be saved, so no live token is left
+/// that the app can't reach. Returns whether it was saved.
+fn save_or_revoke<S: Display, R: Display>(
+    token: &str,
+    save: impl FnOnce(&str) -> Result<(), S>,
+    revoke: impl FnOnce(&str) -> Result<(), R>,
+) -> bool {
+    let Err(err) = save(token) else {
+        return true;
+    };
+    eprintln!("failed to save the token: {err}");
+    if let Err(err) = revoke(token) {
+        eprintln!("failed to revoke the unsaved token: {err}");
+    }
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::{json, to_value};
+    use std::cell::Cell;
 
     fn callback_for(url: &Url) -> Callback {
         let state = url
@@ -540,6 +555,33 @@ mod tests {
         let forged = oauth::parse_callback(&forged.parse().unwrap());
         assert!(inner.take_answered(&forged).is_none());
         assert!(inner.pending.is_some());
+    }
+
+    #[test]
+    fn a_token_that_cant_be_saved_is_revoked() {
+        let revoked = Cell::new(false);
+        let revoke = |_: &str| {
+            revoked.set(true);
+            Ok::<(), &str>(())
+        };
+        assert!(!save_or_revoke("t", |_| Err("locked"), revoke));
+        assert!(revoked.get());
+    }
+
+    #[test]
+    fn a_failed_revoke_still_counts_as_not_saved() {
+        assert!(!save_or_revoke("t", |_| Err("locked"), |_| Err("offline")));
+    }
+
+    #[test]
+    fn a_saved_token_is_not_revoked() {
+        let revoked = Cell::new(false);
+        let revoke = |_: &str| {
+            revoked.set(true);
+            Ok::<(), &str>(())
+        };
+        assert!(save_or_revoke("t", |_| Ok::<(), &str>(()), revoke));
+        assert!(!revoked.get());
     }
 
     #[test]
