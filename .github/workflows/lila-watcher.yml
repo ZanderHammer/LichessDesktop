@@ -1,0 +1,64 @@
+name: Lila watcher
+
+# Notices the lila changes we depend on (docs/adr/0021-weekly-lila-watcher.md).
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # The git blob of ui/round/src/title.ts that a human last checked.
+  LILA_TITLE_BLOB: 929a8fc78887c8a70526532581158e4e63225297
+
+jobs:
+  title:
+    name: Check lila's title format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare title.ts with the checked version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=$(gh api repos/lichess-org/lila/contents/ui/round/src/title.ts --jq .sha)
+          if [ "$current" != "$LILA_TITLE_BLOB" ]; then
+            echo "::error::lila's ui/round/src/title.ts changed. Check the title format against https://github.com/lichess-org/lila/commits/master/ui/round/src/title.ts, then set LILA_TITLE_BLOB to $current."
+            exit 1
+          fi
+
+  translations:
+    name: Import lila's translations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Clone lila's translations
+        id: lila
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/lichess-org/lila.git "$RUNNER_TEMP/lila"
+          git -C "$RUNNER_TEMP/lila" sparse-checkout set translation
+          echo "commit=$(git -C "$RUNNER_TEMP/lila" rev-parse --short=10 HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Run the import
+        run: cargo run --locked -p import-lila -- "$RUNNER_TEMP/lila"
+      - name: Open or update the pull request
+        uses: peter-evans/create-pull-request@v8.1.1
+        with:
+          add-paths: src-tauri/i18n
+          base: main
+          branch: lila-import
+          delete-branch: true
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: "chore: import translations from lila ${{ steps.lila.outputs.commit }}"
+          title: "chore: import translations from lila"
+          body: |
+            Imported from lila commit [`${{ steps.lila.outputs.commit }}`](https://github.com/lichess-org/lila/tree/${{ steps.lila.outputs.commit }}) by the [Lila watcher](https://github.com/${{ github.repository }}/actions/workflows/lila-watcher.yml).
+
+            A pull request opened with `GITHUB_TOKEN` doesn't start CI, so close and reopen this one to run the checks.
