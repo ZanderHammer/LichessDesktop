@@ -11,6 +11,7 @@ use std::time::Duration;
 use tauri::webview::{NewWindowResponse, PageLoadEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
+use crate::account;
 use crate::actions::Action;
 use crate::i18n::{self, Key};
 use crate::offline;
@@ -33,6 +34,7 @@ const SHOW_TAB: &str = "show-tab";
 /// `settings.html` (`tab-<id>`) and the URL fragment of a new window.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tab {
+    Settings,
     Shortcuts,
     About,
 }
@@ -40,6 +42,7 @@ pub enum Tab {
 impl Tab {
     const fn id(self) -> &'static str {
         match self {
+            Tab::Settings => "settings",
             Tab::Shortcuts => "shortcuts",
             Tab::About => "about",
         }
@@ -60,6 +63,7 @@ pub fn open_tab<R: Runtime>(app: &AppHandle<R>, tab: Tab) -> tauri::Result<()> {
 }
 
 fn open_at<R: Runtime>(app: &AppHandle<R>, tab: Option<Tab>) -> tauri::Result<()> {
+    account::settings_opened(app);
     if let Some(window) = app.get_webview_window(LABEL) {
         if let Some(tab) = tab {
             window.emit_to(LABEL, SHOW_TAB, tab.id())?;
@@ -370,6 +374,27 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> AppInfo {
     }
 }
 
+/// The account section. The token itself never reaches the page.
+#[tauri::command]
+pub fn get_account<R: Runtime>(app: AppHandle<R>) -> account::Status {
+    account::status(&app)
+}
+
+#[tauri::command]
+pub fn connect_account<R: Runtime>(app: AppHandle<R>) {
+    account::connect(&app);
+}
+
+#[tauri::command]
+pub fn cancel_connect_account<R: Runtime>(app: AppHandle<R>) {
+    account::cancel(&app);
+}
+
+#[tauri::command]
+pub fn disconnect_account<R: Runtime>(app: AppHandle<R>) {
+    account::disconnect(&app);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -418,6 +443,7 @@ mod tests {
             "get_strings",
             "get_app_info",
             "get_shortcuts",
+            "get_account",
             "settings_ready",
             // Last: it closes the window.
             "close_settings",

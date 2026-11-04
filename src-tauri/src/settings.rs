@@ -26,6 +26,7 @@ const NOTIFY_GAME_OVER: &str = "notify_game_over";
 const ATTENTION: &str = "attention";
 const NOTIFY_ACCOUNT_EVENTS: &str = "notify_account_events";
 const LANGUAGE: &str = "language";
+const ACCOUNT_CONNECTED: &str = "account_connected";
 
 /// UI language: follow the system, or a fixed language tag such as `de`.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -79,6 +80,9 @@ pub struct Settings {
     pub attention: bool,
     pub notify_account_events: bool,
     pub language: Language,
+    /// A token was saved, so the credential store is worth asking. The token
+    /// itself is never in this file (ADR 0024).
+    pub account_connected: bool,
 }
 
 impl Default for Settings {
@@ -92,6 +96,7 @@ impl Default for Settings {
             attention: true,
             notify_account_events: true,
             language: Language::System,
+            account_connected: false,
         }
     }
 }
@@ -116,10 +121,12 @@ impl Settings {
                 .get(LANGUAGE)
                 .and_then(Language::from_value)
                 .unwrap_or(defaults.language),
+            account_connected: field(entries, ACCOUNT_CONNECTED)
+                .unwrap_or(defaults.account_connected),
         }
     }
 
-    fn to_entries(&self) -> [(&'static str, Value); 8] {
+    fn to_entries(&self) -> [(&'static str, Value); 9] {
         [
             (ZOOM, self.zoom.into()),
             (CLOSE_TO_TRAY, self.close_to_tray.into()),
@@ -129,6 +136,7 @@ impl Settings {
             (ATTENTION, self.attention.into()),
             (NOTIFY_ACCOUNT_EVENTS, self.notify_account_events.into()),
             (LANGUAGE, self.language.to_value()),
+            (ACCOUNT_CONNECTED, self.account_connected.into()),
         ]
     }
 }
@@ -192,6 +200,7 @@ mod tests {
         assert!(settings.attention);
         assert!(settings.notify_account_events);
         assert_eq!(settings.language, Language::System);
+        assert!(!settings.account_connected);
     }
 
     #[test]
@@ -210,6 +219,7 @@ mod tests {
             attention: false,
             notify_account_events: false,
             language: Language::Tag("de".into()),
+            account_connected: true,
         };
         let stored = settings
             .to_entries()
