@@ -20,7 +20,7 @@
 
 If you play on lichess every day, you've probably lost the tab more than once. Lichess Desktop gives lichess.org its own window, its own taskbar or dock entry and a tray icon, so your games are always one click away.
 
-It uses your operating system's built-in webview instead of shipping a whole browser, so the installer is about **2 MB** on Linux (`.deb`/`.rpm`). The page itself is left completely alone: no injected scripts, no restyling, no ads, no tracking. What you see is lichess.org exactly as served.
+It uses your operating system's built-in webview instead of shipping a whole browser, so the installer is about **2 MB** on Linux (`.deb`/`.rpm`). The app adds no scripts of its own to the page, no restyling, no ads and no tracking. What you see is lichess.org as served, plus the small bridge Tauri puts in every webview, which the page can't use to reach anything native.
 
 ## Support Lichess, not this project
 
@@ -42,7 +42,7 @@ It uses your operating system's built-in webview instead of shipping a whole bro
 - **External links open in your browser.** Only lichess.org loads inside the app.
 - **Offline page.** If lichess.org can't be reached at startup, you get a simple page with a Retry link ([ADR 0011](docs/adr/0011-offline-page-from-a-startup-probe.md)).
 - **Deep links.** `lichess-desktop://<path>` opens `https://lichess.org/<path>`, e.g. `lichess-desktop://tv` ([ADR 0013](docs/adr/0013-lichess-desktop-deep-link-scheme.md)).
-- **Hands off the page.** No JavaScript, CSS or DOM access on lichess.org ([ADR 0008](docs/adr/0008-no-code-injection-into-lichess-org.md)).
+- **Hands off the page.** The app and its plugins add no JavaScript or CSS to lichess.org and don't read the DOM. Only Tauri's own bridge is there, and it can't be turned off ([ADR 0023](docs/adr/0023-keep-plugin-scripts-out-and-accept-tauris-bridge.md)).
 - **Locked down.** The web page gets no access to native APIs ([ADR 0005](docs/adr/0005-remote-content-security.md)).
 
 ## Install
