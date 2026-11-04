@@ -8,11 +8,8 @@
 //! The window is created for every open and destroyed on close, so it costs
 //! no memory while it isn't shown.
 
-use std::thread;
-use std::time::Duration;
-
 use serde::Serialize;
-use tauri::webview::{NewWindowResponse, PageLoadEvent};
+use tauri::webview::NewWindowResponse;
 use tauri::{
     AppHandle, LogicalPosition, LogicalSize, Manager, Runtime, Url, WebviewUrl,
     WebviewWindowBuilder, WindowEvent,
@@ -20,16 +17,13 @@ use tauri::{
 
 use crate::actions::Action;
 use crate::i18n::{self, Key};
-use crate::{MAIN_WINDOW, START_URL, navigation, shortcuts};
+use crate::{MAIN_WINDOW, START_URL, bundled, navigation, shortcuts};
 
 pub const LABEL: &str = "palette";
 
 /// The window size, from DESIGN.md.
 const WIDTH: f64 = 600.0;
 const HEIGHT: f64 = 360.0;
-
-/// Shows the window anyway if the page never reports `palette_ready`.
-const SHOW_FALLBACK: Duration = Duration::from_millis(1500);
 
 /// A lichess page the palette can open in the main window. Pages are fixed
 /// here and picked by id, so the palette never hands Rust a URL (ADR 0012).
@@ -94,13 +88,7 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let Some(main) = app.get_webview_window(MAIN_WINDOW) else {
         return Ok(());
     };
-    // `cargo tauri dev` serves `ui/` from its own server instead.
-    let dev_url = app
-        .config()
-        .build
-        .dev_url
-        .clone()
-        .filter(|_| tauri::is_dev());
+    let dev_url = bundled::dev_url(app);
     let title = app
         .state::<i18n::Current>()
         .get()
@@ -119,17 +107,7 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         // Only the bundled page itself. It has no links.
         .on_navigation(move |url| navigation::is_bundled(url, dev_url.as_ref()))
         .on_new_window(|_, _| NewWindowResponse::Deny)
-        .on_page_load(|window, payload| {
-            if payload.event() == PageLoadEvent::Finished {
-                let window = window.clone();
-                thread::spawn(move || {
-                    thread::sleep(SHOW_FALLBACK);
-                    if !window.is_visible().unwrap_or(true) {
-                        show(&window.as_ref().window());
-                    }
-                });
-            }
-        });
+        .on_page_load(bundled::show_after_fallback);
     // Wayland has no global window positions: there the compositor places
     // the window, usually over its parent.
     builder = match centred_over(&main) {
@@ -170,16 +148,10 @@ pub fn close<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-fn show<R: Runtime>(window: &tauri::Window<R>) {
-    if let Err(err) = window.show().and_then(|()| window.set_focus()) {
-        eprintln!("failed to show the command palette: {err}");
-    }
-}
-
 /// The page has drawn its content: show the window.
 #[tauri::command]
 pub fn palette_ready<R: Runtime>(webview: tauri::Webview<R>) {
-    show(&webview.window());
+    bundled::show(&webview.window());
 }
 
 /// Esc in the page.
@@ -293,21 +265,8 @@ fn open_page<R: Runtime>(app: &AppHandle<R>, destination: Destination) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tauri::ipc::{CallbackFn, InvokeBody};
-    use tauri::test::{INVOKE_KEY, MockRuntime, get_ipc_response, mock_builder};
-    use tauri::webview::InvokeRequest;
-
-    fn request(cmd: &str, url: &str) -> InvokeRequest {
-        InvokeRequest {
-            cmd: cmd.into(),
-            callback: CallbackFn(0),
-            error: CallbackFn(1),
-            url: url.parse().unwrap(),
-            body: InvokeBody::default(),
-            headers: Default::default(),
-            invoke_key: INVOKE_KEY.into(),
-        }
-    }
+    use crate::bundled::test_support::{LOCAL, request};
+    use tauri::test::{MockRuntime, get_ipc_response, mock_builder};
 
     /// Runs real IPC requests through the app's ACL (ADR 0012): only the
     /// palette's bundled page may call the palette commands, and the palette
@@ -329,15 +288,10 @@ mod tests {
         let main = WebviewWindowBuilder::new(&app, MAIN_WINDOW, Default::default())
             .build()
             .unwrap();
-        let local = if cfg!(windows) {
-            "http://tauri.localhost"
-        } else {
-            "tauri://localhost"
-        };
 
         for cmd in ["get_strings", "list_actions"] {
             assert!(
-                get_ipc_response(&palette, request(cmd, local)).is_ok(),
+                get_ipc_response(&palette, request(cmd, LOCAL)).is_ok(),
                 "{cmd} denied"
             );
         }
@@ -348,11 +302,11 @@ mod tests {
             "close_palette",
         ] {
             assert!(
-                get_ipc_response(&main, request(cmd, local)).is_err(),
+                get_ipc_response(&main, request(cmd, LOCAL)).is_err(),
                 "{cmd} allowed in main"
             );
             assert!(
-                get_ipc_response(&settings, request(cmd, local)).is_err(),
+                get_ipc_response(&settings, request(cmd, LOCAL)).is_err(),
                 "{cmd} allowed in settings"
             );
             assert!(
@@ -367,7 +321,7 @@ mod tests {
             "plugin:event|listen",
         ] {
             assert!(
-                get_ipc_response(&palette, request(cmd, local)).is_err(),
+                get_ipc_response(&palette, request(cmd, LOCAL)).is_err(),
                 "{cmd} allowed in the palette"
             );
         }
