@@ -10,6 +10,7 @@
     "allow-get-app-info",
     "allow-get-shortcuts",
     "allow-settings-ready",
+    "allow-close-settings",
     "core:event:allow-listen",
     "core:event:allow-unlisten"
   ]

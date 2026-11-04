@@ -11,6 +11,7 @@ const COMMANDS: &[&str] = &[
     "get_app_info",
     "get_shortcuts",
     "settings_ready",
+    "close_settings",
     "list_actions",
     "run_action",
     "palette_ready",
