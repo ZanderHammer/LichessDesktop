@@ -9,7 +9,8 @@ let strings = {};
 export function t(id, ...args) {
   let text = strings[id] ?? id;
   args.forEach((arg, i) => {
-    text = text.replace(`%${i + 1}$s`, arg).replace("%s", arg);
+    // Functions, as `$&` in a string replacement has a special meaning.
+    text = text.replace(`%${i + 1}$s`, () => arg).replace("%s", () => arg);
   });
   return text;
 }
