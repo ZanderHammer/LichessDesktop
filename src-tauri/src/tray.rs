@@ -109,15 +109,22 @@ fn on_tray_icon_event<R: Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
     }
 }
 
-/// Hides the main window if it is on screen, otherwise brings it to the front.
+/// Hides the main window if it is in use, otherwise brings it to the front.
 fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
     let Some(window) = app.get_webview_window(crate::MAIN_WINDOW) else {
         return;
     };
-    let on_screen = window.is_visible().unwrap_or(false) && !window.is_minimized().unwrap_or(false);
-    if on_screen {
+    // Wayland doesn't tell a window that it's minimized, so `is_minimized` stays
+    // false there. Only focus tells the cases apart on Linux. Elsewhere a click on
+    // the tray can take the focus away first, so focus says nothing there.
+    let in_use = if cfg!(target_os = "linux") {
+        window.is_focused().unwrap_or(false)
+    } else {
+        !window.is_minimized().unwrap_or(false)
+    };
+    if window.is_visible().unwrap_or(false) && in_use {
         crate::hide_main_window(app);
     } else {
-        crate::focus_main_window(app);
+        crate::raise_main_window(app);
     }
 }

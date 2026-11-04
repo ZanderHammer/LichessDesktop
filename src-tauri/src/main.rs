@@ -222,6 +222,30 @@ fn focus_main_window<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+/// Brings the main window to the front after a click outside it. KWin refuses a
+/// focus request without an activation token and only marks the window in the
+/// taskbar. The token of a tray or notification click doesn't reach us through
+/// Tauri and its plugins, but a window shown anew does come to the front.
+/// Call it on the main thread, as it asks GTK for the display.
+#[cfg(desktop)]
+fn raise_main_window<R: Runtime>(app: &AppHandle<R>) {
+    #[cfg(target_os = "linux")]
+    if let Some(window) = app.get_webview_window(MAIN_WINDOW)
+        && window.is_visible().unwrap_or(false)
+        && !window.is_focused().unwrap_or(false)
+        && is_wayland()
+    {
+        hide_main_window(app);
+    }
+    focus_main_window(app);
+}
+
+#[cfg(target_os = "linux")]
+fn is_wayland() -> bool {
+    use gtk::gdk::prelude::DisplayExtManual;
+    gtk::gdk::Display::default().is_some_and(|display| display.backend().is_wayland())
+}
+
 /// Makes this executable the handler for the deep link scheme where no
 /// installer did: an AppImage (which may also have moved since the last run)
 /// and debug builds. Runs in the background, as it spawns `xdg-mime` on Linux.
