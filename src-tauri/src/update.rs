@@ -25,7 +25,7 @@ const REPOSITORY: &str = env!("CARGO_PKG_REPOSITORY");
 const LATEST_RELEASE_API: &str =
     "https://api.github.com/repos/ZanderHammer/LichessDesktop/releases/latest";
 /// GitHub rejects API requests without one. Names the app, nothing else.
-const USER_AGENT: &str = concat!("LichessDesktop/", env!("CARGO_PKG_VERSION"));
+pub const USER_AGENT: &str = concat!("LichessDesktop/", env!("CARGO_PKG_VERSION"));
 const TIMEOUT: Duration = Duration::from_secs(10);
 /// Minimum time between two requests.
 const INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);

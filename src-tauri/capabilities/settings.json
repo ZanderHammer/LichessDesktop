@@ -11,6 +11,10 @@
     "allow-get-shortcuts",
     "allow-settings-ready",
     "allow-close-settings",
+    "allow-get-account",
+    "allow-connect-account",
+    "allow-cancel-connect-account",
+    "allow-disconnect-account",
     "core:event:allow-listen",
     "core:event:allow-unlisten"
   ]

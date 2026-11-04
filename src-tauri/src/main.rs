@@ -1,6 +1,8 @@
 // Prevents an additional console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg(desktop)]
+mod account;
 mod actions;
 #[cfg(test)]
 mod capabilities;
@@ -90,6 +92,8 @@ fn main() {
             update::init(app.handle());
             #[cfg(desktop)]
             notifications::init(app.handle());
+            #[cfg(desktop)]
+            account::init(app.handle());
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
             // Set on Linux and Windows when this launch came from a deep link.
@@ -116,6 +120,10 @@ fn main() {
                 // Hidden until the window-state plugin restores size and position.
                 .visible(false)
                 .on_navigation(move |url| {
+                    #[cfg(desktop)]
+                    if account::intercept(&nav_handle, url) {
+                        return false;
+                    }
                     if navigation::is_internal(url) {
                         return true;
                     }
@@ -123,6 +131,10 @@ fn main() {
                     false
                 })
                 .on_new_window(move |url, _features| {
+                    #[cfg(desktop)]
+                    if account::intercept(&popup_handle, &url) {
+                        return NewWindowResponse::Deny;
+                    }
                     if navigation::is_internal(&url) {
                         // Keep a single window: show lichess "new tab" links in place.
                         if let Some(window) = popup_handle.get_webview_window(MAIN_WINDOW) {
@@ -211,6 +223,10 @@ fn invoke_handler<R: Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send
         settings_window::get_shortcuts,
         settings_window::settings_ready,
         settings_window::close_settings,
+        settings_window::get_account,
+        settings_window::connect_account,
+        settings_window::cancel_connect_account,
+        settings_window::disconnect_account,
         palette::list_actions,
         palette::run_action,
         palette::palette_ready,

@@ -13,9 +13,13 @@ publish = false
 tauri-build = { version = "2.7.4", features = [] }
 
 [dependencies]
+base64 = { version = "0.23.1", default-features = false, features = ["alloc"] }
+getrandom = { version = "0.3.4", features = ["std"] }
+keyring-core = "1.0.1"
 semver = "1.0.28"
 serde = "1"
 serde_json = "1"
+sha2 = { version = "0.10.9", default-features = false }
 sys-locale = "0.3.2"
 tauri = { version = "2.12.5", features = ["tray-icon"] }
 tauri-plugin-deep-link = "2"
@@ -40,11 +44,15 @@ tray-icon = { version = "0.25.1", default-features = false, features = ["ksni"] 
 # (ADR 0010). Must stay on the versions tauri uses.
 gtk = "0.18.2"
 webkit2gtk = "2.0.2"
+# The token store (ADR 0024). Reuses the zbus that the tray already brings in.
+zbus-secret-service-keyring-store = { version = "1.0.1", features = ["rt-async-io-crypto-rust"] }
 
 # WebView2's AcceleratorKeyPressed event for the shortcuts, history calls and
 # the clipboard (ADR 0010). Must stay on the versions tauri uses.
 [target.'cfg(windows)'.dependencies]
 webview2-com = "0.39.1"
+# The token store (ADR 0024).
+windows-native-keyring-store = { version = "1.1.0", default-features = false }
 windows = { version = "0.62.2", features = [
   "Win32_System_DataExchange",
   "Win32_System_Memory",
@@ -55,6 +63,8 @@ windows = { version = "0.62.2", features = [
 # WKWebView history calls and the pasteboard for the navigation actions.
 # Must stay on the versions wry uses.
 [target.'cfg(target_os = "macos")'.dependencies]
+# The token store (ADR 0024).
+apple-native-keyring-store = { version = "1.0.2", features = ["keychain"] }
 objc2-app-kit = { version = "0.3.2", default-features = false, features = [
   "std",
   "NSPasteboard",
