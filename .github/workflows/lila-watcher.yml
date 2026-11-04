@@ -51,7 +51,9 @@ jobs:
       - name: Open or update the pull request
         uses: peter-evans/create-pull-request@v8.1.1
         with:
-          add-paths: src-tauri/i18n
+          add-paths: |
+            src-tauri/i18n
+            src-tauri/src/turn_titles.json
           base: main
           branch: lila-import
           delete-branch: true

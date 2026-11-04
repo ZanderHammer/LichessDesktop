@@ -7,8 +7,12 @@
 //! (`<module>.<key>`). English comes from `translation/source/<module>.xml`,
 //! the other languages from `translation/dest/<module>/<tag>.xml`. A string
 //! lila doesn't have for a language keeps the value already in its file.
+//!
+//! It also writes `src-tauri/src/turn_titles.json`, the table turn detection
+//! matches page titles against (ADR 0021): the strings lila's `title.ts` puts
+//! in the title, in every language lila has them.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::path::Path;
 use std::{env, fs};
@@ -17,7 +21,18 @@ const I18N_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../src-tauri/i18
 const BASE: &str = "en-GB";
 const OUR_MODULE: &str = "desktop";
 
+const TURN_TITLES: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../src-tauri/src/turn_titles.json"
+);
+/// The `site` keys lila's `ui/round/src/title.ts` puts in the page title.
+const TURN_KEYS: [&str; 3] = ["gameOver", "waitingForOpponent", "yourTurn"];
+/// What separates the state from the rest of the page title.
+const TITLE_SEPARATOR: &str = " - ";
+
 type Strings = BTreeMap<String, String>;
+/// For each of [`TURN_KEYS`], its text in every language.
+type TurnTitles = BTreeMap<&'static str, BTreeSet<String>>;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let lila = env::args()
@@ -67,6 +82,51 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     println!("{missing_total} strings still need a translation");
+
+    let titles = read_turn_titles(&translation)?;
+    check_turn_titles(&titles)?;
+    fs::write(TURN_TITLES, serde_json::to_string_pretty(&titles)? + "\n")?;
+    Ok(())
+}
+
+/// The title strings of lila's source file and of every language in
+/// `dest/site`. Unlike the UI strings, this isn't limited to the languages the
+/// app offers, because the lichess language is a setting of the site (ADR 0021).
+fn read_turn_titles(translation: &Path) -> Result<TurnTitles, Box<dyn Error>> {
+    let source = read_module(&translation.join("source").join("site.xml"))?;
+    let mut modules = vec![source];
+    for entry in fs::read_dir(translation.join("dest").join("site"))? {
+        modules.push(read_module(&entry?.path())?);
+    }
+    let mut titles = TurnTitles::new();
+    for key in TURN_KEYS {
+        let texts: BTreeSet<_> = modules
+            .iter()
+            .filter_map(|module| module.get(key).cloned())
+            .collect();
+        if !modules[0].contains_key(key) {
+            return Err(format!("site.{key} is not a plain string in lila's source").into());
+        }
+        titles.insert(key, texts);
+    }
+    Ok(titles)
+}
+
+/// Detection relies on these, and a wrong table would mean wrong alerts, so a
+/// violation stops the import: no text may stand for two states or contain the
+/// separator, which would keep it from ever matching.
+fn check_turn_titles(titles: &TurnTitles) -> Result<(), String> {
+    let mut seen: BTreeMap<&str, &str> = BTreeMap::new();
+    for (key, texts) in titles {
+        for text in texts {
+            if text.contains(TITLE_SEPARATOR) {
+                return Err(format!("{key}: {text:?} contains {TITLE_SEPARATOR:?}"));
+            }
+            if let Some(other) = seen.insert(text, key) {
+                return Err(format!("{text:?} stands for both {other} and {key}"));
+            }
+        }
+    }
     Ok(())
 }
 
@@ -166,6 +226,32 @@ mod tests {
                 ("spaces", "पजल"),
             ])
         );
+    }
+
+    fn turn_titles(pairs: &[(&'static str, &str)]) -> TurnTitles {
+        let mut titles = TurnTitles::new();
+        for (key, text) in pairs {
+            titles.entry(key).or_default().insert((*text).to_owned());
+        }
+        titles
+    }
+
+    #[test]
+    fn accepts_turn_titles_that_are_unambiguous() {
+        let titles = turn_titles(&[("gameOver", "Game Over"), ("yourTurn", "Your turn")]);
+        assert_eq!(check_turn_titles(&titles), Ok(()));
+    }
+
+    #[test]
+    fn rejects_a_turn_title_that_stands_for_two_states() {
+        let titles = turn_titles(&[("gameOver", "Same"), ("yourTurn", "Same")]);
+        assert!(check_turn_titles(&titles).is_err());
+    }
+
+    #[test]
+    fn rejects_a_turn_title_that_contains_the_separator() {
+        let titles = turn_titles(&[("yourTurn", "Your - turn")]);
+        assert!(check_turn_titles(&titles).is_err());
     }
 
     #[test]
