@@ -23,10 +23,10 @@
       <div class="list">
         <label class="row">
           <span class="row-text">
-            <span class="row-title" data-i18n="desktop.closeToTray"></span>
+            <span class="row-title" id="label-close-to-tray" data-i18n="desktop.closeToTray"></span>
             <span class="row-subtitle" id="hint-close-to-tray" data-i18n="desktop.closeToTrayHint"></span>
           </span>
-          <input type="checkbox" role="switch" class="switch" data-setting="closeToTray" aria-describedby="hint-close-to-tray">
+          <input type="checkbox" role="switch" class="switch" data-setting="closeToTray" aria-labelledby="label-close-to-tray" aria-describedby="hint-close-to-tray">
         </label>
         <label class="row">
           <span class="row-text"><span class="row-title" data-i18n="desktop.checkForUpdates"></span></span>
@@ -52,16 +52,16 @@
         </label>
         <label class="row">
           <span class="row-text">
-            <span class="row-title" data-i18n="desktop.attention"></span>
+            <span class="row-title" id="label-attention" data-i18n="desktop.attention"></span>
             <span class="row-subtitle" id="hint-attention" data-i18n="desktop.attentionHint"></span>
           </span>
-          <input type="checkbox" role="switch" class="switch" data-setting="attention" aria-describedby="hint-attention">
+          <input type="checkbox" role="switch" class="switch" data-setting="attention" aria-labelledby="label-attention" aria-describedby="hint-attention">
         </label>
       </div>
     </section>
   </main>
 
-  <main class="window-content" id="panel-shortcuts" role="tabpanel" aria-labelledby="tab-shortcuts" hidden>
+  <main class="window-content" id="panel-shortcuts" role="tabpanel" aria-labelledby="tab-shortcuts" tabindex="0" hidden>
     <section class="section">
       <div class="list" id="shortcut-list"></div>
     </section>
