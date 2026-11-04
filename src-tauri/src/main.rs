@@ -1,7 +1,6 @@
 // Prevents an additional console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[cfg(desktop)]
 mod account;
 mod actions;
 #[cfg(target_os = "linux")]
@@ -12,25 +11,19 @@ mod deep_link;
 mod i18n;
 mod native;
 mod navigation;
-#[cfg(desktop)]
 mod notifications;
 mod offline;
-#[cfg(desktop)]
 mod palette;
 #[cfg(test)]
 mod pinned_deps;
 mod plugins;
 mod settings;
-#[cfg(desktop)]
 mod settings_window;
 mod shortcuts;
-#[cfg(desktop)]
 mod tray;
-#[cfg(desktop)]
 mod turn;
 #[cfg(test)]
 mod ui_assets;
-#[cfg(desktop)]
 mod update;
 mod zoom;
 
@@ -51,20 +44,14 @@ fn main() {
     // Runs while Tauri starts up, so a reachable lichess.org costs no extra time.
     let probe = offline::spawn_probe();
 
-    let mut builder = tauri::Builder::default();
-    // Registered first, as the plugin docs require, so a second launch exits
-    // before other plugins run. Its `deep-link` feature has already passed a
-    // deep link in `_args` on to the deep-link plugin when this runs.
-    #[cfg(desktop)]
-    {
-        builder = builder
-            .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-                focus_main_window(app);
-            }))
-            .invoke_handler(invoke_handler());
-    }
-
-    builder
+    tauri::Builder::default()
+        // Registered first, as the plugin docs require, so a second launch exits
+        // before other plugins run. Its `deep-link` feature has already passed a
+        // deep link in `_args` on to the deep-link plugin when this runs.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            focus_main_window(app);
+        }))
+        .invoke_handler(invoke_handler())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(plugins::notification())
         .plugin(plugins::opener())
@@ -89,16 +76,12 @@ fn main() {
             ))));
             // Without a tray (e.g. GNOME without a StatusNotifierWatcher) the
             // app still runs; close then always quits.
-            #[cfg(desktop)]
             if let Err(err) = tray::init(app.handle()) {
                 eprintln!("failed to create the tray icon: {err}");
             }
             // After the tray, so a quick result can update its menu.
-            #[cfg(desktop)]
             update::init(app.handle());
-            #[cfg(desktop)]
             notifications::init(app.handle());
-            #[cfg(desktop)]
             account::init(app.handle());
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
@@ -119,14 +102,13 @@ fn main() {
             let nav_handle = app.handle().clone();
             let popup_handle = app.handle().clone();
 
-            let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
+            let window = WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
                 .title("Lichess Desktop")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(480.0, 360.0)
                 // Hidden until the window-state plugin restores size and position.
                 .visible(false)
                 .on_navigation(move |url| {
-                    #[cfg(desktop)]
                     if account::intercept(&nav_handle, url) {
                         return false;
                     }
@@ -137,7 +119,6 @@ fn main() {
                     false
                 })
                 .on_new_window(move |url, _features| {
-                    #[cfg(desktop)]
                     if account::intercept(&popup_handle, &url) {
                         return NewWindowResponse::Deny;
                     }
@@ -150,11 +131,9 @@ fn main() {
                         open_in_browser(&popup_handle, &url);
                     }
                     NewWindowResponse::Deny
-                });
-            #[cfg(desktop)]
-            let builder = builder.on_document_title_changed(notifications::title_changed);
-            let window = builder.build()?;
-            #[cfg(desktop)]
+                })
+                .on_document_title_changed(notifications::title_changed)
+                .build()?;
             notifications::watch_focus(&window);
             if let Err(err) = zoom::apply_saved(&window) {
                 eprintln!("failed to apply the saved zoom level: {err}");
@@ -174,12 +153,9 @@ fn main() {
                 {
                     eprintln!("failed to open deep link: {err}");
                 }
-                #[cfg(desktop)]
                 focus_main_window(&link_handle);
             });
-            #[cfg(desktop)]
             let close_handle = app.handle().clone();
-            #[cfg(desktop)]
             window.on_window_event(move |event| {
                 if let WindowEvent::CloseRequested { api, .. } = event
                     && tray::is_shown(&close_handle)
@@ -219,7 +195,6 @@ fn context<R: Runtime>() -> tauri::Context<R> {
 
 /// The handler for every app command. Keep it in step with `COMMANDS` in
 /// `build.rs` and with the capabilities in `capabilities/` (ADR 0012).
-#[cfg(desktop)]
 fn invoke_handler<R: Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send + Sync + 'static {
     tauri::generate_handler![
         settings_window::get_strings,
@@ -241,7 +216,6 @@ fn invoke_handler<R: Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send
 }
 
 /// Brings the main window to the front: unminimizes, shows and focuses it.
-#[cfg(desktop)]
 fn focus_main_window<R: Runtime>(app: &AppHandle<R>) {
     let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
         return;
@@ -260,7 +234,6 @@ fn focus_main_window<R: Runtime>(app: &AppHandle<R>) {
 /// taskbar. The token of a tray or notification click doesn't reach us through
 /// Tauri and its plugins, but a window shown anew does come to the front.
 /// Call it on the main thread, as it asks GTK for the display.
-#[cfg(desktop)]
 fn raise_main_window<R: Runtime>(app: &AppHandle<R>) {
     #[cfg(target_os = "linux")]
     if let Some(window) = app.get_webview_window(MAIN_WINDOW)

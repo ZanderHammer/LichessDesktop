@@ -87,7 +87,6 @@ mod tests {
         assert!(adds_no_script(
             tauri_plugin_store::Builder::default().build()
         ));
-        #[cfg(desktop)]
         assert!(adds_no_script(tauri_plugin_single_instance::init(
             |_, _, _| {}
         )));
