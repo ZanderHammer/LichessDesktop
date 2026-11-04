@@ -5,7 +5,7 @@
 //! change is applied with `WebviewWindow::set_zoom` and saved in one step.
 //! A zoom the host sets stays across navigations on every platform.
 
-use tauri::{Manager, Runtime, WebviewWindow, Wry};
+use tauri::{Manager, Runtime, WebviewWindow};
 
 use crate::settings::SettingsStore;
 
@@ -42,7 +42,7 @@ pub fn step_out(zoom: f64) -> f64 {
 
 /// Applies the saved zoom to `window`. Call it before the window is shown.
 pub fn apply_saved<R: Runtime>(window: &WebviewWindow<R>) -> tauri::Result<()> {
-    let zoom = window.state::<SettingsStore<Wry>>().get().zoom;
+    let zoom = window.state::<SettingsStore<R>>().get().zoom;
     window.set_zoom(clamp(zoom))
 }
 
@@ -50,7 +50,7 @@ pub fn apply_saved<R: Runtime>(window: &WebviewWindow<R>) -> tauri::Result<()> {
 pub fn change<R: Runtime>(window: &WebviewWindow<R>, change: impl FnOnce(f64) -> f64) {
     // Inside the update, so two quick changes (Windows runs actions on a thread
     // pool) can't read the same old level or apply out of order.
-    let saved = window.state::<SettingsStore<Wry>>().update(|settings| {
+    let saved = window.state::<SettingsStore<R>>().update(|settings| {
         settings.zoom = clamp(change(clamp(settings.zoom)));
         if let Err(err) = window.set_zoom(settings.zoom) {
             eprintln!("failed to zoom the page: {err}");
