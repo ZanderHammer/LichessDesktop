@@ -2,10 +2,8 @@
 //!
 //! The level moves through [`STEPS`] like a browser's zoom does. Tauri has
 //! no getter for the zoom, so the setting is the source of truth: every
-//! change is saved first and then applied with `WebviewWindow::set_zoom`.
+//! change is applied with `WebviewWindow::set_zoom` and saved in one step.
 //! A zoom the host sets stays across navigations on every platform.
-
-use std::sync::Mutex;
 
 use tauri::{Manager, Runtime, WebviewWindow, Wry};
 
@@ -17,10 +15,6 @@ pub const STEPS: &[f64] = &[0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75
 
 /// The zoom of a fresh install and of a reset.
 pub const DEFAULT: f64 = 1.0;
-
-/// Keeps two quick changes (Windows runs actions on a thread pool) from
-/// reading the same old level.
-static CHANGE: Mutex<()> = Mutex::new(());
 
 /// The level `zoom` is shown at: within the range of [`STEPS`].
 pub fn clamp(zoom: f64) -> f64 {
@@ -54,16 +48,16 @@ pub fn apply_saved<R: Runtime>(window: &WebviewWindow<R>) -> tauri::Result<()> {
 
 /// Saves the zoom `change` makes from the current level and applies it.
 pub fn change<R: Runtime>(window: &WebviewWindow<R>, change: impl FnOnce(f64) -> f64) {
-    let _guard = CHANGE
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner());
-    let store = window.state::<SettingsStore<Wry>>();
-    let zoom = clamp(change(clamp(store.get().zoom)));
-    if let Err(err) = store.update(|settings| settings.zoom = zoom) {
+    // Inside the update, so two quick changes (Windows runs actions on a thread
+    // pool) can't read the same old level or apply out of order.
+    let saved = window.state::<SettingsStore<Wry>>().update(|settings| {
+        settings.zoom = clamp(change(clamp(settings.zoom)));
+        if let Err(err) = window.set_zoom(settings.zoom) {
+            eprintln!("failed to zoom the page: {err}");
+        }
+    });
+    if let Err(err) = saved {
         eprintln!("failed to save the zoom level: {err}");
-    }
-    if let Err(err) = window.set_zoom(zoom) {
-        eprintln!("failed to zoom the page: {err}");
     }
 }
 

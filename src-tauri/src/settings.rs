@@ -8,7 +8,7 @@
 //! expected type, falls back to its default, and unknown keys are ignored.
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -148,6 +148,9 @@ fn field<T: DeserializeOwned>(entries: &HashMap<String, Value>, key: &str) -> Op
 /// Typed access to the settings store. Register it with [`init`].
 pub struct SettingsStore<R: Runtime> {
     store: Arc<Store<R>>,
+    /// Held across a change, which writes every key: a copy read before another
+    /// thread's change would undo it.
+    update: Mutex<()>,
 }
 
 impl<R: Runtime> SettingsStore<R> {
@@ -156,19 +159,15 @@ impl<R: Runtime> SettingsStore<R> {
         Settings::from_entries(&self.store.entries().into_iter().collect())
     }
 
-    /// Replaces all settings and writes them to disk.
-    pub fn set(&self, settings: &Settings) -> tauri_plugin_store::Result<()> {
+    /// Changes some settings and writes them to disk.
+    pub fn update(&self, change: impl FnOnce(&mut Settings)) -> tauri_plugin_store::Result<()> {
+        let _guard = self.update.lock().unwrap_or_else(|err| err.into_inner());
+        let mut settings = self.get();
+        change(&mut settings);
         for (key, value) in settings.to_entries() {
             self.store.set(key, value);
         }
         self.store.save()
-    }
-
-    /// Changes some settings and writes them to disk.
-    pub fn update(&self, change: impl FnOnce(&mut Settings)) -> tauri_plugin_store::Result<()> {
-        let mut settings = self.get();
-        change(&mut settings);
-        self.set(&settings)
     }
 }
 
@@ -176,7 +175,10 @@ impl<R: Runtime> SettingsStore<R> {
 /// `SettingsStore<R>`. Requires the store plugin to be registered.
 pub fn init<R: Runtime, M: Manager<R>>(manager: &M) -> tauri_plugin_store::Result<()> {
     let store = manager.store(STORE_FILE)?;
-    manager.manage(SettingsStore { store });
+    manager.manage(SettingsStore {
+        store,
+        update: Mutex::new(()),
+    });
     Ok(())
 }
 
