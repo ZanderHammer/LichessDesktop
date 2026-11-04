@@ -4,6 +4,8 @@
 #[cfg(desktop)]
 mod account;
 mod actions;
+#[cfg(target_os = "linux")]
+mod audio;
 #[cfg(test)]
 mod capabilities;
 mod deep_link;
@@ -42,6 +44,10 @@ const START_URL: &str = "https://lichess.org";
 const MAIN_WINDOW: &str = "main";
 
 fn main() {
+    // First, as it changes the environment, which needs no other thread running.
+    #[cfg(target_os = "linux")]
+    audio::configure();
+
     // Runs while Tauri starts up, so a reachable lichess.org costs no extra time.
     let probe = offline::spawn_probe();
 
