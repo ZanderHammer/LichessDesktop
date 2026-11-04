@@ -1,0 +1,12 @@
+[package]
+name = "import-lila"
+version = "0.0.0"
+description = "Imports the lichess translations from a lila checkout into src-tauri/i18n"
+license = "AGPL-3.0-or-later"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+[dependencies]
+roxmltree = "0.21.2"
+serde_json = "1"

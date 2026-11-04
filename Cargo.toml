@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri"]
+members = ["src-tauri", "tools/import-lila"]
 resolver = "3"
 
 # Small binaries, per https://v2.tauri.app/concept/size/
