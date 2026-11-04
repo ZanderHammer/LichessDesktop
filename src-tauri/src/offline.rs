@@ -163,6 +163,12 @@ mod tests {
         let page = render(&Strings::load("ar-SA"));
         assert!(!page.contains("{{"), "unfilled placeholder");
         assert!(page.contains(r#"<html lang="ar-SA" dir="rtl">"#));
+        assert!(page.contains("<h1>تعذّر الوصول إلى lichess.org</h1>"));
+    }
+
+    #[test]
+    fn escapes_the_strings() {
+        let page = render(&Strings::load(i18n::BASE));
         assert!(page.contains("<h1>Can&#39;t reach lichess.org</h1>"));
     }
 }
