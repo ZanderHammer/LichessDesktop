@@ -32,6 +32,13 @@ pub fn is_internal(url: &Url) -> bool {
     }
 }
 
+/// Returns `true` if `url` may be handed to the system's default handler. The
+/// page chooses what it navigates to, and the system would run the handler of
+/// any other scheme or file without asking (ADR 0027).
+pub fn may_open_externally(url: &Url) -> bool {
+    matches!(url.scheme(), "https" | "http" | "mailto")
+}
+
 /// Returns `true` if `url` is a lichess.org page (not the offline page or a
 /// third-party frame).
 pub fn is_lichess(url: &Url) -> bool {
@@ -105,6 +112,28 @@ mod tests {
         assert!(!is_internal(&url("https://lichess.org.evil.com/")));
         assert!(!is_internal(&url("http://lichess.org/")));
         assert!(!is_internal(&url("mailto:contact@lichess.org")));
+    }
+
+    #[test]
+    fn only_web_and_mail_links_leave_the_app() {
+        for allowed in [
+            "https://github.com/lichess-org",
+            "http://example.com/",
+            "mailto:contact@lichess.org",
+        ] {
+            assert!(may_open_externally(&url(allowed)), "{allowed}");
+        }
+        for refused in [
+            "file:///home/someone/Downloads/x.desktop",
+            "smb://example.com/share",
+            "ms-msdt:/id",
+            "search-ms:query=x",
+            "javascript:alert(1)",
+            "data:text/html,x",
+            "de.itshammer.lichessdesktop://oauth/callback?code=c",
+        ] {
+            assert!(!may_open_externally(&url(refused)), "{refused}");
+        }
     }
 
     #[test]

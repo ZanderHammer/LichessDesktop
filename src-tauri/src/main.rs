@@ -282,6 +282,10 @@ fn hide_main_window<R: Runtime>(app: &AppHandle<R>) {
 }
 
 fn open_in_browser<R: Runtime>(app: &AppHandle<R>, url: &Url) {
+    if !navigation::may_open_externally(url) {
+        eprintln!("refused to open a {} link", url.scheme());
+        return;
+    }
     if let Err(err) = app.opener().open_url(url.as_str(), None::<&str>) {
         eprintln!("failed to open {url} in the system browser: {err}");
     }
