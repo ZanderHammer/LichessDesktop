@@ -1,0 +1,16 @@
+{
+  "preferences.preferences": "Roghainnean",
+  "settings.settings": "Roghainnean",
+  "site.analysis": "Bòrd sgrùdaidh",
+  "site.boardEditor": "Deasaiche a’ bhùird",
+  "site.currentGames": "Geamannan a tha ’gan cluich an-dràsta fhèin",
+  "site.editProfile": "Deasaich a’ phròifil",
+  "site.gameOver": "Crìoch a’ gheama",
+  "site.inbox": "Bogsa a-steach",
+  "site.keyboardShortcuts": "Ath-ghoiridean a' mheur-chlàir",
+  "site.puzzles": "Tòimhseachain",
+  "site.retry": "Feuch ris a-rithist",
+  "site.sourceCode": "Bun-tùs",
+  "site.tournaments": "Fèillean-chluich",
+  "site.yourTurn": "An turas agad"
+}

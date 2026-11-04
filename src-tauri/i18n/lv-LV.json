@@ -1,0 +1,22 @@
+{
+  "broadcast.broadcasts": "Raidījumi",
+  "preferences.preferences": "Uzstādījumi",
+  "settings.settings": "Iestatījumi",
+  "site.analysis": "Analīze",
+  "site.boardEditor": "Galdiņa redaktors",
+  "site.chessBasics": "Šaha pamati",
+  "site.currentGames": "Pašreizējās spēles",
+  "site.editProfile": "Labot profilu",
+  "site.gameOver": "Spēle galā",
+  "site.inbox": "Iesūtne",
+  "site.keyboardShortcuts": "Tastatūras saīsnes",
+  "site.language": "Valoda",
+  "site.notifications": "Paziņojumi",
+  "site.puzzles": "Uzdevumi",
+  "site.retry": "Mēģināt vēlreiz",
+  "site.sourceCode": "Pirmkods",
+  "site.studyMenu": "Izpētīt",
+  "site.tournaments": "Turnīri",
+  "site.yourTurn": "Jūsu gājiens",
+  "study.back": "Atpakaļ"
+}

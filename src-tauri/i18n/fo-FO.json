@@ -1,0 +1,21 @@
+{
+  "broadcast.broadcasts": "Sendingar",
+  "preferences.preferences": "Stillingar",
+  "settings.settings": "Stillingar",
+  "site.analysis": "Greiningarborð",
+  "site.boardEditor": "Talvborðsritil",
+  "site.chessBasics": "Grundleggjandi talv",
+  "site.currentGames": "Talv, ið verða telvað nú",
+  "site.editProfile": "Broyt vangamynd",
+  "site.gameOver": "Talvið er liðugt",
+  "site.inbox": "Innbakki",
+  "site.keyboardShortcuts": "Knappaborðssnarvegir",
+  "site.language": "Mál",
+  "site.notifications": "Fráboðanir",
+  "site.puzzles": "Uppgávur",
+  "site.retry": "Royn aftur",
+  "site.sourceCode": "Keldukota",
+  "site.studyMenu": "Rannsókn",
+  "site.tournaments": "Kappingar",
+  "site.yourTurn": "Tú eigur leik"
+}

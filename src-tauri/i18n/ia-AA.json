@@ -1,0 +1,20 @@
+{
+  "preferences.preferences": "Preferentias",
+  "settings.settings": "Configuration",
+  "site.analysis": "Analyse",
+  "site.boardEditor": "Editor de tabuliero",
+  "site.chessBasics": "Fundamentos",
+  "site.currentGames": "Partitas currente",
+  "site.editProfile": "Modificar profilo",
+  "site.gameOver": "Partita finite",
+  "site.inbox": "Cassa de entrata",
+  "site.keyboardShortcuts": "Claves accelerator",
+  "site.language": "Lingua",
+  "site.notifications": "Notificationes",
+  "site.puzzles": "Enigmas",
+  "site.retry": "Tentar de novo",
+  "site.sourceCode": "Codice-fonte",
+  "site.studyMenu": "Studio",
+  "site.tournaments": "Torneos",
+  "site.yourTurn": "Tu torno"
+}

@@ -1,0 +1,22 @@
+{
+  "broadcast.broadcasts": "გადაცემები",
+  "preferences.preferences": "პრეფერენსები",
+  "settings.settings": "პარამეტრები",
+  "site.analysis": "ანალიზის დაფა",
+  "site.boardEditor": "დაფის რედაქტირება",
+  "site.chessBasics": "ჭადრაკის საფუძვლები",
+  "site.currentGames": "მიმდინარე თამაშები",
+  "site.editProfile": "პროფილის განახლება",
+  "site.gameOver": "თამაში დასრულებულია",
+  "site.inbox": "მიღებული",
+  "site.keyboardShortcuts": "კომბინაციები კლავიატურაზე",
+  "site.language": "ენა",
+  "site.notifications": "შეტყობინებები",
+  "site.puzzles": "ეტიუდები",
+  "site.retry": "ხელახლა ცდა",
+  "site.sourceCode": "პროგრამული კოდი",
+  "site.studyMenu": "კვლევა",
+  "site.tournaments": "ტურნირები",
+  "site.yourTurn": "თქვენი სვლაა",
+  "study.back": "უკან"
+}

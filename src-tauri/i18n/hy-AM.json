@@ -1,0 +1,22 @@
+{
+  "broadcast.broadcasts": "Հեռարձակումներ",
+  "preferences.preferences": "Կարգավորումներ",
+  "settings.settings": "Կարգավորումներ",
+  "site.analysis": "Վերլուծության տախտակ",
+  "site.boardEditor": "Խաղատախտակի խմբագրիչ",
+  "site.chessBasics": "Շախմատի հիմունքներ",
+  "site.currentGames": "Այժմ օնլայն ընթացող խաղերը",
+  "site.editProfile": "Խմբագրել անձնագիրը",
+  "site.gameOver": "Խաղն ավարտված է",
+  "site.inbox": "Փոստարկղ",
+  "site.keyboardShortcuts": "Ստեղնաշարի դյուրանցումներ",
+  "site.language": "Լեզու",
+  "site.notifications": "Ծանուցումներ",
+  "site.puzzles": "Խնդիրներ",
+  "site.retry": "Կրկին փորձել",
+  "site.sourceCode": "Ընթացիկ կոդ",
+  "site.studyMenu": "Ստուդիա",
+  "site.tournaments": "Մրցաշարեր",
+  "site.yourTurn": "Ձեր հերթն է",
+  "study.back": "Հետ"
+}

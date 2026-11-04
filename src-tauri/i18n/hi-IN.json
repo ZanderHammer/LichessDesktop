@@ -1,0 +1,23 @@
+{
+  "broadcast.broadcasts": "प्रसारण",
+  "preferences.preferences": "प्राथमिकताएं",
+  "settings.settings": "व्यवस्था (सेटिंग्स)",
+  "site.analysis": "विश्लेषण पट",
+  "site.boardEditor": "बोर्ड संपादक",
+  "site.challengeAFriend": "दोस्त को चुनौती",
+  "site.chessBasics": "शतरंज मूल बातें",
+  "site.currentGames": "अभी खेले जा रहे खेल",
+  "site.editProfile": "प्रोफ़ाइल संपादित करें",
+  "site.gameOver": "खेल समाप्त",
+  "site.inbox": "आपके सन्देश (इनबॉक्स)",
+  "site.keyboardShortcuts": "किबोर्ड के शार्टकट",
+  "site.language": "भाषा",
+  "site.notifications": "सूचनाएँ",
+  "site.puzzles": "पहेलियाँ",
+  "site.retry": "फिर से कोशिश करें",
+  "site.sourceCode": "सोर्स कोड",
+  "site.studyMenu": "पढ़े",
+  "site.tournaments": "प्रतियोगिताएँ",
+  "site.yourTurn": "आपकी चाल",
+  "study.back": "पीछे"
+}
