@@ -166,6 +166,11 @@ fn sync_stream<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+/// The `notify_account_events` setting changed.
+pub fn setting_changed<R: Runtime>(app: &AppHandle<R>) {
+    sync_stream(app);
+}
+
 /// The stream's 401: the token is no good, whatever a running check may say.
 fn token_rejected<R: Runtime>(app: &AppHandle<R>) {
     let status = forget_rejected_token(app);
