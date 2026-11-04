@@ -7,10 +7,13 @@
 //! there is a token to look for.
 
 mod api;
+mod events;
 mod oauth;
+mod stream;
 mod token_store;
 
 use std::sync::Mutex;
+use std::sync::mpsc::{self, Sender};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -75,6 +78,8 @@ struct Inner {
     /// overwrite its result.
     generation: u64,
     checked_at: Option<Instant>,
+    /// Dropping it stops the running event stream.
+    stream: Option<Sender<()>>,
 }
 
 impl Inner {
@@ -103,6 +108,7 @@ impl Default for State {
             pending: None,
             generation: 0,
             checked_at: None,
+            stream: None,
         }))
     }
 }
@@ -119,12 +125,70 @@ pub fn status<R: Runtime>(app: &AppHandle<R>) -> Status {
 
 fn set_status<R: Runtime>(app: &AppHandle<R>, status: Status) {
     with_state(app, |inner| inner.status = status);
-    tell_settings_window(app);
+    status_changed(app);
 }
 
-fn tell_settings_window<R: Runtime>(app: &AppHandle<R>) {
+fn status_changed<R: Runtime>(app: &AppHandle<R>) {
     if app.get_webview_window(settings_window::LABEL).is_some() {
         let _ = app.emit_to(settings_window::LABEL, CHANGED, ());
+    }
+    sync_stream(app);
+}
+
+/// The event stream runs while there is a token and its setting is on.
+fn wants_stream(status: &Status, notify_account_events: bool) -> bool {
+    notify_account_events && matches!(status, Status::Connected { .. } | Status::Unverified)
+}
+
+/// Starts or stops the event stream to match the status and the setting.
+fn sync_stream<R: Runtime>(app: &AppHandle<R>) {
+    let on = app.state::<SettingsStore<R>>().get().notify_account_events;
+    let start = with_state(app, |inner| {
+        if !wants_stream(&inner.status, on) {
+            inner.stream = None;
+            return None;
+        }
+        if inner.stream.is_some() {
+            return None;
+        }
+        let (sender, stop) = mpsc::channel();
+        inner.stream = Some(sender);
+        let username = match &inner.status {
+            Status::Connected { username } => Some(username.clone()),
+            _ => None,
+        };
+        Some((stop, username))
+    })
+    .flatten();
+    if let Some((stop, username)) = start {
+        let app = app.clone();
+        thread::spawn(move || stream::run(&app, &stop, username));
+    }
+}
+
+/// The stream's 401: the token is no good, whatever a running check may say.
+fn token_rejected<R: Runtime>(app: &AppHandle<R>) {
+    let status = forget_rejected_token(app);
+    with_state(app, |inner| {
+        inner.generation += 1;
+        inner.status = status;
+    });
+    status_changed(app);
+}
+
+/// Lichess.org answered after all, which the settings window can show.
+fn token_verified<R: Runtime>(app: &AppHandle<R>, username: &str) {
+    let changed = with_state(app, |inner| {
+        let unverified = inner.status == Status::Unverified;
+        if unverified {
+            inner.status = Status::Connected {
+                username: username.to_owned(),
+            };
+        }
+        unverified
+    });
+    if changed == Some(true) {
+        status_changed(app);
     }
 }
 
@@ -141,7 +205,7 @@ fn begin<R: Runtime>(app: &AppHandle<R>, from: impl Fn(&Status) -> bool, to: Sta
     })
     .unwrap_or(false);
     if started {
-        tell_settings_window(app);
+        status_changed(app);
     }
     started
 }
@@ -200,7 +264,7 @@ fn start_check<R: Runtime>(app: &AppHandle<R>) {
                 inner.status = status;
             }
         });
-        tell_settings_window(&app);
+        status_changed(&app);
     });
 }
 
@@ -227,15 +291,17 @@ fn status_of_token<R: Runtime>(app: &AppHandle<R>, token: &str) -> Status {
     match api::account(token) {
         Account::Username(username) => Status::Connected { username },
         Account::Unknown => Status::Unverified,
-        Account::Rejected => {
-            if let Err(err) = token_store::remove() {
-                eprintln!("failed to remove the rejected token: {err}");
-            }
-            save_connected(app, false);
-            Status::Disconnected {
-                notice: Some(Notice::Expired),
-            }
-        }
+        Account::Rejected => forget_rejected_token(app),
+    }
+}
+
+fn forget_rejected_token<R: Runtime>(app: &AppHandle<R>) -> Status {
+    if let Err(err) = token_store::remove() {
+        eprintln!("failed to remove the rejected token: {err}");
+    }
+    save_connected(app, false);
+    Status::Disconnected {
+        notice: Some(Notice::Expired),
     }
 }
 
@@ -448,6 +514,7 @@ mod tests {
             }),
             generation: 0,
             checked_at: None,
+            stream: None,
         };
         (inner, url)
     }
@@ -475,6 +542,24 @@ mod tests {
         let url: Url = oauth::REDIRECT_URI.parse().unwrap();
         assert!(!crate::navigation::is_internal(&url));
         assert!(oauth::is_callback(&url));
+    }
+
+    #[test]
+    fn the_stream_needs_a_token_and_the_setting() {
+        let connected = Status::Connected {
+            username: "SomeOne".into(),
+        };
+        assert!(wants_stream(&connected, true));
+        assert!(wants_stream(&Status::Unverified, true));
+        assert!(!wants_stream(&connected, false));
+        assert!(!wants_stream(&Status::Unverified, false));
+        for status in [
+            Status::Disconnected { notice: None },
+            Status::Connecting,
+            Status::Checking,
+        ] {
+            assert!(!wants_stream(&status, true), "{status:?}");
+        }
     }
 
     #[test]
