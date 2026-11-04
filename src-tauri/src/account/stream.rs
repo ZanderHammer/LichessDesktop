@@ -11,6 +11,7 @@ use tauri::{AppHandle, Manager, Runtime};
 use super::api::{self, Account, Opened};
 use super::events::{Alert, Seen};
 use super::token_store;
+use super::{Notice, Status};
 use crate::i18n;
 use crate::notifications;
 
@@ -69,6 +70,15 @@ pub fn run<R: Runtime>(app: &AppHandle<R>, stop: &Receiver<()>, username: Option
         }
         Err(err) => {
             eprintln!("failed to read the token for the event stream: {err}");
+            // Otherwise the account looks connected with no stream behind it.
+            if !is_stopped(stop) {
+                super::set_status(
+                    app,
+                    Status::Disconnected {
+                        notice: Some(Notice::NoKeyring),
+                    },
+                );
+            }
             return;
         }
     };
