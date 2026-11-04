@@ -199,6 +199,7 @@ fn invoke_handler<R: Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool + Send
         settings_window::get_app_info,
         settings_window::get_shortcuts,
         settings_window::settings_ready,
+        settings_window::close_settings,
         palette::list_actions,
         palette::run_action,
         palette::palette_ready,

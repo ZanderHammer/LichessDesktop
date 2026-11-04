@@ -149,10 +149,19 @@ function bindTabs() {
   };
 }
 
+/** Esc closes the window. On a `<select>` it may only close the open list. */
+function bindClose() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || event.isComposing || event.target.matches("select")) return;
+    invoke("close_settings").catch((err) => console.error("failed to close the window:", err));
+  });
+}
+
 async function main() {
   const showTab = bindTabs();
   if (location.hash) showTab(location.hash.slice(1));
   bindSettings();
+  bindClose();
   // Before the first load, so a change during it isn't missed.
   await listen("show-tab", (event) => showTab(event.payload));
   await listen("update-changed", loadAbout);

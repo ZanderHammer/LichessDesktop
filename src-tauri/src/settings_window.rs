@@ -137,6 +137,14 @@ pub fn settings_ready<R: Runtime>(webview: tauri::Webview<R>) {
     show(&webview.window());
 }
 
+/// Esc in the page.
+#[tauri::command]
+pub fn close_settings<R: Runtime>(window: tauri::Window<R>) {
+    if let Err(err) = window.close() {
+        eprintln!("failed to close the settings window: {err}");
+    }
+}
+
 /// The strings of the UI language, keyed by id.
 #[derive(Serialize)]
 pub struct StringsView {
@@ -399,6 +407,8 @@ mod tests {
             "get_app_info",
             "get_shortcuts",
             "settings_ready",
+            // Last: it closes the window.
+            "close_settings",
         ] {
             assert!(
                 get_ipc_response(&settings, request(cmd, local)).is_ok(),
