@@ -8,6 +8,8 @@ mod deep_link;
 mod i18n;
 mod native;
 mod navigation;
+#[cfg(desktop)]
+mod notifications;
 mod offline;
 #[cfg(desktop)]
 mod palette;
@@ -19,6 +21,8 @@ mod settings_window;
 mod shortcuts;
 #[cfg(desktop)]
 mod tray;
+#[cfg(desktop)]
+mod turn;
 #[cfg(test)]
 mod ui_assets;
 #[cfg(desktop)]
@@ -83,6 +87,8 @@ fn main() {
             // After the tray, so a quick result can update its menu.
             #[cfg(desktop)]
             update::init(app.handle());
+            #[cfg(desktop)]
+            notifications::init(app.handle());
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             register_deep_links(app.handle());
             // Set on Linux and Windows when this launch came from a deep link.
@@ -102,7 +108,7 @@ fn main() {
             let nav_handle = app.handle().clone();
             let popup_handle = app.handle().clone();
 
-            let window = WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
+            let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW, url)
                 .title("Lichess Desktop")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(480.0, 360.0)
@@ -125,8 +131,12 @@ fn main() {
                         open_in_browser(&popup_handle, &url);
                     }
                     NewWindowResponse::Deny
-                })
-                .build()?;
+                });
+            #[cfg(desktop)]
+            let builder = builder.on_document_title_changed(notifications::title_changed);
+            let window = builder.build()?;
+            #[cfg(desktop)]
+            notifications::watch_focus(&window);
             if let Err(err) = zoom::apply_saved(&window) {
                 eprintln!("failed to apply the saved zoom level: {err}");
             }
