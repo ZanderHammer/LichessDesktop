@@ -258,6 +258,18 @@ keys! {
     Inbox => "site.inbox",
     EditProfile => "site.editProfile",
     Preferences => "preferences.preferences",
+    Account => "desktop.account",
+    Connect => "desktop.connect",
+    ConnectAccount => "desktop.connectAccount",
+    ConnectAccountHint => "desktop.connectAccountHint",
+    ConnectedAs => "desktop.connectedAs",
+    Disconnect => "desktop.disconnect",
+    AuthorizeInMainWindow => "desktop.authorizeInMainWindow",
+    AccountExpired => "desktop.accountExpired",
+    AccountNoKeyring => "desktop.accountNoKeyring",
+    AccountFailed => "desktop.accountFailed",
+    RevokeFailed => "desktop.revokeFailed",
+    Cancel => "site.cancel",
 }
 
 /// Strings of one language, with the base language behind it.
