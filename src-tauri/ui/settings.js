@@ -111,6 +111,8 @@ async function loadAccount() {
   button.className = view.look ? `button ${view.look}` : "button";
   button.disabled = !view.command;
   button.dataset.command = view.command ?? "";
+  // These events come from the account, so the switch needs one.
+  document.getElementById("account-events-row").hidden = !["connected", "unverified"].includes(account.state);
 }
 
 function bindAccount() {

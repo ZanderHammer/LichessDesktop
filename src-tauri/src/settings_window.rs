@@ -208,6 +208,7 @@ pub struct SettingsView {
     check_updates: bool,
     notify_your_turn: bool,
     notify_game_over: bool,
+    notify_account_events: bool,
     attention: bool,
     /// `system` or a language tag.
     language: String,
@@ -225,6 +226,7 @@ pub fn get_settings<R: Runtime>(app: AppHandle<R>) -> SettingsView {
         check_updates: settings.check_updates,
         notify_your_turn: settings.notify_your_turn,
         notify_game_over: settings.notify_game_over,
+        notify_account_events: settings.notify_account_events,
         attention: settings.attention,
         language: settings.language.as_str().to_owned(),
         system_language: i18n::resolve(&Language::System, sys_locale::get_locales()),
@@ -246,13 +248,14 @@ pub enum SettingChange {
     CheckUpdates(bool),
     NotifyYourTurn(bool),
     NotifyGameOver(bool),
+    NotifyAccountEvents(bool),
     Attention(bool),
     /// `system` or a tag from [`i18n::LANGUAGES`].
     Language(String),
 }
 
-/// Applies `change` and saves it. A change of the language or of the update
-/// check takes effect at once; the others are read when they are needed.
+/// Applies `change` and saves it. A change of the language, the update check or
+/// the account events takes effect at once; the others are read when needed.
 #[tauri::command]
 pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Result<(), String> {
     let language = match &change {
@@ -263,12 +266,14 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
         SettingChange::CheckUpdates(on) => Some(*on),
         _ => None,
     };
+    let account_events = matches!(&change, SettingChange::NotifyAccountEvents(_));
     app.state::<SettingsStore<R>>()
         .update(|settings| match change {
             SettingChange::CloseToTray(on) => settings.close_to_tray = on,
             SettingChange::CheckUpdates(on) => settings.check_updates = on,
             SettingChange::NotifyYourTurn(on) => settings.notify_your_turn = on,
             SettingChange::NotifyGameOver(on) => settings.notify_game_over = on,
+            SettingChange::NotifyAccountEvents(on) => settings.notify_account_events = on,
             SettingChange::Attention(on) => settings.attention = on,
             SettingChange::Language(_) => {
                 if let Some(language) = &language {
@@ -282,6 +287,9 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
     }
     if let Some(on) = check_updates {
         update::setting_changed(&app, on);
+    }
+    if account_events {
+        account::setting_changed(&app);
     }
     Ok(())
 }
@@ -516,6 +524,9 @@ mod tests {
         let change: SettingChange =
             from_value(json!({ "key": "closeToTray", "value": true })).unwrap();
         assert_eq!(change, SettingChange::CloseToTray(true));
+        let change: SettingChange =
+            from_value(json!({ "key": "notifyAccountEvents", "value": false })).unwrap();
+        assert_eq!(change, SettingChange::NotifyAccountEvents(false));
         let change: SettingChange =
             from_value(json!({ "key": "language", "value": "de-DE" })).unwrap();
         assert_eq!(change, SettingChange::Language("de-DE".into()));
