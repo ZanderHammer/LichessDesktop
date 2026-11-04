@@ -2,8 +2,8 @@
 //! the bundled windows. See ADR 0015.
 //!
 //! Each language is one JSON file in `src-tauri/i18n/`, named after its lila
-//! language tag and mapping keys to strings. `en-GB.json` is the base: it has
-//! every key, and any key a language lacks falls back to it. Keys are
+//! language tag and mapping keys to strings. `en-GB.json` is the base, and a
+//! test checks that every language has every key (ADR 0020). Keys are
 //! `<lila module>.<lila key>` for strings shared with lichess and
 //! `desktop.<key>` for our own.
 
@@ -399,6 +399,40 @@ mod tests {
                 assert!(
                     known.contains(&id.as_str()),
                     "{tag}.json has unknown key {id}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn every_language_has_every_key() {
+        for &(tag, _) in LANGUAGES {
+            assert!(
+                TRANSLATIONS.iter().any(|(file, _)| *file == tag),
+                "i18n/{tag}.json is missing: see ADR 0020"
+            );
+            let strings = parse(tag);
+            for key in Key::ALL {
+                let text = strings.get(key.id()).map_or("", String::as_str);
+                assert!(
+                    !text.trim().is_empty(),
+                    "{tag}.json lacks {}: see ADR 0020",
+                    key.id()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn every_language_keeps_the_placeholders() {
+        let count = |text: &str| text.matches("%s").count() + text.matches("%1$s").count();
+        let base = parse(BASE);
+        for (tag, _) in TRANSLATIONS {
+            for (id, text) in parse(tag) {
+                assert_eq!(
+                    count(&text),
+                    count(&base[&id]),
+                    "{tag}.json has the wrong placeholders in {id}: {text}"
                 );
             }
         }
