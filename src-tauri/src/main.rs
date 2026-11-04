@@ -5,6 +5,7 @@ mod account;
 mod actions;
 #[cfg(target_os = "linux")]
 mod audio;
+mod bundled;
 #[cfg(test)]
 mod capabilities;
 mod deep_link;

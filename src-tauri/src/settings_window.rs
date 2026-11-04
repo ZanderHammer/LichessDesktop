@@ -6,13 +6,12 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::thread;
-use std::time::Duration;
-use tauri::webview::{NewWindowResponse, PageLoadEvent};
+use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
 use crate::account;
 use crate::actions::Action;
+use crate::bundled;
 use crate::i18n::{self, Key};
 use crate::offline;
 use crate::settings::{Language, SettingsStore};
@@ -20,9 +19,6 @@ use crate::shortcuts;
 use crate::update::{self, Status};
 
 pub const LABEL: &str = "settings";
-
-/// Shows the window anyway if the page never reports `settings_ready`.
-const SHOW_FALLBACK: Duration = Duration::from_millis(1500);
 
 /// Tells the page to fetch its strings again after a language change.
 const STRINGS_CHANGED: &str = "strings-changed";
@@ -76,13 +72,7 @@ fn open_at<R: Runtime>(app: &AppHandle<R>, tab: Option<Tab>) -> tauri::Result<()
     let Some(main) = app.get_webview_window(crate::MAIN_WINDOW) else {
         return Ok(());
     };
-    // `cargo tauri dev` serves `ui/` from its own server instead.
-    let dev_url = app
-        .config()
-        .build
-        .dev_url
-        .clone()
-        .filter(|_| tauri::is_dev());
+    let dev_url = bundled::dev_url(app);
     let nav_handle = app.clone();
     let popup_handle = app.clone();
     let title = app
@@ -115,31 +105,15 @@ fn open_at<R: Runtime>(app: &AppHandle<R>, tab: Option<Tab>) -> tauri::Result<()
             crate::open_in_browser(&popup_handle, &url);
             NewWindowResponse::Deny
         })
-        .on_page_load(|window, payload| {
-            if payload.event() == PageLoadEvent::Finished {
-                let window = window.clone();
-                thread::spawn(move || {
-                    thread::sleep(SHOW_FALLBACK);
-                    if !window.is_visible().unwrap_or(true) {
-                        show(&window.as_ref().window());
-                    }
-                });
-            }
-        })
+        .on_page_load(bundled::show_after_fallback)
         .build()?;
     Ok(())
-}
-
-fn show<R: Runtime>(window: &tauri::Window<R>) {
-    if let Err(err) = window.show().and_then(|()| window.set_focus()) {
-        eprintln!("failed to show the settings window: {err}");
-    }
 }
 
 /// The page has drawn its content: show the window.
 #[tauri::command]
 pub fn settings_ready<R: Runtime>(webview: tauri::Webview<R>) {
-    show(&webview.window());
+    bundled::show(&webview.window());
 }
 
 /// Esc in the page.
@@ -406,25 +380,12 @@ pub fn disconnect_account<R: Runtime>(app: AppHandle<R>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::bundled::test_support::{LOCAL, request};
     use serde_json::{from_value, json, to_value};
     use std::sync::Arc;
     use std::sync::atomic::{AtomicBool, Ordering};
     use tauri::Listener;
-    use tauri::ipc::{CallbackFn, InvokeBody};
-    use tauri::test::{INVOKE_KEY, MockRuntime, get_ipc_response, mock_builder};
-    use tauri::webview::InvokeRequest;
-
-    fn request(cmd: &str, url: &str) -> InvokeRequest {
-        InvokeRequest {
-            cmd: cmd.into(),
-            callback: CallbackFn(0),
-            error: CallbackFn(1),
-            url: url.parse().unwrap(),
-            body: InvokeBody::default(),
-            headers: Default::default(),
-            invoke_key: INVOKE_KEY.into(),
-        }
-    }
+    use tauri::test::{MockRuntime, get_ipc_response, mock_builder};
 
     /// Runs real IPC requests through the app's ACL (ADR 0012): only the
     /// settings window's bundled page may call app commands.
@@ -441,11 +402,6 @@ mod tests {
         let main = WebviewWindowBuilder::new(&app, crate::MAIN_WINDOW, Default::default())
             .build()
             .unwrap();
-        let local = if cfg!(windows) {
-            "http://tauri.localhost"
-        } else {
-            "tauri://localhost"
-        };
 
         for cmd in [
             "get_strings",
@@ -457,11 +413,11 @@ mod tests {
             "close_settings",
         ] {
             assert!(
-                get_ipc_response(&settings, request(cmd, local)).is_ok(),
+                get_ipc_response(&settings, request(cmd, LOCAL)).is_ok(),
                 "{cmd} denied"
             );
             assert!(
-                get_ipc_response(&main, request(cmd, local)).is_err(),
+                get_ipc_response(&main, request(cmd, LOCAL)).is_err(),
                 "{cmd} allowed in main"
             );
             assert!(
@@ -469,7 +425,7 @@ mod tests {
                 "{cmd} allowed for remote content"
             );
         }
-        assert!(get_ipc_response(&main, request("plugin:event|listen", local)).is_err());
+        assert!(get_ipc_response(&main, request("plugin:event|listen", LOCAL)).is_err());
     }
 
     #[test]
