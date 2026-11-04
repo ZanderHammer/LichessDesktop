@@ -65,7 +65,7 @@ Grab the installer for your platform from the [latest release](https://github.co
 - **Linux on Wayland:** only the window size is restored, not its position. Wayland doesn't let apps read or set their window position. Always on top (Ctrl+Shift+T) is also a no-op under Wayland because `xdg_shell` does not support client-controlled window stacking. On KDE Plasma, a window rule can configure both position and always-on-top.
 - **Linux on GNOME:** the tray icon needs the [AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/) (Ubuntu enables it by default). Without it there is no tray, and closing the window always quits.
 - **Linux AppImage:** it bundles WebKitGTK, so it's about 110 MB. Prefer `.deb` or `.rpm` if you can.
-- **Linux sound delay:** sounds play up to about 0.4 s late, because shorter audio buffers go silent on Bluetooth ([ADR 0026](docs/adr/0026-keep-linux-bluetooth-audio-with-a-larger-pulse-request-size.md)). To try a smaller buffer, start the app with your own value, such as `PULSE_PROP=pulse.min.req=1024/48000`.
+- **Linux sound delay:** on PipeWire, sounds play about 0.5 s late on every output, because shorter audio requests cut out on the Bluetooth device we tested ([ADR 0026](docs/adr/0026-keep-linux-bluetooth-audio-with-a-larger-pulse-request-size.md)). Plain PulseAudio and the AppImage are untested. If you don't use Bluetooth, quit the app fully, also from the tray, and start it with `PULSE_PROP=pulse.min.req=256/48000`, the normal value, to remove the delay. If a Bluetooth device still cuts out, try a larger value such as `9600/48000`.
 
 ## Build from source
 
