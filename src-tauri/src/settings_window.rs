@@ -439,6 +439,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        target_os = "macos",
+        ignore = "rebuilds the app menu, which needs the main thread"
+    )]
     fn switching_language_swaps_the_strings_and_tells_the_open_window() {
         let app = mock_builder()
             .invoke_handler(crate::invoke_handler::<MockRuntime>())
