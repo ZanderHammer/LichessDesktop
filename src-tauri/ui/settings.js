@@ -4,6 +4,17 @@
 import { invoke, listen } from "./ipc.js";
 import { loadStrings, t } from "./strings.js";
 
+/**
+ * Gives each language option its `lang`, for screen readers. This waits until
+ * the list gets focus: WebKitGTK matches fonts for every `lang` when it lays
+ * out the select, which took about 650 ms and held back the window (#41).
+ */
+function tagLanguageOptions(select) {
+  for (const option of select.options) {
+    if (option.value !== "system") option.lang = option.value;
+  }
+}
+
 async function loadSettings() {
   const settings = await invoke("get_settings");
   for (const input of document.querySelectorAll("[data-setting]")) {
@@ -14,13 +25,11 @@ async function loadSettings() {
     settings.languages.find(([tag]) => tag === settings.systemLanguage)?.[1] ?? settings.systemLanguage;
   select.replaceChildren(
     new Option(t("desktop.systemLanguage", systemName), "system"),
-    ...settings.languages.map(([tag, name]) => {
-      const option = new Option(name, tag);
-      option.lang = tag;
-      return option;
-    }),
+    ...settings.languages.map(([tag, name]) => new Option(name, tag)),
   );
   select.value = settings.language;
+  // After a language change the list still has focus.
+  if (select.matches(":focus")) tagLanguageOptions(select);
 }
 
 /** The text of each update status but `available`, which is a link instead. */
@@ -101,6 +110,7 @@ function bindSettings() {
     });
   }
   const select = document.getElementById("language");
+  select.addEventListener("focus", () => tagLanguageOptions(select));
   select.addEventListener("change", async () => {
     try {
       await save("language", select.value);
