@@ -1,7 +1,7 @@
-//! Update notice (#17, ADR 0017): no auto-updater, only a hint. At startup,
-//! at most once per 24 hours and only while "Check for updates" is on, a
-//! background thread asks GitHub for the latest release. If it is newer than
-//! this build, one native notification is shown per new version, and the
+//! Update notice (#17, ADR 0017): no auto-updater, only a hint. At startup and
+//! when "Check for updates" is turned on (ADR 0019), a background thread asks
+//! GitHub for the latest release, at most once per 24 hours. If it is newer
+//! than this build, one native notification is shown per new version, and the
 //! tray and the About tab offer its release page.
 //!
 //! What the last check found is kept in its own store file, apart from the
@@ -14,9 +14,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use semver::Version;
 use serde::Deserialize;
 use serde_json::Value;
-use tauri::{AppHandle, Emitter, Manager, Runtime, Url, Wry};
+use tauri::{AppHandle, Emitter, Manager, Runtime, Url};
 use tauri_plugin_notification::NotificationExt;
-use tauri_plugin_store::StoreExt;
+use tauri_plugin_store::{Store, StoreExt};
 
 use crate::i18n::{self, Key};
 use crate::settings::SettingsStore;
@@ -38,15 +38,28 @@ const LATEST: &str = "latest";
 /// The newest version a notification was shown for.
 const NOTIFIED: &str = "notified";
 
-/// Tells an open settings window that [`available`] changed.
+/// Tells an open settings window that [`status`] changed.
 pub const CHANGED: &str = "update-changed";
 
 /// Tells our notification apart from later ones in `on_action`.
 const NOTIFICATION_ID: i32 = 17_000;
 
-/// The newer release, if one is known. In managed state.
+/// The current [`Status`]. In managed state.
 #[derive(Default)]
-struct Available(RwLock<Option<Version>>);
+struct State(RwLock<Status>);
+
+/// What is known about updates right now.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum Status {
+    /// "Check for updates" is off.
+    #[default]
+    Off,
+    Checking,
+    UpToDate,
+    /// No answer: offline, rate limited or a bad response.
+    Failed,
+    Available(Update),
+}
 
 /// A release newer than the running build.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -74,15 +87,22 @@ impl Update {
     }
 }
 
+pub fn status<R: Runtime>(app: &AppHandle<R>) -> Status {
+    app.try_state::<State>().map_or(Status::Off, |state| {
+        state
+            .0
+            .read()
+            .unwrap_or_else(|err| err.into_inner())
+            .clone()
+    })
+}
+
 /// The newer release found by the last check, if any.
 pub fn available<R: Runtime>(app: &AppHandle<R>) -> Option<Update> {
-    let state = app.try_state::<Available>()?;
-    let version = state
-        .0
-        .read()
-        .unwrap_or_else(|err| err.into_inner())
-        .clone()?;
-    Some(Update { version })
+    match status(app) {
+        Status::Available(update) => Some(update),
+        _ => None,
+    }
 }
 
 /// Opens the release page of [`available`] in the browser.
@@ -95,11 +115,8 @@ pub fn open_release_page<R: Runtime>(app: &AppHandle<R>) {
 /// Shows what the last check found and, when it is due, checks again in the
 /// background. Does nothing while "Check for updates" is off. Needs the
 /// store and notification plugins and [`crate::settings::init`].
-pub fn init(app: &AppHandle<Wry>) {
-    app.manage(Available::default());
-    if !app.state::<SettingsStore<Wry>>().get().check_updates {
-        return;
-    }
+pub fn init<R: Runtime>(app: &AppHandle<R>) {
+    app.manage(State::default());
     let handle = app.clone();
     let _ = app.notification().on_action(move |action| {
         if action.action_id() == "tap"
@@ -108,67 +125,109 @@ pub fn init(app: &AppHandle<Wry>) {
             open_release_page(&handle);
         }
     });
-    let app = app.clone();
-    thread::spawn(move || {
-        if let Err(err) = run(&app) {
-            eprintln!("update check failed: {err}");
-        }
-    });
+    if app.state::<SettingsStore<R>>().get().check_updates {
+        start_check(app);
+    }
 }
 
-fn run(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let store = app.store(STORE_FILE)?;
-    let stored = |key| {
-        store
-            .get(key)
-            .as_ref()
-            .and_then(Value::as_str)
-            .and_then(parse_tag)
-    };
-    let current = current_version();
-
-    let now = unix_now();
-    let checked_at = store.get(CHECKED_AT).and_then(|value| value.as_u64());
-    let latest = if is_due(checked_at, now) {
-        let latest = fetch_latest()?;
-        store.set(CHECKED_AT, now);
-        store.set(LATEST, latest.to_string());
-        store.save()?;
-        latest
+/// Applies a new value of "Check for updates" at once: on starts a check, off
+/// removes the update entry.
+pub fn setting_changed<R: Runtime>(app: &AppHandle<R>, on: bool) {
+    if on {
+        start_check(app);
     } else {
-        match stored(LATEST) {
-            Some(latest) => latest,
-            None => return Ok(()),
+        set_status(app, Status::Off);
+    }
+}
+
+fn start_check<R: Runtime>(app: &AppHandle<R>) {
+    set_status(app, Status::Checking);
+    let app = app.clone();
+    thread::spawn(move || check(&app));
+}
+
+fn check<R: Runtime>(app: &AppHandle<R>) {
+    let latest = latest_release(app);
+    // Turned off while the request was running.
+    if !app.state::<SettingsStore<R>>().get().check_updates {
+        return;
+    }
+    let latest = match latest {
+        Ok(latest) => latest,
+        Err(err) => {
+            eprintln!("update check failed: {err}");
+            set_status(app, Status::Failed);
+            return;
         }
     };
-    if !is_newer(&latest, &current) {
-        return Ok(());
+    if !is_newer(&latest, &current_version()) {
+        set_status(app, Status::UpToDate);
+        return;
     }
+    let update = Update { version: latest };
+    set_status(app, Status::Available(update.clone()));
+    if let Err(err) = notify(app, &update) {
+        eprintln!("failed to show the update notification: {err}");
+    }
+}
 
-    *app.state::<Available>()
-        .0
-        .write()
-        .unwrap_or_else(|err| err.into_inner()) = Some(latest.clone());
-    announce(app);
+/// The latest release: the stored result of the last check, or from GitHub
+/// when a check is due.
+fn latest_release<R: Runtime>(app: &AppHandle<R>) -> Result<Version, Box<dyn std::error::Error>> {
+    let store = app.store(STORE_FILE)?;
+    let now = unix_now();
+    let checked_at = store.get(CHECKED_AT).and_then(|value| value.as_u64());
+    if !is_due(checked_at, now)
+        && let Some(latest) = stored_version(&store, LATEST)
+    {
+        return Ok(latest);
+    }
+    let latest = fetch_latest()?;
+    store.set(CHECKED_AT, now);
+    store.set(LATEST, latest.to_string());
+    store.save()?;
+    Ok(latest)
+}
 
-    if should_notify(&latest, stored(NOTIFIED).as_ref()) {
-        let update = Update {
-            version: latest.clone(),
-        };
+/// Shows the notification, unless one was shown for this version already.
+fn notify<R: Runtime>(
+    app: &AppHandle<R>,
+    update: &Update,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let store = app.store(STORE_FILE)?;
+    if should_notify(&update.version, stored_version(&store, NOTIFIED).as_ref()) {
         app.notification()
             .builder()
             .id(NOTIFICATION_ID)
             .body(update.text(&app.state::<i18n::Current>().get()))
             .show()?;
-        store.set(NOTIFIED, latest.to_string());
+        store.set(NOTIFIED, update.version.to_string());
         store.save()?;
     }
     Ok(())
 }
 
-/// Puts the update entry in the tray and in an open settings window.
-fn announce<R: Runtime>(app: &AppHandle<R>) {
-    if let Err(err) = crate::tray::refresh_menu(app) {
+fn stored_version<R: Runtime>(store: &Store<R>, key: &str) -> Option<Version> {
+    store
+        .get(key)
+        .as_ref()
+        .and_then(Value::as_str)
+        .and_then(parse_tag)
+}
+
+/// Sets the status and tells an open settings window. The tray menu is rebuilt
+/// only if its update entry comes or goes.
+fn set_status<R: Runtime>(app: &AppHandle<R>, status: Status) {
+    let Some(state) = app.try_state::<State>() else {
+        return;
+    };
+    let old = std::mem::replace(
+        &mut *state.0.write().unwrap_or_else(|err| err.into_inner()),
+        status.clone(),
+    );
+    if matches!(old, Status::Available(_)) != matches!(status, Status::Available(_))
+        && let Err(err) = crate::tray::refresh_menu(app)
+    {
         eprintln!("failed to rebuild the tray menu: {err}");
     }
     if app
@@ -291,6 +350,22 @@ mod tests {
         assert!(!should_notify(&v("0.3.0"), Some(&v("0.3.0"))));
         assert!(should_notify(&v("0.4.0"), Some(&v("0.3.0"))));
         assert!(!should_notify(&v("0.3.0"), Some(&v("0.4.0"))));
+    }
+
+    #[test]
+    fn turning_the_setting_off_removes_the_update_entry() {
+        let app = tauri::test::mock_app();
+        app.manage(State::default());
+        let app = app.handle();
+        let update = Update {
+            version: v("0.3.0"),
+        };
+        set_status(app, Status::Available(update.clone()));
+        assert_eq!(available(app), Some(update));
+
+        setting_changed(app, false);
+        assert_eq!(status(app), Status::Off);
+        assert_eq!(available(app), None);
     }
 
     #[test]

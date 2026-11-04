@@ -15,6 +15,7 @@ use crate::actions::Action;
 use crate::i18n::{self, Key};
 use crate::settings::{Language, SettingsStore};
 use crate::shortcuts;
+use crate::update;
 
 pub const LABEL: &str = "settings";
 
@@ -237,11 +238,16 @@ pub enum SettingChange {
     Language(String),
 }
 
-/// Applies `change` and saves it. A language change takes effect at once.
+/// Applies `change` and saves it. A change of the language or of the update
+/// check takes effect at once; the others are read when they are needed.
 #[tauri::command]
 pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Result<(), String> {
     let language = match &change {
         SettingChange::Language(value) => Some(parse_language(value)?),
+        _ => None,
+    };
+    let check_updates = match &change {
+        SettingChange::CheckUpdates(on) => Some(*on),
         _ => None,
     };
     app.state::<SettingsStore<R>>()
@@ -260,6 +266,9 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
         .map_err(|err| err.to_string())?;
     if let Some(language) = language {
         apply_language(&app, &language);
+    }
+    if let Some(on) = check_updates {
+        update::setting_changed(&app, on);
     }
     Ok(())
 }
