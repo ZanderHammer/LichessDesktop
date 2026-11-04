@@ -9,6 +9,8 @@
   "desktop.attention": "작업 표시줄 알림",
   "desktop.attentionHint": "게임에서 내 응답이 필요할 때 작업 표시줄을 깜박이거나 Dock에서 튀어 오르게 합니다",
   "desktop.authorizeInMainWindow": "기본 창에서 승인하세요…",
+  "desktop.bluetoothAudio": "블루투스에서 소리가 끊기는 문제 해결",
+  "desktop.bluetoothAudioHint": "소리가 약 0.5초 늦게 재생됩니다. 다시 시작한 후 적용됩니다.",
   "desktop.cantReachLichess": "lichess.org에 연결할 수 없습니다",
   "desktop.checkConnection": "인터넷 연결을 확인하고 다시 시도하세요.",
   "desktop.checkForUpdates": "업데이트 확인",

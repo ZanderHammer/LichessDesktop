@@ -9,6 +9,8 @@
   "desktop.attention": "Тапсырмалар тақтасындағы белгі",
   "desktop.attentionHint": "Ойын сізді күткенде тапсырмалар тақтасын жыпылықтату немесе Dock-та секірту",
   "desktop.authorizeInMainWindow": "Негізгі терезеде рұқсат беріңіз…",
+  "desktop.bluetoothAudio": "Bluetooth арқылы дыбыстың үзілуін түзету",
+  "desktop.bluetoothAudioHint": "Дыбыстар шамамен жарты секундқа кешігіп ойнатылады. Қайта іске қосқаннан кейін күшіне енеді.",
   "desktop.cantReachLichess": "lichess.org сайтына қосылу мүмкін емес",
   "desktop.checkConnection": "Интернет байланысын тексеріп, қайталап көріңіз.",
   "desktop.checkForUpdates": "Жаңартуларды тексеру",

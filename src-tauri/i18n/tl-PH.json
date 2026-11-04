@@ -9,6 +9,8 @@
   "desktop.attention": "Abiso sa taskbar",
   "desktop.attentionHint": "Pakislapin ang taskbar o patalbugin ang Dock kapag kailangan ka ng isang laro",
   "desktop.authorizeInMainWindow": "Mag-authorize sa pangunahing window…",
+  "desktop.bluetoothAudio": "Ayusin ang pagputol ng tunog sa Bluetooth",
+  "desktop.bluetoothAudioHint": "Tumutugtog ang mga tunog nang mga kalahating segundong huli. Magkakabisa pagkatapos mag-restart.",
   "desktop.cantReachLichess": "Hindi maabot ang lichess.org",
   "desktop.checkConnection": "Suriin ang iyong koneksyon sa internet at subukan muli.",
   "desktop.checkForUpdates": "Tingnan kung may update",

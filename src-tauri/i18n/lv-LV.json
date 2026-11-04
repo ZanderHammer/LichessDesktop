@@ -9,6 +9,8 @@
   "desktop.attention": "Brīdinājums uzdevumjoslā",
   "desktop.attentionHint": "Mirgot uzdevumjoslai vai lēkāt Dock ikonai, kad partija jūs gaida",
   "desktop.authorizeInMainWindow": "Autorizējiet galvenajā logā…",
+  "desktop.bluetoothAudio": "Novērst skaņas pārtraukumus Bluetooth savienojumā",
+  "desktop.bluetoothAudioHint": "Skaņas atskaņojas apmēram pussekundi vēlāk. Stājas spēkā pēc restartēšanas.",
   "desktop.cantReachLichess": "Nevar sasniegt lichess.org",
   "desktop.checkConnection": "Pārbaudiet interneta savienojumu un mēģiniet vēlreiz.",
   "desktop.checkForUpdates": "Meklēt atjauninājumus",

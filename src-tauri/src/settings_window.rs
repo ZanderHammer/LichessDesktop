@@ -180,6 +180,9 @@ fn shortcuts_view(strings: &i18n::Strings, macos: bool) -> Vec<ShortcutView> {
 pub struct SettingsView {
     close_to_tray: bool,
     check_updates: bool,
+    bluetooth_audio: bool,
+    /// Whether this platform has the switch (ADR 0029).
+    bluetooth_audio_available: bool,
     notify_your_turn: bool,
     notify_game_over: bool,
     notify_account_events: bool,
@@ -198,6 +201,8 @@ pub fn get_settings<R: Runtime>(app: AppHandle<R>) -> SettingsView {
     SettingsView {
         close_to_tray: settings.close_to_tray,
         check_updates: settings.check_updates,
+        bluetooth_audio: settings.bluetooth_audio,
+        bluetooth_audio_available: cfg!(target_os = "linux"),
         notify_your_turn: settings.notify_your_turn,
         notify_game_over: settings.notify_game_over,
         notify_account_events: settings.notify_account_events,
@@ -220,6 +225,7 @@ pub fn get_settings<R: Runtime>(app: AppHandle<R>) -> SettingsView {
 pub enum SettingChange {
     CloseToTray(bool),
     CheckUpdates(bool),
+    BluetoothAudio(bool),
     NotifyYourTurn(bool),
     NotifyGameOver(bool),
     NotifyAccountEvents(bool),
@@ -229,7 +235,8 @@ pub enum SettingChange {
 }
 
 /// Applies `change` and saves it. A change of the language, the update check or
-/// the account events takes effect at once; the others are read when needed.
+/// the account events takes effect at once; the others are read when needed,
+/// which for the Bluetooth sound fix is the next start.
 #[tauri::command]
 pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Result<(), String> {
     let language = match &change {
@@ -245,6 +252,7 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
         .update(|settings| match change {
             SettingChange::CloseToTray(on) => settings.close_to_tray = on,
             SettingChange::CheckUpdates(on) => settings.check_updates = on,
+            SettingChange::BluetoothAudio(on) => settings.bluetooth_audio = on,
             SettingChange::NotifyYourTurn(on) => settings.notify_your_turn = on,
             SettingChange::NotifyGameOver(on) => settings.notify_game_over = on,
             SettingChange::NotifyAccountEvents(on) => settings.notify_account_events = on,
@@ -483,6 +491,9 @@ mod tests {
         let change: SettingChange =
             from_value(json!({ "key": "notifyAccountEvents", "value": false })).unwrap();
         assert_eq!(change, SettingChange::NotifyAccountEvents(false));
+        let change: SettingChange =
+            from_value(json!({ "key": "bluetoothAudio", "value": true })).unwrap();
+        assert_eq!(change, SettingChange::BluetoothAudio(true));
         let change: SettingChange =
             from_value(json!({ "key": "language", "value": "de-DE" })).unwrap();
         assert_eq!(change, SettingChange::Language("de-DE".into()));

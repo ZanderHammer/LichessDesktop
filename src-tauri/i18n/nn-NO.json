@@ -9,6 +9,8 @@
   "desktop.attention": "Varsel på oppgåvelinja",
   "desktop.attentionHint": "La oppgåvelinja blinke eller Dock sprette når eit parti treng deg",
   "desktop.authorizeInMainWindow": "Godkjenn i hovudvindauget…",
+  "desktop.bluetoothAudio": "Rett opp lyd som fell ut på Bluetooth",
+  "desktop.bluetoothAudioHint": "Lydar blir spelte av omtrent eit halvt sekund forseinka. Trer i kraft etter omstart.",
   "desktop.cantReachLichess": "Får ikkje kontakt med lichess.org",
   "desktop.checkConnection": "Sjekk internettilkoplinga di og prøv igjen.",
   "desktop.checkForUpdates": "Sjå etter oppdateringar",

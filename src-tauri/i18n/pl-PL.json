@@ -9,6 +9,8 @@
   "desktop.attention": "Powiadomienie na pasku zadań",
   "desktop.attentionHint": "Miganie paska zadań lub podskakiwanie ikony w Docku, gdy partia czeka na Ciebie",
   "desktop.authorizeInMainWindow": "Autoryzuj w głównym oknie…",
+  "desktop.bluetoothAudio": "Napraw przerywanie dźwięku przez Bluetooth",
+  "desktop.bluetoothAudioHint": "Dźwięki są odtwarzane z opóźnieniem około pół sekundy. Działa po ponownym uruchomieniu.",
   "desktop.cantReachLichess": "Nie można połączyć się z lichess.org",
   "desktop.checkConnection": "Sprawdź połączenie z internetem i spróbuj ponownie.",
   "desktop.checkForUpdates": "Sprawdzaj aktualizacje",

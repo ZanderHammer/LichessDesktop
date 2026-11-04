@@ -9,6 +9,8 @@
   "desktop.attention": "Alerta na barra de tarefas",
   "desktop.attentionHint": "Fazer piscar a barra de tarefas ou saltar o Dock quando um jogo precisa de ti",
   "desktop.authorizeInMainWindow": "Autoriza na janela principal…",
+  "desktop.bluetoothAudio": "Corrigir o som que falha por Bluetooth",
+  "desktop.bluetoothAudioHint": "Os sons são reproduzidos com cerca de meio segundo de atraso. Aplica-se após reiniciar.",
   "desktop.cantReachLichess": "Não é possível aceder a lichess.org",
   "desktop.checkConnection": "Verifica a tua ligação à Internet e tenta novamente.",
   "desktop.checkForUpdates": "Procurar atualizações",

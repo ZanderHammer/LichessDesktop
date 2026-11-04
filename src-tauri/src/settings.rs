@@ -16,11 +16,12 @@ use tauri::{Manager, Runtime};
 use tauri_plugin_store::{Store, StoreExt};
 
 /// File name of the store, resolved by the plugin inside the app data dir.
-const STORE_FILE: &str = "settings.json";
+pub const STORE_FILE: &str = "settings.json";
 
 const ZOOM: &str = "zoom";
 const CLOSE_TO_TRAY: &str = "close_to_tray";
 const CHECK_UPDATES: &str = "check_updates";
+const BLUETOOTH_AUDIO: &str = "bluetooth_audio";
 const NOTIFY_YOUR_TURN: &str = "notify_your_turn";
 const NOTIFY_GAME_OVER: &str = "notify_game_over";
 const ATTENTION: &str = "attention";
@@ -74,6 +75,9 @@ pub struct Settings {
     pub zoom: f64,
     pub close_to_tray: bool,
     pub check_updates: bool,
+    /// Linux: the larger audio request size that keeps Bluetooth sound going,
+    /// read at startup (ADR 0029).
+    pub bluetooth_audio: bool,
     pub notify_your_turn: bool,
     pub notify_game_over: bool,
     /// Request taskbar/dock attention when a game needs the user.
@@ -91,6 +95,7 @@ impl Default for Settings {
             zoom: 1.0,
             close_to_tray: false,
             check_updates: true,
+            bluetooth_audio: false,
             notify_your_turn: true,
             notify_game_over: true,
             attention: true,
@@ -112,6 +117,7 @@ impl Settings {
                 .unwrap_or(defaults.zoom),
             close_to_tray: field(entries, CLOSE_TO_TRAY).unwrap_or(defaults.close_to_tray),
             check_updates: field(entries, CHECK_UPDATES).unwrap_or(defaults.check_updates),
+            bluetooth_audio: field(entries, BLUETOOTH_AUDIO).unwrap_or(defaults.bluetooth_audio),
             notify_your_turn: field(entries, NOTIFY_YOUR_TURN).unwrap_or(defaults.notify_your_turn),
             notify_game_over: field(entries, NOTIFY_GAME_OVER).unwrap_or(defaults.notify_game_over),
             attention: field(entries, ATTENTION).unwrap_or(defaults.attention),
@@ -126,11 +132,19 @@ impl Settings {
         }
     }
 
-    fn to_entries(&self) -> [(&'static str, Value); 9] {
+    /// Reads the contents of the store's file, for what must be known before
+    /// the store can open. Anything unreadable gives the defaults.
+    #[cfg(target_os = "linux")]
+    pub fn from_file(bytes: &[u8]) -> Self {
+        serde_json::from_slice(bytes).map_or_else(|_| Self::default(), |e| Self::from_entries(&e))
+    }
+
+    fn to_entries(&self) -> [(&'static str, Value); 10] {
         [
             (ZOOM, self.zoom.into()),
             (CLOSE_TO_TRAY, self.close_to_tray.into()),
             (CHECK_UPDATES, self.check_updates.into()),
+            (BLUETOOTH_AUDIO, self.bluetooth_audio.into()),
             (NOTIFY_YOUR_TURN, self.notify_your_turn.into()),
             (NOTIFY_GAME_OVER, self.notify_game_over.into()),
             (ATTENTION, self.attention.into()),
@@ -197,6 +211,7 @@ mod tests {
         assert_eq!(settings.zoom, 1.0);
         assert!(!settings.close_to_tray);
         assert!(settings.check_updates);
+        assert!(!settings.bluetooth_audio);
         assert!(settings.notify_your_turn);
         assert!(settings.notify_game_over);
         assert!(settings.attention);
@@ -216,6 +231,7 @@ mod tests {
             zoom: 1.25,
             close_to_tray: true,
             check_updates: false,
+            bluetooth_audio: true,
             notify_your_turn: false,
             notify_game_over: false,
             attention: false,
@@ -245,6 +261,22 @@ mod tests {
         let bytes = serde_json::to_vec(&map).unwrap();
         let loaded = serde_json::from_slice(&bytes).unwrap();
         assert_eq!(Settings::from_entries(&loaded), settings);
+    }
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn reads_the_file_of_the_store() {
+        let on = Settings::from_file(br#"{"bluetooth_audio":true,"zoom":1.25}"#);
+        assert!(on.bluetooth_audio);
+        assert_eq!(on.zoom, 1.25);
+        for bad in [
+            &b""[..],
+            b"not json",
+            b"[]",
+            br#"{"bluetooth_audio":"yes"}"#,
+        ] {
+            assert_eq!(Settings::from_file(bad), Settings::default());
+        }
     }
 
     #[test]

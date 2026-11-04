@@ -9,6 +9,8 @@
   "desktop.attention": "การแจ้งเตือนบนแถบงาน",
   "desktop.attentionHint": "กะพริบแถบงานหรือเด้งไอคอนใน Dock เมื่อเกมต้องการคุณ",
   "desktop.authorizeInMainWindow": "อนุญาตในหน้าต่างหลัก…",
+  "desktop.bluetoothAudio": "แก้เสียงขาดหายบนบลูทูธ",
+  "desktop.bluetoothAudioHint": "เสียงจะเล่นช้าลงประมาณครึ่งวินาที มีผลหลังจากเริ่มใหม่",
   "desktop.cantReachLichess": "ไม่สามารถเข้าถึง lichess.org",
   "desktop.checkConnection": "ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง",
   "desktop.checkForUpdates": "ตรวจหาการอัปเดต",

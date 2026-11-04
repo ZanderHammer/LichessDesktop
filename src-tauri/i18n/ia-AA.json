@@ -9,6 +9,8 @@
   "desktop.attention": "Aviso in le barra de cargas",
   "desktop.attentionHint": "Facer scintillar le barra de cargas o saltar le Dock quando un partita ha besonio de te",
   "desktop.authorizeInMainWindow": "Autorisa in le fenestra principal…",
+  "desktop.bluetoothAudio": "Reparar le sono que se interrumpe per Bluetooth",
+  "desktop.bluetoothAudioHint": "Le sonos se reproduce circa un medie secunda in retardo. Se applica post un reinitio.",
   "desktop.cantReachLichess": "Impossibile attinger lichess.org",
   "desktop.checkConnection": "Verifica tu connexion a internet e tenta de novo.",
   "desktop.checkForUpdates": "Cercar actualisationes",

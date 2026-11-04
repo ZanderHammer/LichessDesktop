@@ -9,6 +9,8 @@
   "desktop.attention": "ٹاسک بار پر اطلاع",
   "desktop.attentionHint": "جب کسی بازی کو آپ کی ضرورت ہو تو ٹاسک بار چمکائیں یا Dock میں اچھالیں",
   "desktop.authorizeInMainWindow": "مرکزی ونڈو میں اجازت دیں…",
+  "desktop.bluetoothAudio": "بلوٹوتھ پر آواز کٹنے کو ٹھیک کریں",
+  "desktop.bluetoothAudioHint": "آوازیں تقریباً آدھا سیکنڈ دیر سے بجتی ہیں۔ دوبارہ شروع کرنے کے بعد لاگو ہوتا ہے۔",
   "desktop.cantReachLichess": "lichess.org تک رسائی نہیں ہو سکی",
   "desktop.checkConnection": "اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
   "desktop.checkForUpdates": "اپ ڈیٹس چیک کریں",

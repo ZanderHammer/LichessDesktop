@@ -9,6 +9,8 @@
   "desktop.attention": "任务栏提醒",
   "desktop.attentionHint": "对局需要您时闪烁任务栏或在程序坞中跳动",
   "desktop.authorizeInMainWindow": "请在主窗口中授权…",
+  "desktop.bluetoothAudio": "修复蓝牙声音中断",
+  "desktop.bluetoothAudioHint": "声音会延迟约半秒播放。重启后生效。",
   "desktop.cantReachLichess": "无法访问 lichess.org",
   "desktop.checkConnection": "请检查网络连接后重试。",
   "desktop.checkForUpdates": "检查更新",

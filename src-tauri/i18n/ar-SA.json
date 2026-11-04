@@ -9,6 +9,8 @@
   "desktop.attention": "تنبيه في شريط المهام",
   "desktop.attentionHint": "وميض شريط المهام أو قفز الأيقونة في Dock عندما تحتاج إليك مباراة",
   "desktop.authorizeInMainWindow": "امنح الإذن في النافذة الرئيسية…",
+  "desktop.bluetoothAudio": "إصلاح انقطاع الصوت عبر البلوتوث",
+  "desktop.bluetoothAudioHint": "تُشغَّل الأصوات متأخرة نحو نصف ثانية. يسري التغيير بعد إعادة التشغيل.",
   "desktop.cantReachLichess": "تعذّر الوصول إلى lichess.org",
   "desktop.checkConnection": "تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
   "desktop.checkForUpdates": "التحقق من التحديثات",

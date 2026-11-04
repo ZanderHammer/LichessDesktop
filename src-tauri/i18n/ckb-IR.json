@@ -9,6 +9,8 @@
   "desktop.attention": "ئاگاداری شریتی ئەرکەکان",
   "desktop.attentionHint": "کاتێک یارییەک پێویستی پێتە شریتی ئەرکەکان بدرەوشێنە یان Dock هەڵبدە",
   "desktop.authorizeInMainWindow": "لە پەنجەرەی سەرەکی مۆڵەت بدە…",
+  "desktop.bluetoothAudio": "چارەسەری بڕانی دەنگ لە بلوتوس",
+  "desktop.bluetoothAudioHint": "دەنگەکان نزیکەی نیو چرکە درەنگتر لێدەدرێن. دوای دەستپێکردنەوە کار دەکات.",
   "desktop.cantReachLichess": "ناتوانرێت بگاتە lichess.org",
   "desktop.checkConnection": "پەیوەندی ئینتەرنێتەکەت بپشکنە و دووبارە هەوڵبدەوە.",
   "desktop.checkForUpdates": "پشکنینی نوێکردنەوەکان",

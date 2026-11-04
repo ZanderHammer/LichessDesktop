@@ -9,6 +9,8 @@
   "desktop.attention": "பணிப்பட்டி அறிவிப்பு",
   "desktop.attentionHint": "ஓர் ஆட்டத்திற்கு நீங்கள் தேவைப்படும்போது பணிப்பட்டியை மின்னச்செய் அல்லது Dock-இல் துள்ளச்செய்",
   "desktop.authorizeInMainWindow": "முதன்மைச் சாளரத்தில் அனுமதியுங்கள்…",
+  "desktop.bluetoothAudio": "புளூடூத்தில் ஒலி துண்டிப்பதை சரிசெய்",
+  "desktop.bluetoothAudioHint": "ஒலிகள் சுமார் அரை விநாடி தாமதமாக ஒலிக்கும். மறுதொடக்கத்திற்குப் பிறகு நடைமுறைக்கு வரும்.",
   "desktop.cantReachLichess": "lichess.org-ஐ அடைய முடியவில்லை",
   "desktop.checkConnection": "உங்கள் இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.",
   "desktop.checkForUpdates": "புதுப்பிப்புகளைச் சரிபார்",

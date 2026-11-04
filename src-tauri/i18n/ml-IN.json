@@ -9,6 +9,8 @@
   "desktop.attention": "ടാസ്ക്ബാർ അറിയിപ്പ്",
   "desktop.attentionHint": "ഒരു കളിക്ക് നിങ്ങളെ ആവശ്യമുള്ളപ്പോൾ ടാസ്ക്ബാർ മിന്നിക്കുക അല്ലെങ്കിൽ Dock-ൽ ചാടിക്കുക",
   "desktop.authorizeInMainWindow": "പ്രധാന ജാലകത്തിൽ അനുമതി നൽകുക…",
+  "desktop.bluetoothAudio": "ബ്ലൂടൂത്തിൽ ശബ്ദം മുറിയുന്നത് പരിഹരിക്കുക",
+  "desktop.bluetoothAudioHint": "ശബ്ദങ്ങൾ ഏകദേശം അര സെക്കൻഡ് വൈകി കേൾക്കും. പുനരാരംഭിച്ച ശേഷം പ്രാബല്യത്തിൽ വരും.",
   "desktop.cantReachLichess": "lichess.org-ൽ എത്താൻ കഴിയുന്നില്ല",
   "desktop.checkConnection": "നിങ്ങളുടെ ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.",
   "desktop.checkForUpdates": "അപ്ഡേറ്റുകൾ പരിശോധിക്കുക",

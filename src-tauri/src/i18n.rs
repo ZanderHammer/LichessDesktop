@@ -208,6 +208,8 @@ keys! {
     CloseToTray => "desktop.closeToTray",
     CloseToTrayHint => "desktop.closeToTrayHint",
     CheckForUpdates => "desktop.checkForUpdates",
+    BluetoothAudio => "desktop.bluetoothAudio",
+    BluetoothAudioHint => "desktop.bluetoothAudioHint",
     Language => "site.language",
     SystemLanguage => "desktop.systemLanguage",
     Notifications => "site.notifications",

@@ -9,6 +9,8 @@
   "desktop.attention": "Avisu na barra de xeres",
   "desktop.attentionHint": "Facer parpaguear la barra de xeres o rebotar el Dock cuando una partida te precise",
   "desktop.authorizeInMainWindow": "Autoriza na ventana principal…",
+  "desktop.bluetoothAudio": "Iguar el soníu que se corta per Bluetooth",
+  "desktop.bluetoothAudioHint": "Los soníos reproducir con mediu segundu de retrasu aproximao. Aplícase al reaniciar.",
   "desktop.cantReachLichess": "Nun se pue aportar a lichess.org",
   "desktop.checkConnection": "Comprueba la conexón a Internet y volvi tentalo.",
   "desktop.checkForUpdates": "Buscar anovamientos",

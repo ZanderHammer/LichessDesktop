@@ -9,6 +9,8 @@
   "desktop.attention": "Sinjal në shiritin e detyrave",
   "desktop.attentionHint": "Bëj të pulsojë shiriti i detyrave ose të kërcejë Dock kur një lojë të kërkon",
   "desktop.authorizeInMainWindow": "Autorizo në dritaren kryesore…",
+  "desktop.bluetoothAudio": "Rregullo ndërprerjen e zërit në Bluetooth",
+  "desktop.bluetoothAudioHint": "Tingujt luhen rreth gjysmë sekonde me vonesë. Hyn në fuqi pas rinisjes.",
   "desktop.cantReachLichess": "Nuk mund të arrihet lichess.org",
   "desktop.checkConnection": "Kontrollo lidhjen me internetin dhe provo përsëri.",
   "desktop.checkForUpdates": "Kontrollo për përditësime",

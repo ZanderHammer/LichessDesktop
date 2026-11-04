@@ -9,6 +9,8 @@
   "desktop.attention": "タスクバーの通知",
   "desktop.attentionHint": "対局があなたを待っているときにタスクバーを点滅させるか Dock で跳ねさせます",
   "desktop.authorizeInMainWindow": "メインウィンドウで承認してください…",
+  "desktop.bluetoothAudio": "Bluetooth で音が途切れる問題を修正",
+  "desktop.bluetoothAudioHint": "音が約 0.5 秒遅れて再生されます。再起動後に有効になります。",
   "desktop.cantReachLichess": "lichess.org に接続できません",
   "desktop.checkConnection": "インターネット接続を確認して、もう一度お試しください。",
   "desktop.checkForUpdates": "アップデートを確認",
