@@ -209,7 +209,7 @@ pub struct SettingsView {
     language: String,
     /// The language "System" stands for right now.
     system_language: &'static str,
-    /// Every language lichess offers, as `[tag, native name]`.
+    /// Every language the app offers, as `[tag, native name]`.
     languages: &'static [(&'static str, &'static str)],
 }
 
