@@ -104,6 +104,9 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
+      - name: Test
+        run: cargo test --locked
+
       - name: Build and upload installers
         uses: tauri-apps/tauri-action@v1
         env:
