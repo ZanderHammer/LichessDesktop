@@ -58,6 +58,73 @@ async function loadAbout() {
   }
 }
 
+/** The text that says why the account is disconnected. */
+const ACCOUNT_NOTICE = {
+  expired: "desktop.accountExpired",
+  noKeyring: "desktop.accountNoKeyring",
+  failed: "desktop.accountFailed",
+  revokeFailed: "desktop.revokeFailed",
+};
+
+/**
+ * What the account row shows for each state: its text, and what its button
+ * says, looks like and runs. A state without a command leaves the button off.
+ */
+const ACCOUNT_VIEW = {
+  disconnected: (account) => ({
+    title: t("desktop.connectAccount"),
+    subtitle: t(ACCOUNT_NOTICE[account.notice] ?? "desktop.connectAccountHint"),
+    action: "desktop.connect",
+    look: "primary",
+    command: "connect_account",
+  }),
+  connecting: () => ({
+    title: t("desktop.authorizeInMainWindow"),
+    subtitle: "",
+    action: "site.cancel",
+    command: "cancel_connect_account",
+  }),
+  checking: () => ({ title: t("desktop.account"), subtitle: "", action: "desktop.connect" }),
+  connected: (account) => ({
+    title: t("desktop.connectedAs", account.username),
+    subtitle: "",
+    action: "desktop.disconnect",
+    look: "destructive",
+    command: "disconnect_account",
+  }),
+  unverified: () => ({
+    title: t("desktop.cantReachLichess"),
+    subtitle: "",
+    action: "desktop.disconnect",
+    look: "destructive",
+    command: "disconnect_account",
+  }),
+};
+
+async function loadAccount() {
+  const account = await invoke("get_account");
+  const view = ACCOUNT_VIEW[account.state](account);
+  document.getElementById("account-title").textContent = view.title;
+  document.getElementById("account-subtitle").textContent = view.subtitle;
+  const button = document.getElementById("account-action");
+  button.textContent = t(view.action);
+  button.className = view.look ? `button ${view.look}` : "button";
+  button.disabled = !view.command;
+  button.dataset.command = view.command ?? "";
+}
+
+function bindAccount() {
+  const button = document.getElementById("account-action");
+  button.addEventListener("click", async () => {
+    try {
+      await invoke(button.dataset.command);
+    } catch (err) {
+      console.error("the account action failed:", err);
+      await loadAccount();
+    }
+  });
+}
+
 /** The shortcuts tab, built from Rust's shortcut table (`get_shortcuts`). */
 async function loadShortcuts() {
   const view = await invoke("get_shortcuts");
@@ -171,16 +238,18 @@ async function main() {
   const showTab = bindTabs();
   if (location.hash) showTab(location.hash.slice(1));
   bindSettings();
+  bindAccount();
   bindClose();
   // Before the first load, so a change during it isn't missed.
   await listen("show-tab", (event) => showTab(event.payload));
   await listen("update-changed", loadAbout);
+  await listen("account-changed", loadAccount);
   await listen("strings-changed", async () => {
     await loadStrings();
-    await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
+    await Promise.all([loadSettings(), loadShortcuts(), loadAbout(), loadAccount()]);
   });
   await loadStrings();
-  await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
+  await Promise.all([loadSettings(), loadShortcuts(), loadAbout(), loadAccount()]);
   document.documentElement.classList.remove("loading");
   // The content is in place: Rust shows the window now. (No
   // requestAnimationFrame here: hidden windows don't get animation frames.)
