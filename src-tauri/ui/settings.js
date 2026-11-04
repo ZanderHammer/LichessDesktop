@@ -23,17 +23,29 @@ async function loadSettings() {
   select.value = settings.language;
 }
 
+/** The text of each update status but `available`, which is a link instead. */
+const UPDATE_STATUS = {
+  off: "desktop.updateChecksOff",
+  checking: "desktop.checkingForUpdates",
+  upToDate: "desktop.upToDate",
+  failed: "desktop.updateCheckFailed",
+};
+
 async function loadAbout() {
   const info = await invoke("get_app_info");
   document.getElementById("version").textContent = t("desktop.version", info.version);
   document.getElementById("link-source").href = info.repository;
   document.getElementById("link-license").href = info.license_url;
-  // A newer release found by the update check (ADR 0017), if any.
-  const update = document.getElementById("link-update");
-  update.hidden = !info.update;
-  if (info.update) {
-    update.href = info.update.url;
+  // A newer release links to its page (ADR 0017), anything else is plain text.
+  const available = info.update.state === "available";
+  const link = document.getElementById("link-update");
+  link.hidden = !available;
+  document.getElementById("update-status").hidden = available;
+  if (available) {
+    link.href = info.update.url;
     document.getElementById("update-available").textContent = t("desktop.updateAvailable", info.update.version);
+  } else {
+    document.getElementById("update-status-text").textContent = t(UPDATE_STATUS[info.update.state]);
   }
 }
 
@@ -141,18 +153,19 @@ async function main() {
   const showTab = bindTabs();
   if (location.hash) showTab(location.hash.slice(1));
   bindSettings();
-  await loadStrings();
-  await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
-  document.documentElement.classList.remove("loading");
-  // The content is in place: Rust shows the window now. (No
-  // requestAnimationFrame here: hidden windows don't get animation frames.)
-  await invoke("settings_ready");
+  // Before the first load, so a change during it isn't missed.
   await listen("show-tab", (event) => showTab(event.payload));
   await listen("update-changed", loadAbout);
   await listen("strings-changed", async () => {
     await loadStrings();
     await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
   });
+  await loadStrings();
+  await Promise.all([loadSettings(), loadShortcuts(), loadAbout()]);
+  document.documentElement.classList.remove("loading");
+  // The content is in place: Rust shows the window now. (No
+  // requestAnimationFrame here: hidden windows don't get animation frames.)
+  await invoke("settings_ready");
 }
 
 main().catch((err) => console.error("settings window failed to load:", err));
