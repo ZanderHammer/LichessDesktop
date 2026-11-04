@@ -14,7 +14,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 const I18N_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../src-tauri/i18n");
@@ -42,12 +42,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let i18n = Path::new(I18N_DIR);
 
     let mut base = read_json(&i18n.join(format!("{BASE}.json")))?;
+    let source = read_lila_strings(base.keys(), |module| {
+        translation.join("source").join(format!("{module}.xml"))
+    })?;
     for (id, text) in &mut base {
-        if let Some((module, key)) = lila_key(id) {
-            let path = translation.join("source").join(format!("{module}.xml"));
-            *text = read_module(&path)?
-                .remove(key)
-                .ok_or_else(|| format!("{id} is not a plain string in lila's source"))?;
+        if lila_key(id).is_some() {
+            text.clone_from(
+                source
+                    .get(id)
+                    .ok_or_else(|| format!("{id} is not a plain string in lila's source"))?,
+            );
         }
     }
     write_json(&i18n.join(format!("{BASE}.json")), &base)?;
@@ -62,18 +66,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         if tag == BASE || path.extension().is_none_or(|ext| ext != "json") {
             continue;
         }
-        let mut lila_strings = Strings::new();
-        for id in base.keys() {
-            if let Some((module, key)) = lila_key(id) {
-                let file = translation
-                    .join("dest")
-                    .join(module)
-                    .join(format!("{tag}.xml"));
-                if let Some(text) = read_module(&file)?.remove(key) {
-                    lila_strings.insert(id.clone(), text);
-                }
-            }
-        }
+        let lila_strings = read_lila_strings(base.keys(), |module| {
+            translation
+                .join("dest")
+                .join(module)
+                .join(format!("{tag}.xml"))
+        })?;
         let (merged, missing) = merge(&base, &lila_strings, &read_json(&path)?);
         write_json(&path, &merged)?;
         if !missing.is_empty() {
@@ -87,6 +85,28 @@ fn main() -> Result<(), Box<dyn Error>> {
     check_turn_titles(&titles)?;
     fs::write(TURN_TITLES, serde_json::to_string_pretty(&titles)? + "\n")?;
     Ok(())
+}
+
+/// Those of `ids` that lila has, from the file `path` gives for each module.
+/// Reads every file once, as they are large and hold many of the keys.
+fn read_lila_strings<'a>(
+    ids: impl Iterator<Item = &'a String>,
+    path: impl Fn(&str) -> PathBuf,
+) -> Result<Strings, Box<dyn Error>> {
+    let mut modules = BTreeMap::new();
+    let mut strings = Strings::new();
+    for id in ids {
+        let Some((module, key)) = lila_key(id) else {
+            continue;
+        };
+        if !modules.contains_key(module) {
+            modules.insert(module, read_module(&path(module))?);
+        }
+        if let Some(text) = modules[module].get(key) {
+            strings.insert(id.clone(), text.clone());
+        }
+    }
+    Ok(strings)
 }
 
 /// The title strings of lila's source file and of every language in
@@ -252,6 +272,33 @@ mod tests {
     fn rejects_a_turn_title_that_contains_the_separator() {
         let titles = turn_titles(&[("yourTurn", "Your - turn")]);
         assert!(check_turn_titles(&titles).is_err());
+    }
+
+    #[test]
+    fn reads_lila_strings_from_each_modules_file() {
+        let dir = env::temp_dir().join(format!("import-lila-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let xml = |name: &str, text: &str| {
+            format!(r#"<resources><string name="{name}">{text}</string></resources>"#)
+        };
+        fs::write(dir.join("site.xml"), xml("search", "Suchen")).unwrap();
+        fs::write(dir.join("study.xml"), xml("back", "Zurück")).unwrap();
+
+        let ids = strings(&[
+            ("desktop.quit", ""),
+            ("site.gone", ""),
+            ("site.search", ""),
+            ("study.back", ""),
+            ("nofile.x", ""),
+        ]);
+        let found =
+            read_lila_strings(ids.keys(), |module| dir.join(format!("{module}.xml"))).unwrap();
+        fs::remove_dir_all(&dir).unwrap();
+
+        assert_eq!(
+            found,
+            strings(&[("site.search", "Suchen"), ("study.back", "Zurück")])
+        );
     }
 
     #[test]
