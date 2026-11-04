@@ -11,7 +11,7 @@
 <div class="window">
   <header class="window-header">
     <div class="tabs" role="tablist" aria-label="Lichess Desktop">
-      <button type="button" role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="true" data-i18n="desktop.settings"></button>
+      <button type="button" role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="true" data-i18n="settings.settings"></button>
       <button type="button" role="tab" id="tab-shortcuts" aria-controls="panel-shortcuts" aria-selected="false" tabindex="-1" data-i18n="desktop.shortcuts"></button>
       <button type="button" role="tab" id="tab-about" aria-controls="panel-about" aria-selected="false" tabindex="-1" data-i18n="desktop.about"></button>
     </div>
@@ -19,7 +19,7 @@
 
   <main class="window-content" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
     <section class="section" aria-labelledby="h-general">
-      <h2 class="section-title" id="h-general" data-i18n="desktop.general"></h2>
+      <h2 class="section-title" id="h-general" data-i18n="preferences.generalSettings"></h2>
       <div class="list">
         <label class="row">
           <span class="row-text">
@@ -33,21 +33,21 @@
           <input type="checkbox" role="switch" class="switch" data-setting="checkUpdates">
         </label>
         <label class="row">
-          <span class="row-text"><span class="row-title" data-i18n="desktop.language"></span></span>
+          <span class="row-text"><span class="row-title" data-i18n="site.language"></span></span>
           <select class="select" id="language"></select>
         </label>
       </div>
     </section>
 
     <section class="section" aria-labelledby="h-notifications">
-      <h2 class="section-title" id="h-notifications" data-i18n="desktop.notifications"></h2>
+      <h2 class="section-title" id="h-notifications" data-i18n="site.notifications"></h2>
       <div class="list">
         <label class="row">
-          <span class="row-text"><span class="row-title" data-i18n="desktop.notifyYourTurn"></span></span>
+          <span class="row-text"><span class="row-title" data-i18n="site.yourTurn"></span></span>
           <input type="checkbox" role="switch" class="switch" data-setting="notifyYourTurn">
         </label>
         <label class="row">
-          <span class="row-text"><span class="row-title" data-i18n="desktop.notifyGameOver"></span></span>
+          <span class="row-text"><span class="row-title" data-i18n="site.gameOver"></span></span>
           <input type="checkbox" role="switch" class="switch" data-setting="notifyGameOver">
         </label>
         <label class="row">
@@ -86,7 +86,7 @@
           <span class="row-icon external" aria-hidden="true"></span>
         </a>
         <a class="row" id="link-source">
-          <span class="row-text"><span class="row-title" data-i18n="desktop.sourceCode"></span></span>
+          <span class="row-text"><span class="row-title" data-i18n="site.sourceCode"></span></span>
           <span class="row-value">GitHub</span>
           <span class="row-icon external" aria-hidden="true"></span>
         </a>
