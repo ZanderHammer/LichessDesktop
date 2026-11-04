@@ -15,7 +15,7 @@ use crate::actions::Action;
 use crate::i18n::{self, Key};
 use crate::settings::{Language, SettingsStore};
 use crate::shortcuts;
-use crate::update;
+use crate::update::{self, Status};
 
 pub const LABEL: &str = "settings";
 
@@ -308,17 +308,38 @@ pub struct AppInfo {
     version: &'static str,
     repository: &'static str,
     license_url: String,
-    /// A newer release, if the update check found one.
-    update: Option<UpdateView>,
+    update: UpdateView,
 }
 
-/// A newer release for the About tab.
-#[derive(Serialize)]
-pub struct UpdateView {
-    /// As shown to the user, e.g. `v0.3.0`.
-    version: String,
-    /// Its release page, opened in the browser.
-    url: String,
+/// The update status for the About tab.
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "state", rename_all = "camelCase")]
+pub enum UpdateView {
+    Off,
+    Checking,
+    UpToDate,
+    Failed,
+    Available {
+        /// As shown to the user, e.g. `v0.3.0`.
+        version: String,
+        /// Its release page, opened in the browser.
+        url: String,
+    },
+}
+
+impl From<Status> for UpdateView {
+    fn from(status: Status) -> Self {
+        match status {
+            Status::Off => Self::Off,
+            Status::Checking => Self::Checking,
+            Status::UpToDate => Self::UpToDate,
+            Status::Failed => Self::Failed,
+            Status::Available(update) => Self::Available {
+                version: update.label(),
+                url: update.url().into(),
+            },
+        }
+    }
 }
 
 #[tauri::command]
@@ -328,17 +349,14 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> AppInfo {
         version: env!("CARGO_PKG_VERSION"),
         repository,
         license_url: format!("{repository}/blob/main/LICENSE"),
-        update: crate::update::available(&app).map(|update| UpdateView {
-            version: update.label(),
-            url: update.url().into(),
-        }),
+        update: update::status(&app).into(),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{from_value, json};
+    use serde_json::{from_value, json, to_value};
     use tauri::ipc::{CallbackFn, InvokeBody};
     use tauri::test::{INVOKE_KEY, MockRuntime, get_ipc_response, mock_builder};
     use tauri::webview::InvokeRequest;
@@ -408,6 +426,15 @@ mod tests {
         assert!(reload.keys.iter().all(|keys| !keys.is_empty()));
         assert!(!reload.keys.is_empty());
         assert!(reload.mouse.is_none());
+    }
+
+    #[test]
+    fn update_status_reaches_the_page_as_its_state() {
+        let state = |status| to_value(UpdateView::from(status)).unwrap();
+        assert_eq!(state(Status::Off), json!({ "state": "off" }));
+        assert_eq!(state(Status::Checking), json!({ "state": "checking" }));
+        assert_eq!(state(Status::UpToDate), json!({ "state": "upToDate" }));
+        assert_eq!(state(Status::Failed), json!({ "state": "failed" }));
     }
 
     #[test]
