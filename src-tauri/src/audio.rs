@@ -34,9 +34,15 @@ fn with_min_request(current: Option<&str>) -> Option<String> {
     let setting = format!("{KEY}={VALUE}");
     match current.map(str::trim) {
         None | Some("") => Some(setting),
-        Some(current) if current.contains(KEY) => None,
+        Some(current) if current.split_whitespace().any(is_min_request) => None,
         Some(current) => Some(format!("{current} {setting}")),
     }
+}
+
+fn is_min_request(property: &str) -> bool {
+    property
+        .strip_prefix(KEY)
+        .is_some_and(|value| value.starts_with('='))
 }
 
 #[cfg(test)]
@@ -55,6 +61,14 @@ mod tests {
         assert_eq!(
             with_min_request(Some("media.role=game")).as_deref(),
             Some("media.role=game pulse.min.req=7200/48000")
+        );
+    }
+
+    #[test]
+    fn a_property_that_only_mentions_the_key_is_not_a_chosen_size() {
+        assert_eq!(
+            with_min_request(Some("x.pulse.min.req.note=1")).as_deref(),
+            Some("x.pulse.min.req.note=1 pulse.min.req=7200/48000")
         );
     }
 
