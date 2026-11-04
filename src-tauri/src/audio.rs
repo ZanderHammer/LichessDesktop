@@ -2,13 +2,22 @@
 //! GStreamer's `pulsesink` goes silent about a second into a stream with the
 //! small buffer it asks for by default, while the page still sees a running
 //! `AudioContext`. WebKitGTK creates that sink itself, so the only way in is the
-//! environment its web process inherits. See ADR 0026.
+//! environment its web process inherits. It delays all sound on every output,
+//! so it is a switch in Settings, off by default. See ADR 0026 and ADR 0029.
 
 use std::env;
+use std::ffi::OsString;
+use std::fs;
 use std::io;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::OnceLock;
 use std::thread;
+
+use crate::settings::{STORE_FILE, Settings};
+
+/// The app identifier from `tauri.conf.json`, which names its data directory.
+const IDENTIFIER: &str = "de.itshammer.lichessdesktop";
 
 const VARIABLE: &str = "PULSE_PROP";
 const KEY: &str = "pulse.min.req";
@@ -19,9 +28,13 @@ const VALUE: &str = "7200/48000";
 /// The variable before [`configure`] changed it. Not set if it didn't.
 static ORIGINAL: OnceLock<Option<String>> = OnceLock::new();
 
-/// Sets the minimum PulseAudio request size for this process and its children.
-/// Must run before any other thread starts, as it changes the environment.
+/// Sets the minimum PulseAudio request size for this process and its children,
+/// if the setting is on. Must run before any other thread starts, as it changes
+/// the environment, so the settings store isn't open yet.
 pub fn configure() {
+    if !is_enabled() {
+        return;
+    }
     // A value that isn't Unicode isn't ours to rewrite.
     let current = match env::var(VARIABLE) {
         Ok(current) => Some(current),
@@ -34,6 +47,23 @@ pub fn configure() {
         // could read the environment at the same time.
         unsafe { env::set_var(VARIABLE, value) };
     }
+}
+
+/// Whether the setting is on, from the file the store keeps it in.
+fn is_enabled() -> bool {
+    settings_file(env::var_os("XDG_DATA_HOME"), env::home_dir())
+        .and_then(|path| fs::read(path).ok())
+        .is_some_and(|bytes| Settings::from_file(&bytes).bluetooth_audio)
+}
+
+/// Where the store plugin keeps the settings: its app data directory, which on
+/// Linux is the XDG data directory (a relative `XDG_DATA_HOME` is ignored).
+fn settings_file(xdg_data_home: Option<OsString>, home: Option<PathBuf>) -> Option<PathBuf> {
+    let data = xdg_data_home
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .or_else(|| Some(home?.join(".local/share")))?;
+    Some(Path::new(&data).join(IDENTIFIER).join(STORE_FILE))
 }
 
 /// Opens `url` with the variable as the user had it, so a browser this starts
@@ -87,6 +117,29 @@ fn is_min_request(property: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn finds_the_settings_in_the_xdg_data_directory() {
+        let home = || Some(PathBuf::from("/home/someone"));
+        let in_home = "/home/someone/.local/share/de.itshammer.lichessdesktop/settings.json";
+        assert_eq!(settings_file(None, home()), Some(in_home.into()));
+        assert_eq!(
+            settings_file(Some("relative".into()), home()),
+            Some(in_home.into())
+        );
+        assert_eq!(
+            settings_file(Some("/data".into()), home()),
+            Some("/data/de.itshammer.lichessdesktop/settings.json".into())
+        );
+        assert_eq!(settings_file(None, None), None);
+    }
+
+    #[test]
+    fn the_identifier_is_the_one_in_the_config() {
+        let config: serde_json::Value =
+            serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        assert_eq!(config["identifier"], IDENTIFIER);
+    }
 
     fn env_after_restore(original: Option<&Option<String>>) -> Vec<(String, Option<String>)> {
         let mut command = Command::new("xdg-open");

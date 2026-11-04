@@ -9,6 +9,8 @@
   "desktop.attention": "Tapşırıq paneli xəbərdarlığı",
   "desktop.attentionHint": "Oyun sizi gözləyəndə tapşırıq panelini yanıb-söndür və ya Dock-da hoppandır",
   "desktop.authorizeInMainWindow": "Əsas pəncərədə icazə verin…",
+  "desktop.bluetoothAudio": "Bluetooth-da səsin kəsilməsini düzəlt",
+  "desktop.bluetoothAudioHint": "Səslər təxminən yarım saniyə gec çalınır. Yenidən başladandan sonra qüvvəyə minir.",
   "desktop.cantReachLichess": "lichess.org-a qoşulmaq mümkün deyil",
   "desktop.checkConnection": "İnternet bağlantınızı yoxlayın və yenidən cəhd edin.",
   "desktop.checkForUpdates": "Yeniləmələri yoxla",

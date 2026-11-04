@@ -9,6 +9,8 @@
   "desktop.attention": "Avís a la barra de tasques",
   "desktop.attentionHint": "Fes parpellejar la barra de tasques o rebotar el Dock quan una partida et necessiti",
   "desktop.authorizeInMainWindow": "Autoritza a la finestra principal…",
+  "desktop.bluetoothAudio": "Corregeix el so que es talla per Bluetooth",
+  "desktop.bluetoothAudioHint": "Els sons sonen aproximadament mig segon tard. S'aplica després de reiniciar.",
   "desktop.cantReachLichess": "No es pot accedir a lichess.org",
   "desktop.checkConnection": "Comprova la connexió a Internet i torna-ho a provar.",
   "desktop.checkForUpdates": "Cerca actualitzacions",

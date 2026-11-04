@@ -9,6 +9,8 @@
   "desktop.attention": "Görev çubuğu uyarısı",
   "desktop.attentionHint": "Bir oyun sizi beklediğinde görev çubuğunu yanıp söndür veya Dock'ta zıplat",
   "desktop.authorizeInMainWindow": "Ana pencerede yetki ver…",
+  "desktop.bluetoothAudio": "Bluetooth'ta sesin kesilmesini düzelt",
+  "desktop.bluetoothAudioHint": "Sesler yaklaşık yarım saniye geç çalar. Yeniden başlatınca etkinleşir.",
   "desktop.cantReachLichess": "lichess.org'a ulaşılamıyor",
   "desktop.checkConnection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
   "desktop.checkForUpdates": "Güncellemeleri denetle",

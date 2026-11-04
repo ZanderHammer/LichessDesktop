@@ -9,6 +9,8 @@
   "desktop.attention": "Обавештење на траци задатака",
   "desktop.attentionHint": "Трептање траке задатака или поскакивање у Dock-у када вас партија чека",
   "desktop.authorizeInMainWindow": "Одобрите у главном прозору…",
+  "desktop.bluetoothAudio": "Поправи прекидање звука преко Bluetooth-а",
+  "desktop.bluetoothAudioHint": "Звуци касне око пола секунде. Примењује се након поновног покретања.",
   "desktop.cantReachLichess": "Није могуће приступити lichess.org",
   "desktop.checkConnection": "Проверите интернет везу и покушајте поново.",
   "desktop.checkForUpdates": "Провери ажурирања",

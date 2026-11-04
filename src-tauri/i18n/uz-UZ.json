@@ -9,6 +9,8 @@
   "desktop.attention": "Vazifalar panelidagi ogohlantiriş",
   "desktop.attentionHint": "Öyin sizni kutganda vazifalar panelini miltillatiş yoki Dock'da sakratiş",
   "desktop.authorizeInMainWindow": "Asosiy oynada ruxsat bering…",
+  "desktop.bluetoothAudio": "Bluetooth'da ovoz uzilishini tuzatish",
+  "desktop.bluetoothAudioHint": "Ovozlar taxminan yarim soniya kech chalinadi. Qayta ishga tushirilgandan keyin kuchga kiradi.",
   "desktop.cantReachLichess": "lichess.org ga ulanib bölmadi",
   "desktop.checkConnection": "Internet aloqasini tekşiring va qayta urinib köring.",
   "desktop.checkForUpdates": "Yangilanişlarni tekşiriş",

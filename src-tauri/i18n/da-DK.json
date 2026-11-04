@@ -9,6 +9,8 @@
   "desktop.attention": "Besked på proceslinjen",
   "desktop.attentionHint": "Få proceslinjen til at blinke eller Dock til at hoppe, når et parti har brug for dig",
   "desktop.authorizeInMainWindow": "Godkend i hovedvinduet…",
+  "desktop.bluetoothAudio": "Ret lyd, der falder ud på Bluetooth",
+  "desktop.bluetoothAudioHint": "Lyde afspilles cirka et halvt sekund forsinket. Træder i kraft efter en genstart.",
   "desktop.cantReachLichess": "Kan ikke nå lichess.org",
   "desktop.checkConnection": "Tjek din internetforbindelse, og prøv igen.",
   "desktop.checkForUpdates": "Søg efter opdateringer",

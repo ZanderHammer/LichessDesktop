@@ -9,6 +9,8 @@
   "desktop.attention": "هشدار در نوار وظیفه",
   "desktop.attentionHint": "چشمک زدن نوار وظیفه یا پرش در Dock وقتی بازی به شما نیاز دارد",
   "desktop.authorizeInMainWindow": "در پنجرهٔ اصلی اجازه دهید…",
+  "desktop.bluetoothAudio": "رفع قطع شدن صدا در بلوتوث",
+  "desktop.bluetoothAudioHint": "صداها حدود نیم ثانیه دیرتر پخش می‌شوند. پس از راه‌اندازی دوباره اعمال می‌شود.",
   "desktop.cantReachLichess": "دسترسی به lichess.org ممکن نیست",
   "desktop.checkConnection": "اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.",
   "desktop.checkForUpdates": "بررسی به‌روزرسانی‌ها",

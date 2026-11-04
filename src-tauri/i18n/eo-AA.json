@@ -9,6 +9,8 @@
   "desktop.attention": "Atentigo en la taskostrio",
   "desktop.attentionHint": "Briligi la taskostrion aŭ saltigi la Dock-on kiam ludo bezonas vin",
   "desktop.authorizeInMainWindow": "Rajtigu en la ĉefa fenestro…",
+  "desktop.bluetoothAudio": "Ripari sonon, kiu interrompiĝas per Bluetooth",
+  "desktop.bluetoothAudioHint": "Sonoj ludiĝas ĉirkaŭ duonan sekundon malfrue. Efikas post restartigo.",
   "desktop.cantReachLichess": "Ne eblas atingi lichess.org",
   "desktop.checkConnection": "Kontrolu vian interretan konekton kaj reprovu.",
   "desktop.checkForUpdates": "Kontroli ĝisdatigojn",

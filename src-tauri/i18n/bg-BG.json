@@ -9,6 +9,8 @@
   "desktop.attention": "Известие в лентата на задачите",
   "desktop.attentionHint": "Премигване на лентата на задачите или подскачане в Dock, когато партия ви чака",
   "desktop.authorizeInMainWindow": "Разрешете в главния прозорец…",
+  "desktop.bluetoothAudio": "Поправка на прекъсващия звук през Bluetooth",
+  "desktop.bluetoothAudioHint": "Звуците се чуват с около половин секунда закъснение. Влиза в сила след рестартиране.",
   "desktop.cantReachLichess": "Няма връзка с lichess.org",
   "desktop.checkConnection": "Проверете връзката си с интернет и опитайте отново.",
   "desktop.checkForUpdates": "Проверка за актуализации",

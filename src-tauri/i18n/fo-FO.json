@@ -9,6 +9,8 @@
   "desktop.attention": "Boð á uppgávubjálkanum",
   "desktop.attentionHint": "Lat uppgávubjálkan blinka ella Dock hoppa, tá eitt talv hevur tørv á tær",
   "desktop.authorizeInMainWindow": "Góðkenn í høvuðsrútinum…",
+  "desktop.bluetoothAudio": "Bøt um ljóð, sum fer burtur á Bluetooth",
+  "desktop.bluetoothAudioHint": "Ljóð spælast umleið hálvan sekund ov seint. Virkar aftan á endurbyrjan.",
   "desktop.cantReachLichess": "Fái ikki samband við lichess.org",
   "desktop.checkConnection": "Kanna internetsambandið og royn aftur.",
   "desktop.checkForUpdates": "Leita eftir dagføringum",

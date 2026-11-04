@@ -9,6 +9,8 @@
   "desktop.attention": "ટાસ્કબાર સૂચના",
   "desktop.attentionHint": "રમતને તમારી જરૂર હોય ત્યારે ટાસ્કબાર ઝબકાવો અથવા Dock માં ઉછાળો",
   "desktop.authorizeInMainWindow": "મુખ્ય વિન્ડોમાં પરવાનગી આપો…",
+  "desktop.bluetoothAudio": "બ્લૂટૂથ પર અવાજ તૂટવાનું ઠીક કરો",
+  "desktop.bluetoothAudioHint": "અવાજ લગભગ અડધી સેકન્ડ મોડો વાગે છે. ફરી શરૂ કર્યા પછી લાગુ થાય છે.",
   "desktop.cantReachLichess": "lichess.org સુધી પહોંચી શકાતું નથી",
   "desktop.checkConnection": "તમારું ઇન્ટરનેટ જોડાણ તપાસો અને ફરી પ્રયાસ કરો.",
   "desktop.checkForUpdates": "અપડેટ તપાસો",

@@ -20,6 +20,7 @@ async function loadSettings() {
   for (const input of document.querySelectorAll("[data-setting]")) {
     input.checked = settings[input.dataset.setting];
   }
+  document.getElementById("bluetooth-audio-row").hidden = !settings.bluetoothAudioAvailable;
   const select = document.getElementById("language");
   const systemName =
     settings.languages.find(([tag]) => tag === settings.systemLanguage)?.[1] ?? settings.systemLanguage;

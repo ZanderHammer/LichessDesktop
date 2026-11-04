@@ -9,6 +9,8 @@
   "desktop.attention": "Melding op de taakbalk",
   "desktop.attentionHint": "De taakbalk laten knipperen of het Dock laten stuiteren als een partij je nodig heeft",
   "desktop.authorizeInMainWindow": "Autoriseer in het hoofdvenster…",
+  "desktop.bluetoothAudio": "Wegvallend geluid via Bluetooth oplossen",
+  "desktop.bluetoothAudioHint": "Geluiden worden ongeveer een halve seconde later afgespeeld. Werkt na een herstart.",
   "desktop.cantReachLichess": "Kan lichess.org niet bereiken",
   "desktop.checkConnection": "Controleer je internetverbinding en probeer het opnieuw.",
   "desktop.checkForUpdates": "Controleren op updates",

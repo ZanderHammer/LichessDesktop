@@ -9,6 +9,8 @@
   "desktop.attention": "Įspėjimas užduočių juostoje",
   "desktop.attentionHint": "Mirksinti užduočių juosta arba šokinėjantis Dock, kai partija jūsų laukia",
   "desktop.authorizeInMainWindow": "Patvirtinkite pagrindiniame lange…",
+  "desktop.bluetoothAudio": "Pataisyti nutrūkstantį garsą per „Bluetooth“",
+  "desktop.bluetoothAudioHint": "Garsai groja maždaug puse sekundės vėliau. Įsigalioja paleidus iš naujo.",
   "desktop.cantReachLichess": "Nepavyksta pasiekti lichess.org",
   "desktop.checkConnection": "Patikrinkite interneto ryšį ir bandykite dar kartą.",
   "desktop.checkForUpdates": "Tikrinti naujinimus",

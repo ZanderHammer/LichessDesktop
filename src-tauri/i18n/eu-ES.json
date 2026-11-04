@@ -9,6 +9,8 @@
   "desktop.attention": "Abisua ataza-barran",
   "desktop.attentionHint": "Keinuka jarri ataza-barra edo jauzika Dock-a partida batek behar zaituenean",
   "desktop.authorizeInMainWindow": "Baimendu leiho nagusian…",
+  "desktop.bluetoothAudio": "Konpondu Bluetooth bidez eteten den soinua",
+  "desktop.bluetoothAudioHint": "Soinuak segundo erdi inguru berandu entzuten dira. Berrabiarazi ondoren aplikatzen da.",
   "desktop.cantReachLichess": "Ezin da lichess.org-era iritsi",
   "desktop.checkConnection": "Egiaztatu Interneteko konexioa eta saiatu berriro.",
   "desktop.checkForUpdates": "Bilatu eguneratzeak",

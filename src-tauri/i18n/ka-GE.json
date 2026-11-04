@@ -9,6 +9,8 @@
   "desktop.attention": "შეტყობინება ამოცანების ზოლზე",
   "desktop.attentionHint": "ამოცანების ზოლის ციმციმი ან Dock-ის ხტუნვა, როცა პარტია გელოდებათ",
   "desktop.authorizeInMainWindow": "მიეცით ნებართვა მთავარ ფანჯარაში…",
+  "desktop.bluetoothAudio": "Bluetooth-ზე ხმის წყვეტის გამოსწორება",
+  "desktop.bluetoothAudioHint": "ხმები დაახლოებით ნახევარი წამით გვიან ისმის. ძალაში შედის გადატვირთვის შემდეგ.",
   "desktop.cantReachLichess": "lichess.org-თან დაკავშირება ვერ ხერხდება",
   "desktop.checkConnection": "შეამოწმეთ ინტერნეტკავშირი და სცადეთ ხელახლა.",
   "desktop.checkForUpdates": "განახლებების შემოწმება",
