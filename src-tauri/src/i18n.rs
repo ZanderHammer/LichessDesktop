@@ -18,12 +18,11 @@ const TRANSLATIONS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/transl
 /// The base language. Its file has every key.
 pub const BASE: &str = "en-GB";
 
-/// Languages lichess offers, as `(lila tag, native name)`, in lichess's
-/// order. Copied from lila `modules/i18n/src/main/LangList.scala` (commit
-/// 43e84ade40).
+/// Languages the app offers, as `(lila tag, native name)`, in lichess's order.
+/// Copied from lila `modules/i18n/src/main/LangList.scala` (commit 43e84ade40),
+/// without the 11 languages ADR 0020 leaves out.
 pub const LANGUAGES: &[(&str, &str)] = &[
     ("af-ZA", "Afrikaans"),
-    ("so-SO", "Af Soomaali"),
     ("an-ES", "Aragonés"),
     ("ast-ES", "Asturianu"),
     ("az-AZ", "Azərbaycanca"),
@@ -42,7 +41,6 @@ pub const LANGUAGES: &[(&str, &str)] = &[
     ("es-ES", "Español"),
     ("eo-AA", "Esperanto"),
     ("eu-ES", "Euskara"),
-    ("mg-MG", "Fiteny malagasy"),
     ("fo-FO", "Føroyskt"),
     ("fr-FR", "Français"),
     ("fy-NL", "Frysk"),
@@ -51,7 +49,6 @@ pub const LANGUAGES: &[(&str, &str)] = &[
     ("gl-ES", "Galego"),
     ("hr-HR", "Hrvatski"),
     ("ia-AA", "Interlingua"),
-    ("zu-ZA", "IsiZulu"),
     ("is-IS", "Íslenska"),
     ("it-IT", "Italiano"),
     ("sw-KE", "Kiswahili"),
@@ -60,7 +57,6 @@ pub const LANGUAGES: &[(&str, &str)] = &[
     ("lb-LU", "Lëtzebuergesch"),
     ("lt-LT", "Lietuvių kalba"),
     ("la-VA", "Lingua Latina"),
-    ("jbo-AA", "Lojban"),
     ("hu-HU", "Magyar"),
     ("nl-NL", "Nederlands"),
     ("nb-NO", "Norsk bokmål"),
@@ -77,33 +73,26 @@ pub const LANGUAGES: &[(&str, &str)] = &[
     ("fi-FI", "Suomen kieli"),
     ("sv-SE", "Svenska"),
     ("tl-PH", "Tagalog"),
-    ("kab-DZ", "Taqvaylit"),
     ("vi-VN", "Tiếng Việt"),
-    ("tok-AA", "Toki pona"),
     ("tr-TR", "Türkçe"),
     ("tk-TM", "Türkmençe"),
     ("el-GR", "Ελληνικά"),
-    ("av-RU", "Авар мацӀ"),
     ("be-BY", "Беларуская"),
     ("bg-BG", "Български език"),
     ("kk-KZ", "Қазақша"),
     ("mk-MK", "Македонски јази"),
     ("mn-MN", "Монгол"),
-    ("ry-UA", "Русинська бисїда"),
     ("ru-RU", "Русский язык"),
     ("sr-SP", "Српски језик"),
     ("uk-UA", "Українська"),
-    ("cv-CU", "Чӑваш чӗлхи"),
     ("ka-GE", "ქართული"),
     ("hy-AM", "Հայերեն"),
     ("he-IL", "עִבְרִית"),
     ("ur-PK", "اُردُو"),
     ("ar-SA", "العربية"),
-    ("ps-AF", "پښتو"),
     ("fa-IR", "فارسی"),
     ("ckb-IR", "کوردی سۆرانی"),
     ("ne-NP", "नेपाली"),
-    ("pi-IN", "पालि"),
     ("mr-IN", "मराठी"),
     ("hi-IN", "हिन्दी, हिंदी"),
     ("bn-BD", "বাংলা"),
@@ -300,7 +289,7 @@ impl Strings {
 
     /// Text direction of the language, for `<html dir>`.
     pub fn dir(&self) -> &'static str {
-        const RTL: &[&str] = &["ar", "ckb", "fa", "he", "ps", "ur"];
+        const RTL: &[&str] = &["ar", "ckb", "fa", "he", "ur"];
         let language = self.lang.split('-').next().unwrap_or_default();
         if RTL.contains(&language) {
             "rtl"
@@ -484,7 +473,7 @@ mod tests {
 
     #[test]
     fn unknown_locales_do_not_match() {
-        for locale in ["", "C", "POSIX", "xx-XX", "-"] {
+        for locale in ["", "C", "POSIX", "xx-XX", "-", "zu-ZA"] {
             assert_eq!(match_locale(locale), None, "{locale:?}");
         }
     }
@@ -511,7 +500,7 @@ mod tests {
 
     #[test]
     fn language_list_matches_lichess() {
-        assert_eq!(LANGUAGES.len(), 94);
+        assert_eq!(LANGUAGES.len(), 83);
         assert!(LANGUAGES.iter().any(|&(tag, _)| tag == BASE));
         for (tag, _) in TRANSLATIONS {
             assert!(
