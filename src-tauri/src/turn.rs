@@ -96,6 +96,30 @@ impl Detector {
     }
 }
 
+/// Whether the tray icon should show that it's the user's turn: while the page
+/// says so and the window isn't focused. Unlike an alert this is a lasting
+/// state, so a turn that began while focused shows once the user leaves.
+#[derive(Debug, Default)]
+pub struct Badge {
+    your_turn: bool,
+    shown: bool,
+}
+
+impl Badge {
+    /// Takes the page's new state, if it has one, and the current focus.
+    /// Returns the new value when it changes, so the icon is only set then.
+    pub fn update(&mut self, state: Option<TurnState>, focused: bool) -> Option<bool> {
+        if let Some(state) = state {
+            self.your_turn = state == TurnState::YourTurn;
+        }
+        let show = self.your_turn && !focused;
+        (show != self.shown).then(|| {
+            self.shown = show;
+            show
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -211,6 +235,33 @@ mod tests {
 
         detector.observe(GAME, Waiting, UNFOCUSED);
         assert_eq!(detector.observe(OTHER_GAME, GameOver, UNFOCUSED), None);
+    }
+
+    #[test]
+    fn the_badge_shows_during_your_turn_while_unfocused() {
+        let mut badge = Badge::default();
+        assert_eq!(badge.update(Some(Waiting), UNFOCUSED), None);
+        assert_eq!(badge.update(Some(YourTurn), UNFOCUSED), Some(true));
+        assert_eq!(badge.update(Some(YourTurn), UNFOCUSED), None);
+        assert_eq!(badge.update(Some(Waiting), UNFOCUSED), Some(false));
+    }
+
+    #[test]
+    fn the_badge_follows_the_focus() {
+        let mut badge = Badge::default();
+        assert_eq!(badge.update(Some(YourTurn), FOCUSED), None);
+        assert_eq!(badge.update(None, UNFOCUSED), Some(true));
+        assert_eq!(badge.update(None, FOCUSED), Some(false));
+        assert_eq!(badge.update(None, FOCUSED), None);
+    }
+
+    #[test]
+    fn the_badge_goes_away_when_the_turn_does() {
+        for state in [GameOver, Other] {
+            let mut badge = Badge::default();
+            badge.update(Some(YourTurn), UNFOCUSED);
+            assert_eq!(badge.update(Some(state), UNFOCUSED), Some(false));
+        }
     }
 
     #[test]
