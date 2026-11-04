@@ -6,6 +6,7 @@
 //! (ADR 0014). Panels report a left click as `Activate`, which arrives here as a click.
 //! The menu repeats the toggle as "Show/Hide" for panels that only show menus.
 
+use tauri::image::Image;
 use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime};
@@ -21,6 +22,15 @@ const SETTINGS: &str = "settings";
 const SHORTCUTS: &str = "shortcuts";
 const QUIT: &str = "quit";
 const UPDATE: &str = "update";
+
+/// The badge: `danger` from DESIGN.md.
+const BADGE_COLOR: [u8; 3] = [0xc0, 0x1c, 0x28];
+/// The badge's center and radius as fractions of the icon's size. It sits in a
+/// corner, clear of the pawn, and is still about 8 px wide on a 22 px panel icon.
+const BADGE_CENTER: (f32, f32) = (0.81, 0.19);
+const BADGE_RADIUS: f32 = 0.18;
+/// The radius of the transparent ring that separates the badge from the pawn.
+const BADGE_GAP: f32 = 0.23;
 
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
@@ -80,6 +90,40 @@ pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     }
 }
 
+/// Shows or removes the badge on the icon that says it's the user's turn.
+pub fn set_turn_badge<R: Runtime>(app: &AppHandle<R>, show: bool) -> tauri::Result<()> {
+    let (Some(tray), Some(icon)) = (app.tray_by_id(TRAY_ID), app.default_window_icon()) else {
+        return Ok(());
+    };
+    tray.set_icon(Some(if show { with_badge(icon) } else { icon.clone() }))
+}
+
+/// `icon` with the badge painted on. Done when needed rather than kept, so an
+/// idle app doesn't hold a second copy of the icon.
+fn with_badge(icon: &Image<'_>) -> Image<'static> {
+    let (width, height) = (icon.width(), icon.height());
+    let size = width.min(height) as f32;
+    let (center_x, center_y) = (
+        BADGE_CENTER.0 * width as f32,
+        BADGE_CENTER.1 * height as f32,
+    );
+    let coverage = |radius: f32, distance: f32| (radius * size - distance + 0.5).clamp(0.0, 1.0);
+    let mut rgba = icon.rgba().to_vec();
+    for (index, pixel) in rgba.as_chunks_mut::<4>().0.iter_mut().enumerate() {
+        let x = (index as u32 % width) as f32 + 0.5;
+        let y = (index as u32 / width) as f32 + 0.5;
+        let distance = (x - center_x).hypot(y - center_y);
+        let badge = coverage(BADGE_RADIUS, distance);
+        if badge > 0.0 {
+            pixel[..3].copy_from_slice(&BADGE_COLOR);
+            pixel[3] = (badge * 255.0) as u8;
+        } else {
+            pixel[3] = (f32::from(pixel[3]) * (1.0 - coverage(BADGE_GAP, distance))) as u8;
+        }
+    }
+    Image::new_owned(rgba, width, height)
+}
+
 /// Whether the tray icon exists. Without it a hidden window could only come
 /// back through a second launch.
 pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
@@ -126,5 +170,45 @@ fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
         crate::hide_main_window(app);
     } else {
         crate::raise_main_window(app);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const SIZE: u32 = 64;
+    const PIXEL: [u8; 4] = [10, 20, 30, 255];
+
+    fn pixel(image: &Image<'_>, x: u32, y: u32) -> [u8; 4] {
+        let start = ((y * image.width() + x) * 4) as usize;
+        image.rgba()[start..start + 4].try_into().unwrap()
+    }
+
+    #[test]
+    fn the_badge_is_painted_in_its_corner_with_a_gap_around_it() {
+        let icon = Image::new_owned(PIXEL.repeat((SIZE * SIZE) as usize), SIZE, SIZE);
+        let badged = with_badge(&icon);
+        assert_eq!((badged.width(), badged.height()), (SIZE, SIZE));
+
+        let center_x = (BADGE_CENTER.0 * SIZE as f32) as u32;
+        let center_y = (BADGE_CENTER.1 * SIZE as f32) as u32;
+        let [r, g, b] = BADGE_COLOR;
+        assert_eq!(pixel(&badged, center_x, center_y), [r, g, b, 255]);
+
+        // On the ring between the badge and the rest of the icon.
+        let ring = ((BADGE_RADIUS + BADGE_GAP) / 2.0 * SIZE as f32) as u32;
+        assert_eq!(pixel(&badged, center_x - ring, center_y)[3], 0);
+
+        // The pawn's corner of the icon is left alone.
+        assert_eq!(pixel(&badged, 0, SIZE - 1), PIXEL);
+    }
+
+    #[test]
+    fn the_badge_keeps_a_non_square_icon_intact() {
+        let icon = Image::new_owned(PIXEL.repeat(32 * 64), 32, 64);
+        let badged = with_badge(&icon);
+        assert_eq!(badged.rgba().len(), icon.rgba().len());
+        assert_eq!(pixel(&badged, 0, 63), PIXEL);
     }
 }
