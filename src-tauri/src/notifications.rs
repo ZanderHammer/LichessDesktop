@@ -1,7 +1,8 @@
 //! Your-turn and game-over alerts while the main window isn't focused (#23,
 //! ADR 0021, ADR 0022): a native notification and taskbar attention, each with
 //! its own setting. Everything is sent from Rust, so the page gets no capability.
-//! The tray icon also shows a badge during the user's turn.
+//! The tray icon also shows a badge during the user's turn. The account's event
+//! stream sends its alerts the same way (#25, ADR 0025).
 
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
@@ -113,21 +114,45 @@ fn send<R: Runtime>(window: &WebviewWindow<R>, alert: Alert, game: &Url) {
     let settings = window.state::<SettingsStore<R>>().get();
     if let Some(key) = notification_text(alert, &settings) {
         let body = window.state::<i18n::Current>().get().get(key).to_owned();
-        // No sound on purpose: lichess plays its own (ADR 0021).
-        if let Err(err) = window
-            .notification()
-            .builder()
-            .id(NOTIFICATION_ID)
-            .body(body)
-            .extra(GAME_URL, game.as_str())
-            .show()
-        {
-            eprintln!("failed to show the notification: {err}");
-        }
+        show(window, body, game);
     }
-    if settings.attention
-        && let Err(err) = window.request_user_attention(Some(UserAttentionType::Informational))
+    if settings.attention {
+        request_attention(window);
+    }
+}
+
+/// An event from the account's stream, which runs only while its setting is on.
+/// `target` is the lichess page a click opens.
+pub fn account_event<R: Runtime>(app: &AppHandle<R>, body: String, target: &Url) {
+    let Some(window) = app.get_webview_window(crate::MAIN_WINDOW) else {
+        return;
+    };
+    // If the focus is unknown, count it as focused, as in `title_changed`.
+    if window.is_focused().unwrap_or(true) {
+        return;
+    }
+    show(&window, body, target);
+    if app.state::<SettingsStore<R>>().get().attention {
+        request_attention(&window);
+    }
+}
+
+fn show<R: Runtime>(window: &WebviewWindow<R>, body: String, game: &Url) {
+    // No sound on purpose: lichess plays its own (ADR 0021).
+    if let Err(err) = window
+        .notification()
+        .builder()
+        .id(NOTIFICATION_ID)
+        .body(body)
+        .extra(GAME_URL, game.as_str())
+        .show()
     {
+        eprintln!("failed to show the notification: {err}");
+    }
+}
+
+fn request_attention<R: Runtime>(window: &WebviewWindow<R>) {
+    if let Err(err) = window.request_user_attention(Some(UserAttentionType::Informational)) {
         eprintln!("failed to request attention: {err}");
     }
 }
