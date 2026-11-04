@@ -13,6 +13,7 @@ use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewUrl, WebviewWindowBuild
 
 use crate::actions::Action;
 use crate::i18n::{self, Key};
+use crate::offline;
 use crate::settings::{Language, SettingsStore};
 use crate::shortcuts;
 use crate::update::{self, Status};
@@ -291,8 +292,9 @@ fn parse_language(value: &str) -> Result<Language, String> {
     }
 }
 
-/// Switches the UI language: strings, tray menu, the macOS app menu, and this
-/// window.
+/// Switches the UI language: strings, tray menu, the macOS app menu, this
+/// window, and the offline page if the main window shows it. The palette needs
+/// nothing: it closes when it loses focus, so it can't be open during a change.
 fn apply_language<R: Runtime>(app: &AppHandle<R>, language: &Language) {
     let strings = i18n::Strings::load(i18n::resolve(language, sys_locale::get_locales()));
     let title = strings.get(Key::Settings).to_owned();
@@ -307,6 +309,13 @@ fn apply_language<R: Runtime>(app: &AppHandle<R>, language: &Language) {
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.set_title(&title);
         let _ = window.emit_to(LABEL, STRINGS_CHANGED, ());
+    }
+    // Rendered per request and never cached, so a reload brings the new strings.
+    if let Some(main) = app.get_webview_window(crate::MAIN_WINDOW)
+        && main.url().is_ok_and(|url| offline::is_page(&url))
+        && let Err(err) = main.reload()
+    {
+        eprintln!("failed to reload the offline page: {err}");
     }
 }
 
@@ -365,6 +374,9 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> AppInfo {
 mod tests {
     use super::*;
     use serde_json::{from_value, json, to_value};
+    use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use tauri::Listener;
     use tauri::ipc::{CallbackFn, InvokeBody};
     use tauri::test::{INVOKE_KEY, MockRuntime, get_ipc_response, mock_builder};
     use tauri::webview::InvokeRequest;
@@ -424,6 +436,28 @@ mod tests {
             );
         }
         assert!(get_ipc_response(&main, request("plugin:event|listen", local)).is_err());
+    }
+
+    #[test]
+    fn switching_language_swaps_the_strings_and_tells_the_open_window() {
+        let app = mock_builder()
+            .invoke_handler(crate::invoke_handler::<MockRuntime>())
+            .build(crate::context())
+            .unwrap();
+        app.manage(i18n::Current::new(i18n::Strings::load(i18n::BASE)));
+        let settings = WebviewWindowBuilder::new(&app, LABEL, Default::default())
+            .build()
+            .unwrap();
+        let told = Arc::new(AtomicBool::new(false));
+        let flag = Arc::clone(&told);
+        settings.listen(STRINGS_CHANGED, move |_| {
+            flag.store(true, Ordering::SeqCst);
+        });
+
+        apply_language(app.handle(), &Language::Tag("de-DE".into()));
+
+        assert_eq!(app.state::<i18n::Current>().get().lang(), "de-DE");
+        assert!(told.load(Ordering::SeqCst));
     }
 
     #[test]
