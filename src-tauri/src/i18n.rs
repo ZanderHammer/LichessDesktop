@@ -20,7 +20,7 @@ pub const BASE: &str = "en-GB";
 
 /// Languages lichess offers, as `(lila tag, native name)`, in lichess's
 /// order. Copied from lila `modules/i18n/src/main/LangList.scala` (commit
-/// 5e10b48cc1).
+/// 43e84ade40).
 pub const LANGUAGES: &[(&str, &str)] = &[
     ("af-ZA", "Afrikaans"),
     ("so-SO", "Af Soomaali"),

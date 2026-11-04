@@ -1,0 +1,22 @@
+{
+  "preferences.preferences": "प्राथमिकता",
+  "settings.settings": "विकल्पहरु",
+  "site.analysis": "विश्लेषण बोर्ड",
+  "site.boardEditor": "बोर्ड सम्पादक",
+  "site.chessBasics": "आधारभूत बुद्धिचाल",
+  "site.createLobbyGame": "खेल सिर्जना गर्नु",
+  "site.currentGames": "हालका खेलहरु",
+  "site.editProfile": "प्रोफाइल सम्पादन गर्नुहोस्",
+  "site.gameOver": "खेल सक्कियो ।",
+  "site.inbox": "प्राप्त पत्र",
+  "site.keyboardShortcuts": "किबोर्ड सर्टकटहरू",
+  "site.language": "भाषा",
+  "site.notifications": "सुचनाहरु",
+  "site.playAgainstComputer": "कम्प्युटरसँग खेल्नु",
+  "site.puzzles": "पजल",
+  "site.retry": "पुन: प्रयास गर्नुहोस्",
+  "site.sourceCode": "सोर्स कोड",
+  "site.studyMenu": "अध्ययन",
+  "site.tournaments": "प्रतियोगिताहरु",
+  "site.yourTurn": "तपाइको पालो"
+}

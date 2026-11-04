@@ -1,0 +1,23 @@
+{
+  "broadcast.broadcasts": "پەخشەکان.",
+  "preferences.preferences": "ھەڵبژاردنەکان",
+  "settings.settings": "رێکخستنەکان",
+  "site.analysis": "شیکاری تەختەی شەترەنج",
+  "site.boardEditor": "دەستکاریکردنی تەختە",
+  "site.chessBasics": "بنەماکانی شەترەنج",
+  "site.currentGames": "یارییەکانی ئێستا",
+  "site.editProfile": "دەستکاریکردنی پڕۆفایل",
+  "site.gameOver": "یاریەکە کۆتایی هات",
+  "site.inbox": "ئیمێڵ بۆکس",
+  "site.keyboardShortcuts": "قه‌دبڕەکانی تەختەکلیل",
+  "site.language": "زمان",
+  "site.notifications": "ئاگادارکردنەوەکان",
+  "site.playAgainstComputer": "کۆمپیتەر",
+  "site.puzzles": "مەتەڵەکان",
+  "site.retry": "دووبارە هەوڵبدەوە",
+  "site.sourceCode": "سەرچاوەی کۆدەکان",
+  "site.studyMenu": "خوێندن",
+  "site.tournaments": "پاڵەوانیەتییەکان",
+  "site.yourTurn": "سەرەی تۆیە",
+  "study.back": "گەڕانەوە"
+}

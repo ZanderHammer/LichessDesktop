@@ -1,0 +1,22 @@
+{
+  "broadcast.broadcasts": "ஒளிபரப்புகள்",
+  "preferences.preferences": "விருப்பத்தேர்வுகள்",
+  "settings.settings": "அமைப்புகள்",
+  "site.analysis": "பகுப்பாய்வுப் பலகை",
+  "site.boardEditor": "பலகை அமைப்பாளி",
+  "site.chessBasics": "சதுரங்க அடிப்படைகள்",
+  "site.currentGames": "தற்பொழுதைய ஆட்டங்கள்",
+  "site.editProfile": "சுயவிவரத்தை திருத்து",
+  "site.gameOver": "ஆட்டம் முடிந்துவிட்டது",
+  "site.inbox": "மடல்",
+  "site.keyboardShortcuts": "விசைப்பலகை குறுக்குவழிகள்",
+  "site.language": "மொழி",
+  "site.notifications": "அறிவிப்புகள்",
+  "site.puzzles": "புதிர்கள்",
+  "site.retry": "மீள்முயற்சி",
+  "site.sourceCode": "மூலக் குறியீடு",
+  "site.studyMenu": "கற்கை",
+  "site.tournaments": "பந்தயங்கள்",
+  "site.yourTurn": "தங்கள் முறை",
+  "study.back": "பின்செல்"
+}

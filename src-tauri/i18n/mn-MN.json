@@ -1,0 +1,21 @@
+{
+  "broadcast.broadcasts": "Тайлбарлалтууд",
+  "preferences.preferences": "Тохиргоо",
+  "settings.settings": "Тохиргоо",
+  "site.analysis": "Өрөг шинжлэх",
+  "site.boardEditor": "Өргийн байрлал өөрчлөгч",
+  "site.chessBasics": "Суурь мэдлэг",
+  "site.currentGames": "Яг одоо тоглогдож буй өргүүд",
+  "site.editProfile": "Танилцуулга хуудсаа засварлах",
+  "site.gameOver": "Өрөг өндөрлөлөө",
+  "site.inbox": "Шуудангийн хайрцаг",
+  "site.keyboardShortcuts": "Товчлогч",
+  "site.language": "Хэлний сонголт",
+  "site.notifications": "Мэдэгдэлүүд",
+  "site.puzzles": "Таавар бодлого",
+  "site.retry": "Дахин оролдох",
+  "site.sourceCode": "Эх код",
+  "site.studyMenu": "Суралцах",
+  "site.tournaments": "Тэмцээнүүд",
+  "site.yourTurn": "Таны ээлж"
+}
