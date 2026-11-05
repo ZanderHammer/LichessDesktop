@@ -26,6 +26,7 @@
   "desktop.disconnect": "Ngắt kết nối",
   "desktop.forward": "Tiến",
   "desktop.fullscreen": "Toàn màn hình",
+  "desktop.hideOnFocusLoss": "Ẩn xuống khay hệ thống khi cửa sổ mất tiêu điểm",
   "desktop.home": "Trang chủ",
   "desktop.license": "Giấy phép",
   "desktop.lichessTv": "Lichess TV",

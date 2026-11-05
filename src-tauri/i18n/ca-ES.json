@@ -26,6 +26,7 @@
   "desktop.disconnect": "Desconnecta",
   "desktop.forward": "Endavant",
   "desktop.fullscreen": "Pantalla completa",
+  "desktop.hideOnFocusLoss": "Amaga a la safata quan la finestra perd el focus",
   "desktop.home": "Inici",
   "desktop.license": "Llicència",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Idiskonekta",
   "desktop.forward": "Pasulong",
   "desktop.fullscreen": "Buong screen",
+  "desktop.hideOnFocusLoss": "Itago sa tray kapag nawalan ng focus ang window",
   "desktop.home": "Home",
   "desktop.license": "Lisensya",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Deskonektatu",
   "desktop.forward": "Aurrera",
   "desktop.fullscreen": "Pantaila osoa",
+  "desktop.hideOnFocusLoss": "Ezkutatu erretiluan leihoak fokua galtzen duenean",
   "desktop.home": "Hasiera",
   "desktop.license": "Lizentzia",
   "desktop.lichessTv": "Lichess TV",

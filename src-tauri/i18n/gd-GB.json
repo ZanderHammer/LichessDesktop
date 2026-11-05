@@ -26,6 +26,7 @@
   "desktop.disconnect": "Dì-cheangail",
   "desktop.forward": "Air adhart",
   "desktop.fullscreen": "Làn-sgrìn",
+  "desktop.hideOnFocusLoss": "Falaich san treidhe nuair a chailleas an uinneag am fòcas",
   "desktop.home": "Dachaigh",
   "desktop.license": "Ceadachas",
   "desktop.lichessTv": "Lichess TV",

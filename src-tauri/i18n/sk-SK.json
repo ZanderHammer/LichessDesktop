@@ -26,6 +26,7 @@
   "desktop.disconnect": "Odpojiť",
   "desktop.forward": "Dopredu",
   "desktop.fullscreen": "Celá obrazovka",
+  "desktop.hideOnFocusLoss": "Skryť do oblasti oznámení, keď okno stratí fokus",
   "desktop.home": "Domov",
   "desktop.license": "Licencia",
   "desktop.lichessTv": "Lichess TV",

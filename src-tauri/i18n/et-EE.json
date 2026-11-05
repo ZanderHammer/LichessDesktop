@@ -26,6 +26,7 @@
   "desktop.disconnect": "Katkesta ühendus",
   "desktop.forward": "Edasi",
   "desktop.fullscreen": "Täisekraan",
+  "desktop.hideOnFocusLoss": "Peida salve, kui aken kaotab fookuse",
   "desktop.home": "Avaleht",
   "desktop.license": "Litsents",
   "desktop.lichessTv": "Lichess TV",

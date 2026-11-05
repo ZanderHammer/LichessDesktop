@@ -26,6 +26,7 @@
   "desktop.disconnect": "Malkonekti",
   "desktop.forward": "Antaŭen",
   "desktop.fullscreen": "Plenekrane",
+  "desktop.hideOnFocusLoss": "Kaŝi al la sistempleto kiam la fenestro perdas la fokuson",
   "desktop.home": "Hejmo",
   "desktop.license": "Permesilo",
   "desktop.lichessTv": "Lichess TV",

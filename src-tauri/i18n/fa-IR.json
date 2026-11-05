@@ -26,6 +26,7 @@
   "desktop.disconnect": "قطع اتصال",
   "desktop.forward": "جلو",
   "desktop.fullscreen": "تمام‌صفحه",
+  "desktop.hideOnFocusLoss": "پنهان کردن در سینی سیستم هنگام از دست رفتن تمرکز پنجره",
   "desktop.home": "خانه",
   "desktop.license": "مجوز",
   "desktop.lichessTv": "Lichess TV",

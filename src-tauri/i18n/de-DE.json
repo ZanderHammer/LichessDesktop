@@ -26,6 +26,7 @@
   "desktop.disconnect": "Trennen",
   "desktop.forward": "Vorwärts",
   "desktop.fullscreen": "Vollbild",
+  "desktop.hideOnFocusLoss": "In den Infobereich ausblenden, wenn das Fenster den Fokus verliert",
   "desktop.home": "Startseite",
   "desktop.license": "Lizenz",
   "desktop.lichessTv": "Lichess TV",

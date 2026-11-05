@@ -26,6 +26,7 @@
   "desktop.disconnect": "വിച്ഛേദിക്കുക",
   "desktop.forward": "മുന്നോട്ട്",
   "desktop.fullscreen": "പൂർണ്ണ സ്ക്രീൻ",
+  "desktop.hideOnFocusLoss": "വിൻഡോയുടെ ഫോക്കസ് നഷ്ടപ്പെടുമ്പോൾ ട്രേയിലേക്ക് മറയ്ക്കുക",
   "desktop.home": "ഹോം",
   "desktop.license": "ലൈസൻസ്",
   "desktop.lichessTv": "Lichess TV",

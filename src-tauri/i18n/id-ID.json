@@ -26,6 +26,7 @@
   "desktop.disconnect": "Putuskan",
   "desktop.forward": "Maju",
   "desktop.fullscreen": "Layar penuh",
+  "desktop.hideOnFocusLoss": "Sembunyikan ke baki sistem saat jendela kehilangan fokus",
   "desktop.home": "Beranda",
   "desktop.license": "Lisensi",
   "desktop.lichessTv": "Lichess TV",

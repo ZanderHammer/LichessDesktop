@@ -26,6 +26,7 @@
   "desktop.disconnect": "Прекъсване",
   "desktop.forward": "Напред",
   "desktop.fullscreen": "Цял екран",
+  "desktop.hideOnFocusLoss": "Скриване в системната област при загуба на фокус на прозореца",
   "desktop.home": "Начало",
   "desktop.license": "Лиценз",
   "desktop.lichessTv": "Lichess TV",

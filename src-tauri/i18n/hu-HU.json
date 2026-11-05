@@ -26,6 +26,7 @@
   "desktop.disconnect": "Leválasztás",
   "desktop.forward": "Előre",
   "desktop.fullscreen": "Teljes képernyő",
+  "desktop.hideOnFocusLoss": "Elrejtés a tálcára, ha az ablak elveszti a fókuszt",
   "desktop.home": "Kezdőlap",
   "desktop.license": "Licenc",
   "desktop.lichessTv": "Lichess TV",

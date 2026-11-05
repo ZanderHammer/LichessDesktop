@@ -26,6 +26,7 @@
   "desktop.disconnect": "Անջատել",
   "desktop.forward": "Առաջ",
   "desktop.fullscreen": "Ամբողջ էկրանով",
+  "desktop.hideOnFocusLoss": "Թաքցնել համակարգային սկուտեղում, երբ պատուհանը կորցնում է ֆոկուսը",
   "desktop.home": "Գլխավոր էջ",
   "desktop.license": "Լիցենզիա",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Ferbining ferbrekke",
   "desktop.forward": "Foarút",
   "desktop.fullscreen": "Folslein skerm",
+  "desktop.hideOnFocusLoss": "Ferbergje yn systeemfak as it finster de fokus ferliest",
   "desktop.home": "Startside",
   "desktop.license": "Lisinsje",
   "desktop.lichessTv": "Lichess TV",

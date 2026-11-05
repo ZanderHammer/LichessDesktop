@@ -26,6 +26,7 @@
   "desktop.disconnect": "Bağlantıyı kes",
   "desktop.forward": "İleri",
   "desktop.fullscreen": "Tam ekran",
+  "desktop.hideOnFocusLoss": "Pencere odağı kaybettiğinde sistem tepsisine gizle",
   "desktop.home": "Ana sayfa",
   "desktop.license": "Lisans",
   "desktop.lichessTv": "Lichess TV",

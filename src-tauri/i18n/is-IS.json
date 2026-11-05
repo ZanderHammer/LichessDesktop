@@ -26,6 +26,7 @@
   "desktop.disconnect": "Aftengja",
   "desktop.forward": "Áfram",
   "desktop.fullscreen": "Allur skjárinn",
+  "desktop.hideOnFocusLoss": "Fela í kerfisbakka þegar glugginn missir fókus",
   "desktop.home": "Heim",
   "desktop.license": "Leyfi",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Uzish",
   "desktop.forward": "Oldinga",
   "desktop.fullscreen": "Töliq ekran",
+  "desktop.hideOnFocusLoss": "Oyna fokusni yoʻqotganda tizim panelida yashiriş",
   "desktop.home": "Bosh sahifa",
   "desktop.license": "Litsenziya",
   "desktop.lichessTv": "Lichess TV",

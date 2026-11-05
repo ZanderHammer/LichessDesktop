@@ -26,6 +26,7 @@
   "desktop.disconnect": "જોડાણ તોડો",
   "desktop.forward": "આગળ",
   "desktop.fullscreen": "પૂર્ણ સ્ક્રીન",
+  "desktop.hideOnFocusLoss": "વિન્ડો ફોકસ ગુમાવે ત્યારે ટ્રેમાં છુપાવો",
   "desktop.home": "મુખ્ય પૃષ્ઠ",
   "desktop.license": "લાઇસન્સ",
   "desktop.lichessTv": "Lichess TV",
