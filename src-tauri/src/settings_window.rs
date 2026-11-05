@@ -179,6 +179,7 @@ fn shortcuts_view(strings: &i18n::Strings, macos: bool) -> Vec<ShortcutView> {
 #[serde(rename_all = "camelCase")]
 pub struct SettingsView {
     close_to_tray: bool,
+    hide_on_focus_loss: bool,
     check_updates: bool,
     bluetooth_audio: bool,
     /// Whether this platform has the switch (ADR 0029).
@@ -200,6 +201,7 @@ pub fn get_settings<R: Runtime>(app: AppHandle<R>) -> SettingsView {
     let settings = app.state::<SettingsStore<R>>().get();
     SettingsView {
         close_to_tray: settings.close_to_tray,
+        hide_on_focus_loss: settings.hide_on_focus_loss,
         check_updates: settings.check_updates,
         bluetooth_audio: settings.bluetooth_audio,
         bluetooth_audio_available: cfg!(target_os = "linux"),
@@ -224,6 +226,7 @@ pub fn get_settings<R: Runtime>(app: AppHandle<R>) -> SettingsView {
 )]
 pub enum SettingChange {
     CloseToTray(bool),
+    HideOnFocusLoss(bool),
     CheckUpdates(bool),
     BluetoothAudio(bool),
     NotifyYourTurn(bool),
@@ -251,6 +254,7 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
     app.state::<SettingsStore<R>>()
         .update(|settings| match change {
             SettingChange::CloseToTray(on) => settings.close_to_tray = on,
+            SettingChange::HideOnFocusLoss(on) => settings.hide_on_focus_loss = on,
             SettingChange::CheckUpdates(on) => settings.check_updates = on,
             SettingChange::BluetoothAudio(on) => settings.bluetooth_audio = on,
             SettingChange::NotifyYourTurn(on) => settings.notify_your_turn = on,
@@ -491,6 +495,9 @@ mod tests {
         let change: SettingChange =
             from_value(json!({ "key": "notifyAccountEvents", "value": false })).unwrap();
         assert_eq!(change, SettingChange::NotifyAccountEvents(false));
+        let change: SettingChange =
+            from_value(json!({ "key": "hideOnFocusLoss", "value": true })).unwrap();
+        assert_eq!(change, SettingChange::HideOnFocusLoss(true));
         let change: SettingChange =
             from_value(json!({ "key": "bluetoothAudio", "value": true })).unwrap();
         assert_eq!(change, SettingChange::BluetoothAudio(true));

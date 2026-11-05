@@ -20,6 +20,7 @@ pub const STORE_FILE: &str = "settings.json";
 
 const ZOOM: &str = "zoom";
 const CLOSE_TO_TRAY: &str = "close_to_tray";
+const HIDE_ON_FOCUS_LOSS: &str = "hide_on_focus_loss";
 const CHECK_UPDATES: &str = "check_updates";
 const BLUETOOTH_AUDIO: &str = "bluetooth_audio";
 const NOTIFY_YOUR_TURN: &str = "notify_your_turn";
@@ -74,6 +75,8 @@ pub struct Settings {
     /// Page zoom factor, `1.0` is 100 %.
     pub zoom: f64,
     pub close_to_tray: bool,
+    /// Hide the main window to the tray when the app loses focus.
+    pub hide_on_focus_loss: bool,
     pub check_updates: bool,
     /// Linux: the larger audio request size that keeps Bluetooth sound going,
     /// read at startup (ADR 0029).
@@ -94,6 +97,7 @@ impl Default for Settings {
         Self {
             zoom: 1.0,
             close_to_tray: false,
+            hide_on_focus_loss: false,
             check_updates: true,
             bluetooth_audio: false,
             notify_your_turn: true,
@@ -116,6 +120,8 @@ impl Settings {
                 .filter(|zoom: &f64| zoom.is_finite() && *zoom > 0.0)
                 .unwrap_or(defaults.zoom),
             close_to_tray: field(entries, CLOSE_TO_TRAY).unwrap_or(defaults.close_to_tray),
+            hide_on_focus_loss: field(entries, HIDE_ON_FOCUS_LOSS)
+                .unwrap_or(defaults.hide_on_focus_loss),
             check_updates: field(entries, CHECK_UPDATES).unwrap_or(defaults.check_updates),
             bluetooth_audio: field(entries, BLUETOOTH_AUDIO).unwrap_or(defaults.bluetooth_audio),
             notify_your_turn: field(entries, NOTIFY_YOUR_TURN).unwrap_or(defaults.notify_your_turn),
@@ -139,10 +145,11 @@ impl Settings {
         serde_json::from_slice(bytes).map_or_else(|_| Self::default(), |e| Self::from_entries(&e))
     }
 
-    fn to_entries(&self) -> [(&'static str, Value); 10] {
+    fn to_entries(&self) -> [(&'static str, Value); 11] {
         [
             (ZOOM, self.zoom.into()),
             (CLOSE_TO_TRAY, self.close_to_tray.into()),
+            (HIDE_ON_FOCUS_LOSS, self.hide_on_focus_loss.into()),
             (CHECK_UPDATES, self.check_updates.into()),
             (BLUETOOTH_AUDIO, self.bluetooth_audio.into()),
             (NOTIFY_YOUR_TURN, self.notify_your_turn.into()),
@@ -210,6 +217,7 @@ mod tests {
         let settings = Settings::default();
         assert_eq!(settings.zoom, 1.0);
         assert!(!settings.close_to_tray);
+        assert!(!settings.hide_on_focus_loss);
         assert!(settings.check_updates);
         assert!(!settings.bluetooth_audio);
         assert!(settings.notify_your_turn);
@@ -230,6 +238,7 @@ mod tests {
         let settings = Settings {
             zoom: 1.25,
             close_to_tray: true,
+            hide_on_focus_loss: true,
             check_updates: false,
             bluetooth_audio: true,
             notify_your_turn: false,
