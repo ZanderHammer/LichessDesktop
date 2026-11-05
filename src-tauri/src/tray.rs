@@ -232,9 +232,14 @@ fn hide_soon<R: Runtime>(app: &AppHandle<R>) {
 /// Whether the focus really left. The open settings window keeps the main window
 /// up: it is a child of it, and hiding its parent would leave it stranded. The
 /// tray menu takes the focus while open, and hiding the window would close it.
+/// A window the app keeps on top is meant to stay in view. The window manager's
+/// own "keep above" can't be seen, on Wayland or X11 (ADR 0031).
 fn should_hide<R: Runtime>(app: &AppHandle<R>) -> bool {
     !app.state::<MenuOpen>().0.load(Ordering::Relaxed)
         && app.get_webview_window(settings_window::LABEL).is_none()
+        && !app
+            .get_webview_window(crate::MAIN_WINDOW)
+            .is_some_and(|main| main.is_always_on_top().unwrap_or(false))
         && !app
             .webview_windows()
             .values()
