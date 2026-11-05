@@ -8,6 +8,7 @@
 
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -37,6 +38,8 @@ const BADGE_CENTER: (f32, f32) = (0.81, 0.19);
 const BADGE_RADIUS: f32 = 0.18;
 /// The radius of the transparent ring that separates the badge from the pawn.
 const BADGE_GAP: f32 = 0.23;
+/// How long the badge stays on and off: one flash per second.
+const FLASH_INTERVAL: Duration = Duration::from_millis(500);
 
 /// How long the focus may be gone before the main window hides: while it moves
 /// to the palette, no window of the app has it.
@@ -53,10 +56,15 @@ struct LastFocusLoss(Mutex<Option<Instant>>);
 #[derive(Default)]
 struct MenuOpen(AtomicBool);
 
+/// Keeps the badge flashing while it holds a sender. In managed state.
+#[derive(Default)]
+struct Flashing(Mutex<Option<Sender<()>>>);
+
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     app.manage(LastFocusLoss::default());
     app.manage(MenuOpen::default());
+    app.manage(Flashing::default());
     let menu = menu(app)?;
 
     let mut tray = TrayIconBuilder::with_id(TRAY_ID)
@@ -115,12 +123,46 @@ pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     }
 }
 
-/// Shows or removes the badge on the icon that says it's the user's turn.
-pub fn set_turn_badge<R: Runtime>(app: &AppHandle<R>, show: bool) -> tauri::Result<()> {
-    let (Some(tray), Some(icon)) = (app.tray_by_id(TRAY_ID), app.default_window_icon()) else {
-        return Ok(());
-    };
-    tray.set_icon(Some(if show { with_badge(icon) } else { icon.clone() }))
+/// Starts or stops flashing the badge that says it's the user's turn.
+pub fn set_turn_badge<R: Runtime>(app: &AppHandle<R>, show: bool) {
+    let stop = show.then(|| start_flashing(app));
+    // Dropping the previous sender stops its thread.
+    *app.state::<Flashing>()
+        .0
+        .lock()
+        .unwrap_or_else(|err| err.into_inner()) = stop;
+}
+
+/// Flashes on a thread of its own, as `set_icon` waits for the main thread and
+/// the caller may be on it. Returns the sender that keeps the flashing going.
+fn start_flashing<R: Runtime>(app: &AppHandle<R>) -> Sender<()> {
+    let (stop, stopped) = mpsc::channel();
+    let app = app.clone();
+    thread::spawn(move || {
+        let (Some(tray), Some(icon)) = (app.tray_by_id(TRAY_ID), app.default_window_icon()) else {
+            return;
+        };
+        let badged = with_badge(icon);
+        flash(&stopped, |lit| {
+            let frame = if lit { &badged } else { icon };
+            if let Err(err) = tray.set_icon(Some(frame.clone())) {
+                eprintln!("failed to update the tray icon: {err}");
+            }
+        });
+    });
+    stop
+}
+
+/// Alternates the badge until `stop` hangs up, and leaves it off. The hang-up
+/// ends the wait, so the badge goes as soon as the window gets focus.
+fn flash(stop: &Receiver<()>, mut set: impl FnMut(bool)) {
+    for lit in [true, false].into_iter().cycle() {
+        set(lit);
+        if stop.recv_timeout(FLASH_INTERVAL) != Err(RecvTimeoutError::Timeout) {
+            break;
+        }
+    }
+    set(false);
 }
 
 /// `icon` with the badge painted on. Done when needed rather than kept, so an
@@ -401,6 +443,19 @@ mod tests {
         assert_eq!(menu_opened(&event(3, "opened")), None);
         assert_eq!(menu_opened(&event(0, "clicked")), None);
         assert_eq!(menu_opened(&Variant::from("opened")), None);
+    }
+
+    #[test]
+    fn the_badge_alternates_until_stopped_and_ends_off() {
+        let (stop, stopped) = mpsc::channel::<()>();
+        let (frame, frames) = mpsc::channel();
+        thread::spawn(move || flash(&stopped, |lit| frame.send(lit).unwrap()));
+        assert_eq!(frames.recv(), Ok(true));
+        assert_eq!(frames.recv(), Ok(false));
+        assert_eq!(frames.recv(), Ok(true));
+
+        drop(stop);
+        assert_eq!(frames.iter().last(), Some(false));
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! Your-turn and game-over alerts while the main window isn't focused (#23,
 //! ADR 0021, ADR 0022): a native notification and taskbar attention, each with
 //! its own setting. Everything is sent from Rust, so the page gets no capability.
-//! The tray icon also shows a badge during the user's turn. The account's event
+//! The tray icon also flashes a badge during the user's turn. The account's event
 //! stream sends its alerts the same way (#25, ADR 0025).
 
 use std::collections::HashMap;
@@ -100,13 +100,10 @@ fn lock_turn<'a, R: Runtime>(window: &'a WebviewWindow<R>) -> MutexGuard<'a, Tur
         .unwrap_or_else(|err| err.into_inner())
 }
 
-/// Sets the tray badge if `change` says it changed. Called without the lock on
-/// [`Turn`], since this may wait for the main thread.
+/// Sets the tray badge if `change` says it changed.
 fn set_badge<R: Runtime>(window: &WebviewWindow<R>, change: Option<bool>) {
-    if let Some(show) = change
-        && let Err(err) = tray::set_turn_badge(window.app_handle(), show)
-    {
-        eprintln!("failed to update the tray icon: {err}");
+    if let Some(show) = change {
+        tray::set_turn_badge(window.app_handle(), show);
     }
 }
 
