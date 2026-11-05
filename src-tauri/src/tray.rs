@@ -13,7 +13,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use tauri::image::Image;
-use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
+use tauri::menu::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime, WebviewWindow, WindowEvent};
 
@@ -27,6 +27,7 @@ const TOGGLE: &str = "toggle";
 const PALETTE: &str = "palette";
 const SETTINGS: &str = "settings";
 const SHORTCUTS: &str = "shortcuts";
+const HIDE_ON_FOCUS_LOSS: &str = "hide_on_focus_loss";
 const QUIT: &str = "quit";
 const UPDATE: &str = "update";
 
@@ -102,6 +103,15 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             &item(SETTINGS, Action::OpenSettings.label())?,
             &item(SHORTCUTS, Action::ShowShortcuts.label())?,
             &PredefinedMenuItem::separator(app)?,
+            &CheckMenuItem::with_id(
+                app,
+                HIDE_ON_FOCUS_LOSS,
+                strings.get(Key::HideOnFocusLoss),
+                true,
+                app.state::<SettingsStore<R>>().get().hide_on_focus_loss,
+                None::<&str>,
+            )?,
+            &PredefinedMenuItem::separator(app)?,
             &item(QUIT, Action::Quit.label())?,
         ],
     )?;
@@ -115,7 +125,8 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     Ok(menu)
 }
 
-/// Rebuilds the menu after a language change or a new update.
+/// Rebuilds the menu after a language change, a new update or a change of the
+/// setting it shows.
 pub fn refresh_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     match app.tray_by_id(TRAY_ID) {
         Some(tray) => tray.set_menu(Some(menu(app)?)),
@@ -223,7 +234,8 @@ fn hide_soon<R: Runtime>(app: &AppHandle<R>) {
     let app = app.clone();
     thread::spawn(move || {
         thread::sleep(FOCUS_SETTLE);
-        if should_hide(&app) {
+        // Read again: the tray menu may have just turned the setting off.
+        if hides_on_focus_loss(&app) && should_hide(&app) {
             crate::hide_main_window(&app);
         }
     });
@@ -349,10 +361,24 @@ fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
         PALETTE => Action::CommandPalette.run(app),
         SETTINGS => Action::OpenSettings.run(app),
         SHORTCUTS => Action::ShowShortcuts.run(app),
+        HIDE_ON_FOCUS_LOSS => toggle_hide_on_focus_loss(app),
         QUIT => Action::Quit.run(app),
         UPDATE => update::open_release_page(app),
         _ => {}
     }
+}
+
+fn toggle_hide_on_focus_loss<R: Runtime>(app: &AppHandle<R>) {
+    let result = app
+        .state::<SettingsStore<R>>()
+        .update(|settings| settings.hide_on_focus_loss = !settings.hide_on_focus_loss);
+    if let Err(err) = result {
+        eprintln!("failed to save the setting: {err}");
+    }
+    if let Err(err) = refresh_menu(app) {
+        eprintln!("failed to rebuild the tray menu: {err}");
+    }
+    settings_window::reload(app);
 }
 
 fn on_tray_icon_event<R: Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
