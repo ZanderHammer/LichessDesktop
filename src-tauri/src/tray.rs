@@ -6,14 +6,19 @@
 //! (ADR 0014). Panels report a left click as `Activate`, which arrives here as a click.
 //! The menu repeats the toggle as "Show/Hide" for panels that only show menus.
 
+use std::sync::Mutex;
+use std::thread;
+use std::time::{Duration, Instant};
+
 use tauri::image::Image;
 use tauri::menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Manager, Runtime, WebviewWindow, WindowEvent};
 
 use crate::actions::Action;
 use crate::i18n::{self, Key};
-use crate::update;
+use crate::settings::SettingsStore;
+use crate::{settings_window, update};
 
 const TRAY_ID: &str = "main";
 const TOGGLE: &str = "toggle";
@@ -32,8 +37,19 @@ const BADGE_RADIUS: f32 = 0.18;
 /// The radius of the transparent ring that separates the badge from the pawn.
 const BADGE_GAP: f32 = 0.23;
 
+/// How long the focus may be gone before the main window hides: while it moves
+/// to the palette, no window of the app has it.
+const FOCUS_SETTLE: Duration = Duration::from_millis(150);
+/// A tray click this soon after the focus went is the click that took it.
+const TRAY_CLICK_WINDOW: Duration = Duration::from_millis(500);
+
+/// When the focus last left a window that hides on focus loss. In managed state.
+#[derive(Default)]
+struct LastFocusLoss(Mutex<Option<Instant>>);
+
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+    app.manage(LastFocusLoss::default());
     let menu = menu(app)?;
 
     let mut tray = TrayIconBuilder::with_id(TRAY_ID)
@@ -130,6 +146,53 @@ pub fn is_shown<R: Runtime>(app: &AppHandle<R>) -> bool {
     app.tray_by_id(TRAY_ID).is_some()
 }
 
+/// Hides the main window when `window` loses focus to something outside the
+/// app, if the setting is on. The setting is read on every loss, so a change
+/// applies at once.
+pub fn hide_on_focus_loss<R: Runtime>(window: &WebviewWindow<R>) {
+    let app = window.app_handle().clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::Focused(false) = event
+            && is_shown(&app)
+            && app.state::<SettingsStore<R>>().get().hide_on_focus_loss
+            && let Some(main) = app.get_webview_window(crate::MAIN_WINDOW)
+            // Hiding takes the focus too, and that loss shouldn't swallow a tray click.
+            && main.is_visible().unwrap_or(false)
+        {
+            *lock(&app) = Some(Instant::now());
+            let app = app.clone();
+            thread::spawn(move || {
+                thread::sleep(FOCUS_SETTLE);
+                if should_hide(&app) {
+                    crate::hide_main_window(&app);
+                }
+            });
+        }
+    });
+}
+
+/// Whether the focus really left. The open settings window keeps the main window
+/// up: it is a child of it, and hiding its parent would leave it stranded.
+fn should_hide<R: Runtime>(app: &AppHandle<R>) -> bool {
+    app.get_webview_window(settings_window::LABEL).is_none()
+        && !app
+            .webview_windows()
+            .values()
+            .any(|window| window.is_focused().unwrap_or(false))
+}
+
+fn lock<R: Runtime>(app: &AppHandle<R>) -> std::sync::MutexGuard<'_, Option<Instant>> {
+    app.state::<LastFocusLoss>()
+        .inner()
+        .0
+        .lock()
+        .unwrap_or_else(|err| err.into_inner())
+}
+
+fn is_tray_click(lost: Option<Instant>, now: Instant) -> bool {
+    lost.is_some_and(|lost| now.duration_since(lost) < TRAY_CLICK_WINDOW)
+}
+
 fn on_menu_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     match event.id.as_ref() {
         TOGGLE => toggle_main_window(app),
@@ -166,7 +229,9 @@ fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
     } else {
         !window.is_minimized().unwrap_or(false)
     };
-    if window.is_visible().unwrap_or(false) && in_use {
+    // If the click took the focus and so hid the window, it must not bring it back.
+    let took_focus = is_tray_click(*lock(app), Instant::now());
+    if took_focus || (window.is_visible().unwrap_or(false) && in_use) {
         crate::hide_main_window(app);
     } else {
         crate::raise_main_window(app);
@@ -176,6 +241,8 @@ fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tauri::WebviewWindowBuilder;
+    use tauri::test::mock_builder;
 
     const SIZE: u32 = 64;
     const PIXEL: [u8; 4] = [10, 20, 30, 255];
@@ -183,6 +250,29 @@ mod tests {
     fn pixel(image: &Image<'_>, x: u32, y: u32) -> [u8; 4] {
         let start = ((y * image.width() + x) * 4) as usize;
         image.rgba()[start..start + 4].try_into().unwrap()
+    }
+
+    #[test]
+    fn only_a_click_right_after_the_focus_went_took_it() {
+        let lost = Instant::now();
+        assert!(!is_tray_click(None, lost));
+        assert!(is_tray_click(Some(lost), lost + Duration::from_millis(100)));
+        assert!(!is_tray_click(Some(lost), lost + TRAY_CLICK_WINDOW));
+    }
+
+    #[test]
+    fn the_open_settings_window_keeps_the_main_window_up() {
+        let app = mock_builder().build(crate::context()).unwrap();
+        // The mock runtime reports every window as unfocused.
+        WebviewWindowBuilder::new(&app, crate::MAIN_WINDOW, Default::default())
+            .build()
+            .unwrap();
+        assert!(should_hide(app.handle()));
+
+        WebviewWindowBuilder::new(&app, settings_window::LABEL, Default::default())
+            .build()
+            .unwrap();
+        assert!(!should_hide(app.handle()));
     }
 
     #[test]
