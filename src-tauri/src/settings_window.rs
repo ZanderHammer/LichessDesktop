@@ -251,6 +251,7 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
         _ => None,
     };
     let account_events = matches!(&change, SettingChange::NotifyAccountEvents(_));
+    let in_tray_menu = matches!(&change, SettingChange::HideOnFocusLoss(_));
     app.state::<SettingsStore<R>>()
         .update(|settings| match change {
             SettingChange::CloseToTray(on) => settings.close_to_tray = on,
@@ -277,7 +278,15 @@ pub fn set_setting<R: Runtime>(app: AppHandle<R>, change: SettingChange) -> Resu
     if account_events {
         account::setting_changed(&app);
     }
+    if in_tray_menu && let Err(err) = crate::tray::refresh_menu(&app) {
+        eprintln!("failed to rebuild the tray menu: {err}");
+    }
     Ok(())
+}
+
+/// Makes the open settings window read everything it shows again.
+pub fn reload<R: Runtime>(app: &AppHandle<R>) {
+    let _ = app.emit_to(LABEL, STRINGS_CHANGED, ());
 }
 
 fn parse_language(value: &str) -> Result<Language, String> {
