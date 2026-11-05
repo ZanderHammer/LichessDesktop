@@ -26,6 +26,7 @@
   "desktop.disconnect": "منقطع کریں",
   "desktop.forward": "آگے",
   "desktop.fullscreen": "پوری اسکرین",
+  "desktop.hideOnFocusLoss": "ونڈو کا فوکس ختم ہونے پر ٹرے میں چھپائیں",
   "desktop.home": "ہوم",
   "desktop.license": "لائسنس",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Desconectar",
   "desktop.forward": "Avançar",
   "desktop.fullscreen": "Tela cheia",
+  "desktop.hideOnFocusLoss": "Ocultar na bandeja quando a janela perder o foco",
   "desktop.home": "Início",
   "desktop.license": "Licença",
   "desktop.lichessTv": "Lichess TV",

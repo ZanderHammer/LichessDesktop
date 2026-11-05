@@ -26,6 +26,7 @@
   "desktop.disconnect": "연결 해제",
   "desktop.forward": "앞으로",
   "desktop.fullscreen": "전체 화면",
+  "desktop.hideOnFocusLoss": "창이 포커스를 잃으면 트레이로 숨기기",
   "desktop.home": "홈",
   "desktop.license": "라이선스",
   "desktop.lichessTv": "Lichess TV",

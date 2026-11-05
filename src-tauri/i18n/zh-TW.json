@@ -26,6 +26,7 @@
   "desktop.disconnect": "中斷連接",
   "desktop.forward": "下一頁",
   "desktop.fullscreen": "全螢幕",
+  "desktop.hideOnFocusLoss": "視窗失去焦點時隱藏至系統匣",
   "desktop.home": "首頁",
   "desktop.license": "授權條款",
   "desktop.lichessTv": "Lichess TV",

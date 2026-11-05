@@ -26,6 +26,7 @@
   "desktop.disconnect": "Atvienot",
   "desktop.forward": "Uz priekšu",
   "desktop.fullscreen": "Pilnekrāns",
+  "desktop.hideOnFocusLoss": "Paslēpt paziņojumu joslā, kad logs zaudē fokusu",
   "desktop.home": "Sākums",
   "desktop.license": "Licence",
   "desktop.lichessTv": "Lichess TV",

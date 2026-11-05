@@ -26,6 +26,7 @@
   "desktop.disconnect": "پچڕاندن",
   "desktop.forward": "پێشەوە",
   "desktop.fullscreen": "پڕ بە شاشە",
+  "desktop.hideOnFocusLoss": "شاردنەوە بۆ سینیی سیستەم کاتێک پەنجەرە فۆکەس لەدەست دەدات",
   "desktop.home": "سەرەتا",
   "desktop.license": "مۆڵەت",
   "desktop.lichessTv": "Lichess TV",

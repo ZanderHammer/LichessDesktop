@@ -26,6 +26,7 @@
   "desktop.disconnect": "接続を解除",
   "desktop.forward": "進む",
   "desktop.fullscreen": "全画面表示",
+  "desktop.hideOnFocusLoss": "ウィンドウがフォーカスを失ったらトレイに隠す",
   "desktop.home": "ホーム",
   "desktop.license": "ライセンス",
   "desktop.lichessTv": "Lichess TV",

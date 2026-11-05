@@ -26,6 +26,7 @@
   "desktop.disconnect": "გათიშვა",
   "desktop.forward": "წინ",
   "desktop.fullscreen": "მთელ ეკრანზე",
+  "desktop.hideOnFocusLoss": "სისტემურ უჯრაში დამალვა, როცა ფანჯარა ფოკუსს კარგავს",
   "desktop.home": "მთავარი",
   "desktop.license": "ლიცენზია",
   "desktop.lichessTv": "Lichess TV",

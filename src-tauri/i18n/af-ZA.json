@@ -26,6 +26,7 @@
   "desktop.disconnect": "Ontkoppel",
   "desktop.forward": "Vorentoe",
   "desktop.fullscreen": "Volskerm",
+  "desktop.hideOnFocusLoss": "Versteek na stelselbalk wanneer die venster fokus verloor",
   "desktop.home": "Tuis",
   "desktop.license": "Lisensie",
   "desktop.lichessTv": "Lichess TV",

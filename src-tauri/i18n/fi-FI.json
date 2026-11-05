@@ -26,6 +26,7 @@
   "desktop.disconnect": "Katkaise yhteys",
   "desktop.forward": "Eteenpäin",
   "desktop.fullscreen": "Koko näyttö",
+  "desktop.hideOnFocusLoss": "Piilota ilmoitusalueelle, kun ikkuna menettää kohdistuksen",
   "desktop.home": "Aloitussivu",
   "desktop.license": "Lisenssi",
   "desktop.lichessTv": "Lichess TV",

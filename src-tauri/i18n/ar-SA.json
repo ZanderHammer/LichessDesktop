@@ -26,6 +26,7 @@
   "desktop.disconnect": "قطع الاتصال",
   "desktop.forward": "إلى الأمام",
   "desktop.fullscreen": "ملء الشاشة",
+  "desktop.hideOnFocusLoss": "الإخفاء في علبة النظام عند فقدان النافذة للتركيز",
   "desktop.home": "الرئيسية",
   "desktop.license": "الترخيص",
   "desktop.lichessTv": "Lichess TV",

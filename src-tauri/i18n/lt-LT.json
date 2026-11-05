@@ -26,6 +26,7 @@
   "desktop.disconnect": "Atjungti",
   "desktop.forward": "Pirmyn",
   "desktop.fullscreen": "Visas ekranas",
+  "desktop.hideOnFocusLoss": "Slėpti į dėklą, kai langas praranda fokusą",
   "desktop.home": "Pradžia",
   "desktop.license": "Licencija",
   "desktop.lichessTv": "Lichess TV",

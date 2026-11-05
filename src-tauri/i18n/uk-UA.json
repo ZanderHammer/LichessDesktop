@@ -26,6 +26,7 @@
   "desktop.disconnect": "Від'єднати",
   "desktop.forward": "Вперед",
   "desktop.fullscreen": "На весь екран",
+  "desktop.hideOnFocusLoss": "Згортати в трей, коли вікно втрачає фокус",
   "desktop.home": "Головна",
   "desktop.license": "Ліцензія",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Datgysylltu",
   "desktop.forward": "Ymlaen",
   "desktop.fullscreen": "Sgrin lawn",
+  "desktop.hideOnFocusLoss": "Cuddio i'r hambwrdd pan fydd y ffenestr yn colli ffocws",
   "desktop.home": "Hafan",
   "desktop.license": "Trwydded",
   "desktop.lichessTv": "Lichess TV",

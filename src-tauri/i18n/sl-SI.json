@@ -26,6 +26,7 @@
   "desktop.disconnect": "Prekini povezavo",
   "desktop.forward": "Naprej",
   "desktop.fullscreen": "Celozaslonsko",
+  "desktop.hideOnFocusLoss": "Skrij v sistemsko vrstico, ko okno izgubi fokus",
   "desktop.home": "Domov",
   "desktop.license": "Licenca",
   "desktop.lichessTv": "Lichess TV",

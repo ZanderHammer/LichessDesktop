@@ -26,6 +26,7 @@
   "desktop.disconnect": "ยกเลิกการเชื่อมต่อ",
   "desktop.forward": "ไปข้างหน้า",
   "desktop.fullscreen": "เต็มหน้าจอ",
+  "desktop.hideOnFocusLoss": "ซ่อนไปที่ถาดระบบเมื่อหน้าต่างเสียโฟกัส",
   "desktop.home": "หน้าแรก",
   "desktop.license": "สัญญาอนุญาต",
   "desktop.lichessTv": "Lichess TV",

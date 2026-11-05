@@ -26,6 +26,7 @@
   "desktop.disconnect": "Verbinding verbreken",
   "desktop.forward": "Vooruit",
   "desktop.fullscreen": "Volledig scherm",
+  "desktop.hideOnFocusLoss": "Verbergen in systeemvak als het venster de focus verliest",
   "desktop.home": "Startpagina",
   "desktop.license": "Licentie",
   "desktop.lichessTv": "Lichess TV",

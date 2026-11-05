@@ -26,6 +26,7 @@
   "desktop.disconnect": "துண்டி",
   "desktop.forward": "முன்னே",
   "desktop.fullscreen": "முழுத் திரை",
+  "desktop.hideOnFocusLoss": "சாளரம் கவனத்தை இழக்கும்போது தட்டில் மறை",
   "desktop.home": "முகப்பு",
   "desktop.license": "உரிமம்",
   "desktop.lichessTv": "Lichess TV",

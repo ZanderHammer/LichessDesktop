@@ -26,6 +26,7 @@
   "desktop.disconnect": "Αποσύνδεση",
   "desktop.forward": "Εμπρός",
   "desktop.fullscreen": "Πλήρης οθόνη",
+  "desktop.hideOnFocusLoss": "Απόκρυψη στη γραμμή συστήματος όταν το παράθυρο χάνει την εστίαση",
   "desktop.home": "Αρχική",
   "desktop.license": "Άδεια χρήσης",
   "desktop.lichessTv": "Lichess TV",

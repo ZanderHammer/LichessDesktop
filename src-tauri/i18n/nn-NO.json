@@ -26,6 +26,7 @@
   "desktop.disconnect": "Kople frå",
   "desktop.forward": "Fram",
   "desktop.fullscreen": "Fullskjerm",
+  "desktop.hideOnFocusLoss": "Gøym i systemstatusfeltet når vindauget mistar fokus",
   "desktop.home": "Startside",
   "desktop.license": "Lisens",
   "desktop.lichessTv": "Lichess TV",

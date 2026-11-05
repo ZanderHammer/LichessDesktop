@@ -207,6 +207,7 @@ keys! {
     General => "preferences.generalSettings",
     CloseToTray => "desktop.closeToTray",
     CloseToTrayHint => "desktop.closeToTrayHint",
+    HideOnFocusLoss => "desktop.hideOnFocusLoss",
     CheckForUpdates => "desktop.checkForUpdates",
     BluetoothAudio => "desktop.bluetoothAudio",
     BluetoothAudioHint => "desktop.bluetoothAudioHint",

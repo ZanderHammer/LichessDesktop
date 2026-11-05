@@ -26,6 +26,7 @@
   "desktop.disconnect": "Прекини врска",
   "desktop.forward": "Напред",
   "desktop.fullscreen": "Цел екран",
+  "desktop.hideOnFocusLoss": "Скриј во системската лента кога прозорецот ќе го изгуби фокусот",
   "desktop.home": "Почетна",
   "desktop.license": "Лиценца",
   "desktop.lichessTv": "Lichess TV",

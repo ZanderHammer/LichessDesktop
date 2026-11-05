@@ -26,6 +26,7 @@
   "desktop.disconnect": "Ажырату",
   "desktop.forward": "Алға",
   "desktop.fullscreen": "Толық экран",
+  "desktop.hideOnFocusLoss": "Терезе фокусты жоғалтқанда науаға жасыру",
   "desktop.home": "Басты бет",
   "desktop.license": "Лицензия",
   "desktop.lichessTv": "Lichess TV",

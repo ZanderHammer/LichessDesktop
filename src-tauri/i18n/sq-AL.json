@@ -26,6 +26,7 @@
   "desktop.disconnect": "Shkëput",
   "desktop.forward": "Përpara",
   "desktop.fullscreen": "Ekran i plotë",
+  "desktop.hideOnFocusLoss": "Fshih në shiritin e sistemit kur dritarja humbet fokusin",
   "desktop.home": "Kreu",
   "desktop.license": "Licencë",
   "desktop.lichessTv": "Lichess TV",

@@ -26,6 +26,7 @@
   "desktop.disconnect": "Deconectează",
   "desktop.forward": "Înainte",
   "desktop.fullscreen": "Ecran complet",
+  "desktop.hideOnFocusLoss": "Ascunde în zona de notificare când fereastra pierde focusul",
   "desktop.home": "Acasă",
   "desktop.license": "Licență",
   "desktop.lichessTv": "Lichess TV",

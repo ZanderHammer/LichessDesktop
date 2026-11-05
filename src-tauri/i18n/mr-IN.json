@@ -26,6 +26,7 @@
   "desktop.disconnect": "जोडणी तोडा",
   "desktop.forward": "पुढे",
   "desktop.fullscreen": "पूर्ण स्क्रीन",
+  "desktop.hideOnFocusLoss": "विंडोचा फोकस गेल्यावर ट्रेमध्ये लपवा",
   "desktop.home": "मुख्यपृष्ठ",
   "desktop.license": "परवाना",
   "desktop.lichessTv": "Lichess TV",

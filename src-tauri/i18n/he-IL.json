@@ -26,6 +26,7 @@
   "desktop.disconnect": "ניתוק",
   "desktop.forward": "קדימה",
   "desktop.fullscreen": "מסך מלא",
+  "desktop.hideOnFocusLoss": "הסתרה למגש המערכת כשהחלון מאבד מיקוד",
   "desktop.home": "דף הבית",
   "desktop.license": "רישיון",
   "desktop.lichessTv": "Lichess TV",
