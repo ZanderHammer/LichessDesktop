@@ -9,6 +9,7 @@
   "desktop.attention": "Teade tegumiribal",
   "desktop.attentionHint": "Vilguta tegumiriba või põrgata Docki, kui partii sind vajab",
   "desktop.authorizeInMainWindow": "Luba peaaknas…",
+  "desktop.autoHide": "Peida automaatselt",
   "desktop.bluetoothAudio": "Paranda Bluetoothi heli katkemine",
   "desktop.bluetoothAudioHint": "Helid kostuvad umbes poole sekundi võrra hiljem. Rakendub pärast taaskäivitamist.",
   "desktop.cantReachLichess": "Ei saa ühendust saidiga lichess.org",

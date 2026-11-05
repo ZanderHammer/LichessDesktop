@@ -9,6 +9,7 @@
   "desktop.attention": "Ilmoitus tehtäväpalkissa",
   "desktop.attentionHint": "Vilkuta tehtäväpalkkia tai pomputa Dockia, kun peli tarvitsee sinua",
   "desktop.authorizeInMainWindow": "Valtuuta pääikkunassa…",
+  "desktop.autoHide": "Piilota automaattisesti",
   "desktop.bluetoothAudio": "Korjaa Bluetooth-äänen katkeilu",
   "desktop.bluetoothAudioHint": "Äänet kuuluvat noin puoli sekuntia myöhässä. Tulee voimaan uudelleenkäynnistyksen jälkeen.",
   "desktop.cantReachLichess": "Yhteyttä lichess.orgiin ei saada",

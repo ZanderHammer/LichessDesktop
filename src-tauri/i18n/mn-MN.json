@@ -9,6 +9,7 @@
   "desktop.attention": "Даалгаврын самбарын сэрэмжлүүлэг",
   "desktop.attentionHint": "Тоглолт таныг хүлээж байх үед даалгаврын самбарыг анивчуулах эсвэл Dock дээр үсрүүлэх",
   "desktop.authorizeInMainWindow": "Үндсэн цонхонд зөвшөөрөл өгнө үү…",
+  "desktop.autoHide": "Автоматаар нуух",
   "desktop.bluetoothAudio": "Bluetooth-ээр дуу тасрахыг засах",
   "desktop.bluetoothAudioHint": "Дуу ойролцоогоор хагас секундээр хоцорч тоглоно. Дахин эхлүүлсний дараа хэрэгжинэ.",
   "desktop.cantReachLichess": "lichess.org руу холбогдож чадсангүй",

@@ -9,6 +9,7 @@
   "desktop.attention": "Jelzés a tálcán",
   "desktop.attentionHint": "A tálca villogása vagy a Dock-ikon ugrálása, ha egy játszma rád vár",
   "desktop.authorizeInMainWindow": "Engedélyezd a főablakban…",
+  "desktop.autoHide": "Automatikus elrejtés",
   "desktop.bluetoothAudio": "A Bluetooth-hang kimaradásának javítása",
   "desktop.bluetoothAudioHint": "A hangok körülbelül fél másodperccel később szólalnak meg. Újraindítás után lép életbe.",
   "desktop.cantReachLichess": "A lichess.org nem érhető el",

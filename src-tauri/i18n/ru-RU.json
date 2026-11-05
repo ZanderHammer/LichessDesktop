@@ -9,6 +9,7 @@
   "desktop.attention": "Сигнал на панели задач",
   "desktop.attentionHint": "Мигание панели задач или подпрыгивание значка в Dock, когда партия ждёт вас",
   "desktop.authorizeInMainWindow": "Подтвердите доступ в главном окне…",
+  "desktop.autoHide": "Скрывать автоматически",
   "desktop.bluetoothAudio": "Исправить прерывание звука по Bluetooth",
   "desktop.bluetoothAudioHint": "Звуки воспроизводятся примерно на полсекунды позже. Вступит в силу после перезапуска.",
   "desktop.cantReachLichess": "Не удаётся подключиться к lichess.org",

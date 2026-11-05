@@ -208,6 +208,7 @@ keys! {
     CloseToTray => "desktop.closeToTray",
     CloseToTrayHint => "desktop.closeToTrayHint",
     HideOnFocusLoss => "desktop.hideOnFocusLoss",
+    AutoHide => "desktop.autoHide",
     CheckForUpdates => "desktop.checkForUpdates",
     BluetoothAudio => "desktop.bluetoothAudio",
     BluetoothAudioHint => "desktop.bluetoothAudioHint",

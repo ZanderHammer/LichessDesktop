@@ -9,6 +9,7 @@
   "desktop.attention": "Avisering i aktivitetsfältet",
   "desktop.attentionHint": "Låt aktivitetsfältet blinka eller Dock studsa när ett parti behöver dig",
   "desktop.authorizeInMainWindow": "Godkänn i huvudfönstret…",
+  "desktop.autoHide": "Dölj automatiskt",
   "desktop.bluetoothAudio": "Åtgärda ljud som försvinner via Bluetooth",
   "desktop.bluetoothAudioHint": "Ljud spelas upp ungefär en halv sekund försenat. Börjar gälla efter en omstart.",
   "desktop.cantReachLichess": "Det går inte att nå lichess.org",

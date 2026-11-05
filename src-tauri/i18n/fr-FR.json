@@ -9,6 +9,7 @@
   "desktop.attention": "Alerte dans la barre des tâches",
   "desktop.attentionHint": "Faire clignoter la barre des tâches ou rebondir l'icône du Dock quand une partie vous attend",
   "desktop.authorizeInMainWindow": "Autorisez dans la fenêtre principale…",
+  "desktop.autoHide": "Masquer automatiquement",
   "desktop.bluetoothAudio": "Corriger le son qui se coupe en Bluetooth",
   "desktop.bluetoothAudioHint": "Les sons sont joués avec environ une demi-seconde de retard. S'applique après un redémarrage.",
   "desktop.cantReachLichess": "Impossible de joindre lichess.org",
