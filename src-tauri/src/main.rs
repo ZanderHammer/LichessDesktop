@@ -277,8 +277,34 @@ fn hide_main_window<R: Runtime>(app: &AppHandle<R>) {
     let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
         return;
     };
+    #[cfg(target_os = "linux")]
+    keep_size_when_hidden(&window);
     if let Err(err) = window.hide() {
         eprintln!("failed to hide the main window: {err}");
+    }
+}
+
+/// GDK on Wayland shows a hidden window at the last size the app passed to
+/// `gdk_window_resize`, which a resize by the user doesn't update. So it gets the
+/// current size, directly as `gtk_window_resize` drops a request for that size.
+/// Not while maximized, fullscreen or tiled: GDK would unmaximize to this size.
+#[cfg(target_os = "linux")]
+fn keep_size_when_hidden<R: Runtime>(window: &tauri::WebviewWindow<R>) {
+    use gtk::gdk::WindowState;
+    use gtk::prelude::WidgetExt;
+    let main = window.clone();
+    // A focus loss hides the window from another thread, and GTK needs this one.
+    let result = window.run_on_main_thread(move || {
+        let Some(gdk_window) = main.gtk_window().ok().and_then(|w| w.window()) else {
+            return;
+        };
+        let fixed = WindowState::MAXIMIZED | WindowState::FULLSCREEN | WindowState::TILED;
+        if !gdk_window.state().intersects(fixed) {
+            gdk_window.resize(gdk_window.width(), gdk_window.height());
+        }
+    });
+    if let Err(err) = result {
+        eprintln!("failed to keep the size of the main window: {err}");
     }
 }
 
