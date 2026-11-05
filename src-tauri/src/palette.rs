@@ -115,6 +115,7 @@ pub fn open<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         None => builder.center(),
     };
     let window = builder.build()?;
+    crate::tray::hide_on_focus_loss(&window);
     let blur_handle = app.clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Focused(false) = event {

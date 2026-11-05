@@ -136,6 +136,7 @@ fn main() {
                 .on_document_title_changed(notifications::title_changed)
                 .build()?;
             notifications::watch_focus(&window);
+            tray::hide_on_focus_loss(&window);
             if let Err(err) = zoom::apply_saved(&window) {
                 eprintln!("failed to apply the saved zoom level: {err}");
             }
