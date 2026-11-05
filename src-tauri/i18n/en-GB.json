@@ -9,6 +9,7 @@
   "desktop.attention": "Taskbar attention",
   "desktop.attentionHint": "Flash the taskbar or bounce the Dock when a game needs you",
   "desktop.authorizeInMainWindow": "Authorize in the main window…",
+  "desktop.autoHide": "Auto-hide",
   "desktop.bluetoothAudio": "Fix sound cutting out on Bluetooth",
   "desktop.bluetoothAudioHint": "Sounds play about half a second late. Takes effect after a restart.",
   "desktop.cantReachLichess": "Can't reach lichess.org",

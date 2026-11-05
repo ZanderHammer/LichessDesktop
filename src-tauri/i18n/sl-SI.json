@@ -9,6 +9,7 @@
   "desktop.attention": "Opozorilo v opravilni vrstici",
   "desktop.attentionHint": "Utripanje opravilne vrstice ali poskakovanje v Docku, ko vas partija potrebuje",
   "desktop.authorizeInMainWindow": "Odobrite v glavnem oknu…",
+  "desktop.autoHide": "Samodejno skrij",
   "desktop.bluetoothAudio": "Odpravi prekinjanje zvoka prek Bluetootha",
   "desktop.bluetoothAudioHint": "Zvoki se predvajajo približno pol sekunde pozneje. Začne veljati po ponovnem zagonu.",
   "desktop.cantReachLichess": "Do lichess.org ni mogoče dostopati",

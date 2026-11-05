@@ -9,6 +9,7 @@
   "desktop.attention": "Báo hiệu trên thanh tác vụ",
   "desktop.attentionHint": "Nhấp nháy thanh tác vụ hoặc nảy biểu tượng trên Dock khi ván cờ cần bạn",
   "desktop.authorizeInMainWindow": "Cấp quyền trong cửa sổ chính…",
+  "desktop.autoHide": "Tự động ẩn",
   "desktop.bluetoothAudio": "Sửa lỗi mất tiếng qua Bluetooth",
   "desktop.bluetoothAudioHint": "Âm thanh phát trễ khoảng nửa giây. Có hiệu lực sau khi khởi động lại.",
   "desktop.cantReachLichess": "Không thể truy cập lichess.org",

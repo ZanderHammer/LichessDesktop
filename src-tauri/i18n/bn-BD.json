@@ -9,6 +9,7 @@
   "desktop.attention": "টাস্কবার সতর্কতা",
   "desktop.attentionHint": "কোনো খেলায় আপনাকে প্রয়োজন হলে টাস্কবার ঝলকান বা Dock-এ লাফান",
   "desktop.authorizeInMainWindow": "মূল উইন্ডোতে অনুমতি দিন…",
+  "desktop.autoHide": "স্বয়ংক্রিয়ভাবে লুকান",
   "desktop.bluetoothAudio": "ব্লুটুথে শব্দ কেটে যাওয়া ঠিক করুন",
   "desktop.bluetoothAudioHint": "শব্দ প্রায় আধা সেকেন্ড দেরিতে বাজে। পুনরায় চালু করার পরে কার্যকর হয়।",
   "desktop.cantReachLichess": "lichess.org-এ পৌঁছানো যাচ্ছে না",

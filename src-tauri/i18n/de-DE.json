@@ -9,6 +9,7 @@
   "desktop.attention": "Hinweis in der Taskleiste",
   "desktop.attentionHint": "Die Taskleiste blinkt oder das Dock-Symbol hüpft, wenn eine Partie dich braucht",
   "desktop.authorizeInMainWindow": "Im Hauptfenster autorisieren…",
+  "desktop.autoHide": "Automatisch ausblenden",
   "desktop.bluetoothAudio": "Tonaussetzer über Bluetooth beheben",
   "desktop.bluetoothAudioHint": "Töne werden etwa eine halbe Sekunde später abgespielt. Wirkt nach einem Neustart.",
   "desktop.cantReachLichess": "lichess.org ist nicht erreichbar",

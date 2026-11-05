@@ -9,6 +9,7 @@
   "desktop.attention": "Alerta na barra de tarefas",
   "desktop.attentionHint": "Piscar a barra de tarefas ou saltar o Dock quando uma partida precisar de você",
   "desktop.authorizeInMainWindow": "Autorize na janela principal…",
+  "desktop.autoHide": "Ocultar automaticamente",
   "desktop.bluetoothAudio": "Corrigir som que corta no Bluetooth",
   "desktop.bluetoothAudioHint": "Os sons tocam com cerca de meio segundo de atraso. Vale após reiniciar.",
   "desktop.cantReachLichess": "Não foi possível acessar lichess.org",

@@ -9,6 +9,7 @@
   "desktop.attention": "工作列提醒",
   "desktop.attentionHint": "對局需要您時讓工作列閃爍或讓 Dock 圖示彈跳",
   "desktop.authorizeInMainWindow": "請在主視窗中授權…",
+  "desktop.autoHide": "自動隱藏",
   "desktop.bluetoothAudio": "修復藍牙聲音中斷",
   "desktop.bluetoothAudioHint": "聲音會延遲約半秒播放。重新啟動後生效。",
   "desktop.cantReachLichess": "無法連線至 lichess.org",

@@ -9,6 +9,7 @@
   "desktop.attention": "Varsel på oppgavelinjen",
   "desktop.attentionHint": "La oppgavelinjen blinke eller Dock sprette når et parti trenger deg",
   "desktop.authorizeInMainWindow": "Godkjenn i hovedvinduet…",
+  "desktop.autoHide": "Skjul automatisk",
   "desktop.bluetoothAudio": "Rett opp lyd som faller ut på Bluetooth",
   "desktop.bluetoothAudioHint": "Lyder spilles av omtrent et halvt sekund forsinket. Trer i kraft etter omstart.",
   "desktop.cantReachLichess": "Får ikke kontakt med lichess.org",

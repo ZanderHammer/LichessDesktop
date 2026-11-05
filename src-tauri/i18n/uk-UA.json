@@ -9,6 +9,7 @@
   "desktop.attention": "Сигнал на панелі завдань",
   "desktop.attentionHint": "Блимання панелі завдань або підстрибування значка в Dock, коли партія чекає на вас",
   "desktop.authorizeInMainWindow": "Надайте дозвіл у головному вікні…",
+  "desktop.autoHide": "Автоматично ховати",
   "desktop.bluetoothAudio": "Виправити переривання звуку через Bluetooth",
   "desktop.bluetoothAudioHint": "Звуки відтворюються приблизно на пів секунди пізніше. Запрацює після перезапуску.",
   "desktop.cantReachLichess": "Не вдається під'єднатися до lichess.org",

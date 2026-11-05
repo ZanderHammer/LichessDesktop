@@ -9,6 +9,7 @@
   "desktop.attention": "Ειδοποίηση στη γραμμή εργασιών",
   "desktop.attentionHint": "Αναβόσβημα της γραμμής εργασιών ή αναπήδηση στο Dock όταν μια παρτίδα σας χρειάζεται",
   "desktop.authorizeInMainWindow": "Εξουσιοδοτήστε στο κύριο παράθυρο…",
+  "desktop.autoHide": "Αυτόματη απόκρυψη",
   "desktop.bluetoothAudio": "Διόρθωση διακοπών ήχου μέσω Bluetooth",
   "desktop.bluetoothAudioHint": "Οι ήχοι παίζουν περίπου μισό δευτερόλεπτο αργότερα. Ισχύει μετά από επανεκκίνηση.",
   "desktop.cantReachLichess": "Δεν είναι δυνατή η σύνδεση με το lichess.org",

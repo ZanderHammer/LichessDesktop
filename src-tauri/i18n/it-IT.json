@@ -9,6 +9,7 @@
   "desktop.attention": "Avviso sulla barra delle applicazioni",
   "desktop.attentionHint": "Fai lampeggiare la barra delle applicazioni o rimbalzare il Dock quando una partita ti aspetta",
   "desktop.authorizeInMainWindow": "Autorizza nella finestra principale…",
+  "desktop.autoHide": "Nascondi automaticamente",
   "desktop.bluetoothAudio": "Correggi l'audio che si interrompe via Bluetooth",
   "desktop.bluetoothAudioHint": "I suoni vengono riprodotti con circa mezzo secondo di ritardo. Ha effetto dopo il riavvio.",
   "desktop.cantReachLichess": "Impossibile raggiungere lichess.org",
