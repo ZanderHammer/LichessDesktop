@@ -7,6 +7,7 @@
 //! The menu repeats the toggle as "Show/Hide" for panels that only show menus.
 
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -47,9 +48,15 @@ const TRAY_CLICK_WINDOW: Duration = Duration::from_millis(500);
 #[derive(Default)]
 struct LastFocusLoss(Mutex<Option<Instant>>);
 
+/// Whether the tray menu is open. Only known on Linux, see `watch_menu`. In
+/// managed state.
+#[derive(Default)]
+struct MenuOpen(AtomicBool);
+
 /// Creates the tray icon. The app keeps it alive until exit.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     app.manage(LastFocusLoss::default());
+    app.manage(MenuOpen::default());
     let menu = menu(app)?;
 
     let mut tray = TrayIconBuilder::with_id(TRAY_ID)
@@ -69,6 +76,8 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         tray = tray.icon(icon.clone());
     }
     tray.build(app)?;
+    #[cfg(target_os = "linux")]
+    watch_menu(app);
     Ok(())
 }
 
@@ -153,32 +162,126 @@ pub fn hide_on_focus_loss<R: Runtime>(window: &WebviewWindow<R>) {
     let app = window.app_handle().clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Focused(false) = event
-            && is_shown(&app)
-            && app.state::<SettingsStore<R>>().get().hide_on_focus_loss
+            && hides_on_focus_loss(&app)
             && let Some(main) = app.get_webview_window(crate::MAIN_WINDOW)
             // Hiding takes the focus too, and that loss shouldn't swallow a tray click.
             && main.is_visible().unwrap_or(false)
         {
             *lock(&app) = Some(Instant::now());
-            let app = app.clone();
-            thread::spawn(move || {
-                thread::sleep(FOCUS_SETTLE);
-                if should_hide(&app) {
-                    crate::hide_main_window(&app);
-                }
-            });
+            hide_soon(&app);
+        }
+    });
+}
+
+fn hides_on_focus_loss<R: Runtime>(app: &AppHandle<R>) -> bool {
+    is_shown(app) && app.state::<SettingsStore<R>>().get().hide_on_focus_loss
+}
+
+fn hide_soon<R: Runtime>(app: &AppHandle<R>) {
+    let app = app.clone();
+    thread::spawn(move || {
+        thread::sleep(FOCUS_SETTLE);
+        if should_hide(&app) {
+            crate::hide_main_window(&app);
         }
     });
 }
 
 /// Whether the focus really left. The open settings window keeps the main window
-/// up: it is a child of it, and hiding its parent would leave it stranded.
+/// up: it is a child of it, and hiding its parent would leave it stranded. The
+/// tray menu takes the focus while open, and hiding the window would close it.
 fn should_hide<R: Runtime>(app: &AppHandle<R>) -> bool {
-    app.get_webview_window(settings_window::LABEL).is_none()
+    !app.state::<MenuOpen>().0.load(Ordering::Relaxed)
+        && app.get_webview_window(settings_window::LABEL).is_none()
         && !app
             .webview_windows()
             .values()
             .any(|window| window.is_focused().unwrap_or(false))
+}
+
+/// Follows the panel's calls on our tray menu: opening it takes the focus, and
+/// tray-icon doesn't report that (ADR 0030). A panel that sends no such calls
+/// hides the window as for any other focus loss.
+#[cfg(target_os = "linux")]
+fn watch_menu<R: Runtime>(app: &AppHandle<R>) {
+    let app = app.clone();
+    thread::spawn(move || {
+        if let Err(err) = monitor_menu(&app) {
+            eprintln!("failed to watch the tray menu: {err}");
+        }
+    });
+}
+
+/// Uses a connection of its own, as a D-Bus monitor can't do anything else.
+#[cfg(target_os = "linux")]
+fn monitor_menu<R: Runtime>(app: &AppHandle<R>) -> Result<(), gtk::glib::Error> {
+    use gtk::gio::{self, BusType, Cancellable, DBusCallFlags, DBusConnection};
+    use gtk::gio::{DBusConnectionFlags, DBusMessageType};
+    use gtk::glib::prelude::ToVariant;
+
+    const MENU_EVENTS: &str =
+        "type='method_call',interface='com.canonical.dbusmenu',member='Event'";
+
+    let address = gio::dbus_address_get_for_bus_sync(BusType::Session, Cancellable::NONE)?;
+    let connection = DBusConnection::for_address_sync(
+        &address,
+        DBusConnectionFlags::AUTHENTICATION_CLIENT | DBusConnectionFlags::MESSAGE_BUS_CONNECTION,
+        None,
+        Cancellable::NONE,
+    )?;
+    let own_name = format!("org.kde.StatusNotifierItem-{}-", std::process::id());
+    let filter_app = app.clone();
+    connection.add_filter(move |_, message, incoming| {
+        if !incoming || message.message_type() != DBusMessageType::MethodCall {
+            return Some(message.clone());
+        }
+        let open = message
+            .destination()
+            .filter(|destination| destination.starts_with(&own_name))
+            .and_then(|_| message.body())
+            .and_then(|body| menu_opened(&body));
+        if let Some(open) = open {
+            menu_changed(&filter_app, open);
+        }
+        // Dropped, as GDBus would reply to the call and a monitor may not send.
+        None
+    });
+    connection.call_sync(
+        Some("org.freedesktop.DBus"),
+        "/org/freedesktop/DBus",
+        "org.freedesktop.DBus.Monitoring",
+        "BecomeMonitor",
+        Some(&(vec![MENU_EVENTS], 0_u32).to_variant()),
+        None,
+        DBusCallFlags::NONE,
+        -1,
+        Cancellable::NONE,
+    )?;
+    // Kept until exit: dropping it would end the monitor.
+    app.manage(connection);
+    Ok(())
+}
+
+/// Reads a dbusmenu `Event` call (`id, event, data, timestamp`): whether the root
+/// menu, which has id 0, opened or closed.
+#[cfg(target_os = "linux")]
+fn menu_opened(body: &gtk::glib::Variant) -> Option<bool> {
+    match body.get::<(i32, String, gtk::glib::Variant, u32)>()? {
+        (0, event, ..) if event == "opened" => Some(true),
+        (0, event, ..) if event == "closed" => Some(false),
+        _ => None,
+    }
+}
+
+// shortcut: a panel that dies with the menu open leaves this set until the next
+// menu, so the window stays up until then. Rare enough not to handle.
+#[cfg(target_os = "linux")]
+fn menu_changed<R: Runtime>(app: &AppHandle<R>, open: bool) {
+    app.state::<MenuOpen>().0.store(open, Ordering::Relaxed);
+    // A click in another app closes the menu too, and only then does the focus count.
+    if !open && hides_on_focus_loss(app) {
+        hide_soon(app);
+    }
 }
 
 fn lock<R: Runtime>(app: &AppHandle<R>) -> std::sync::MutexGuard<'_, Option<Instant>> {
@@ -263,6 +366,7 @@ mod tests {
     #[test]
     fn the_open_settings_window_keeps_the_main_window_up() {
         let app = mock_builder().build(crate::context()).unwrap();
+        app.manage(MenuOpen::default());
         // The mock runtime reports every window as unfocused.
         WebviewWindowBuilder::new(&app, crate::MAIN_WINDOW, Default::default())
             .build()
@@ -273,6 +377,30 @@ mod tests {
             .build()
             .unwrap();
         assert!(!should_hide(app.handle()));
+    }
+
+    #[test]
+    fn the_open_tray_menu_keeps_the_main_window_up() {
+        let app = mock_builder().build(crate::context()).unwrap();
+        app.manage(MenuOpen(AtomicBool::new(true)));
+        assert!(!should_hide(app.handle()));
+
+        app.state::<MenuOpen>().0.store(false, Ordering::Relaxed);
+        assert!(should_hide(app.handle()));
+    }
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn only_the_root_menu_opening_or_closing_counts() {
+        use gtk::glib::Variant;
+        use gtk::glib::prelude::ToVariant;
+
+        let event = |id: i32, name: &str| (id, name, "".to_variant(), 0_u32).to_variant();
+        assert_eq!(menu_opened(&event(0, "opened")), Some(true));
+        assert_eq!(menu_opened(&event(0, "closed")), Some(false));
+        assert_eq!(menu_opened(&event(3, "opened")), None);
+        assert_eq!(menu_opened(&event(0, "clicked")), None);
+        assert_eq!(menu_opened(&Variant::from("opened")), None);
     }
 
     #[test]
