@@ -22,9 +22,10 @@ Chosen option: "Wait briefly", because only then can the app tell a move to its 
 * **Palette.** It closes when it loses focus, so the same check runs for it. Leaving the app from the palette hides both.
 * **Settings.** While the settings window is open the main window stays up. It is a child of the main window, and someone reading it next to another app doesn't expect it to go away.
 * **Tray click.** For 500 ms after the focus goes, a tray click hides the window instead of bringing it back, so a click that took the focus doesn't undo itself.
+* **Tray menu.** On Plasma, opening the tray menu takes the focus, and hiding the window then closes the menu (`closed` came about 161 ms after `opened`, the 150 ms delay plus the hide). tray-icon's ksni backend reports neither. On Linux a private D-Bus monitor connection therefore follows the panel's `com.canonical.dbusmenu` `Event` calls for our item, through the gio that GTK already brings in. The window stays up while the menu is open, and the check runs again when it closes.
 * **No tray.** Without a tray icon the setting does nothing, so a window can't be hidden with no way back, as in ADR 0014.
 
-Tested in a private `kwin_wayland --virtual` session with a stand-in `StatusNotifierWatcher`, focus moved by KWin scripts and the tray driven over D-Bus: all the cases above, with the setting on and off. Not run on X11, Windows or macOS.
+Tested in a private `kwin_wayland --virtual` session with a stand-in `StatusNotifierWatcher`, focus moved by KWin scripts and the tray driven over D-Bus: all the cases above, with the setting on and off. The tray menu was also tried by right-clicking the icon on a real Plasma panel. Not run on X11, Windows or macOS.
 
 ### Consequences
 
@@ -32,3 +33,4 @@ Tested in a private `kwin_wayland --virtual` session with a stand-in `StatusNoti
 * Bad, because Alt+Tab can't bring a hidden window back: only the tray, the Dock on macOS or a second launch can.
 * Bad, because a native dialog the page opens, such as a file chooser, also takes the focus, and the page behind it hides. Tauri doesn't list these dialogs as windows of the app.
 * Bad, because leaving the app from the settings window leaves the main window up.
+* Bad, because a panel that doesn't send these menu calls still closes its menu by hiding the window. On Windows the window is also expected to hide when the menu opens, though the menu should stay open. Neither was tested.
