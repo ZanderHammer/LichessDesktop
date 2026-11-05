@@ -106,7 +106,7 @@ fn menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             &CheckMenuItem::with_id(
                 app,
                 HIDE_ON_FOCUS_LOSS,
-                strings.get(Key::HideOnFocusLoss),
+                strings.get(Key::AutoHide),
                 true,
                 app.state::<SettingsStore<R>>().get().hide_on_focus_loss,
                 None::<&str>,
