@@ -2252,7 +2252,7 @@ version = "0.5.0"
 dependencies = [
  "apple-native-keyring-store",
  "base64 0.23.1",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "gtk",
  "keyring-core",
  "objc2-app-kit",
@@ -2261,7 +2261,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "sha2 0.10.9",
+ "sha2 0.11.1",
  "sys-locale",
  "tauri",
  "tauri-build",
