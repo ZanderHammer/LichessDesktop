@@ -26,13 +26,13 @@ jobs:
           persist-credentials: false
       - name: Lint PR commits
         if: github.event_name == 'pull_request'
-        uses: crate-ci/committed@v1.1.11
+        uses: crate-ci/committed@v1.1.12
         with:
           commits: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
       - name: Lint pushed commits
         # A zero "before" SHA means a new branch; there is no range to check.
         if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
-        uses: crate-ci/committed@v1.1.11
+        uses: crate-ci/committed@v1.1.12
         with:
           commits: ${{ github.event.before }}..${{ github.sha }}
       - name: Reject AI attribution
