@@ -61,9 +61,9 @@
   "site.anonymous": "Anonym",
   "site.boardEditor": "Schtellig ufbaue",
   "site.cancel": "Abbräche",
-  "site.challengeAFriend": "En Fründ usefordere",
+  "site.challengeAFriend": "Fründ usefordere",
   "site.chessBasics": "Grundlage",
-  "site.createLobbyGame": "Es Lobby Schpil erschtelle",
+  "site.createLobbyGame": "Lobby Schpil erschtelle",
   "site.currentGames": "Laufendi Schpil",
   "site.editProfile": "Profil bearbeite",
   "site.gameOver": "Schpil verbi",
@@ -71,7 +71,7 @@
   "site.keyboardShortcuts": "Diräkti Taschtebefehl",
   "site.language": "Schprach",
   "site.notifications": "Benachrichtigunge",
-  "site.playAgainstComputer": "Schpill gäge de Computer",
+  "site.playAgainstComputer": "Gäge de Computer",
   "site.puzzles": "Ufgabe",
   "site.retry": "Probiers nomal",
   "site.search": "Suechi",
@@ -80,5 +80,5 @@
   "site.thereAreNoResultsForX": "Kei Resultat für \"%s\"",
   "site.tournaments": "Turnier",
   "site.yourTurn": "Du bisch dra",
-  "study.back": "Zrugg"
+  "study.back": "Z'rugg"
 }
